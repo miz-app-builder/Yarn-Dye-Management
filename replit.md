@@ -34,7 +34,15 @@ _Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- **500-line file limit:** Any file that exceeds 500 lines must be split. Extract logical sections (components, helpers, hooks, utils) into separate files. Never let a single file grow beyond 500 lines — refactor proactively before hitting the limit.
+
+- **Supabase only:** All backend services, database, auth, and file storage must use Supabase exclusively. No other external services, databases, or storage providers are permitted.
+
+- **English only in code:** All code (variable names, comments, strings, file names) must be written in English only. No Bengali, transliteration, or mixed language anywhere in the codebase.
+
+- **Plan before coding:** Never make code changes without explicit user approval. If a new feature, refactor, or improvement is identified, present a clear plan first and wait for approval before writing any code. For bug fixes, state the plan clearly before acting.
+
+- **Deep analysis before any fix:** Before fixing any error, perform a thorough root-cause analysis — read all relevant files, trace the full code path, and identify the exact cause. Never make edits based on assumptions. Present the analysis and intended fix clearly. Do not touch unrelated code while fixing an error.
 
 ## Gotchas
 
