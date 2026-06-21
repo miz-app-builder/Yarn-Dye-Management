@@ -31,6 +31,9 @@ const formSchema = z.object({
   attn: z.string().optional(),
   from: z.string().optional(),
   yarnType: z.string().optional(),
+  customerGarmentsName: z.string().optional(),
+  jobNo: z.string().optional(),
+  unit: z.string().optional(),
   deliveryDate: z.string().optional(),
   colorRows: z.array(colorRowSchema).min(1),
 });
@@ -51,6 +54,9 @@ export default function NewOrderPage() {
       date: new Date().toISOString().split("T")[0],
       deliveryDate: "",
       yarnType: "",
+      customerGarmentsName: "",
+      jobNo: "",
+      unit: "",
       buyerName: "",
       buyerAddress: "",
       attn: "",
@@ -173,6 +179,27 @@ export default function NewOrderPage() {
                   <FormItem className="space-y-1">
                     <FormLabel className="text-xs">Delivery Date</FormLabel>
                     <FormControl><Input type="date" {...field} className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+
+              <div className="border-t pt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+                <FormField control={form.control} name="customerGarmentsName" render={({ field }) => (
+                  <FormItem className="space-y-1 col-span-2">
+                    <FormLabel className="text-xs">Customer/Garments Name</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="jobNo" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Job No</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="unit" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Unit</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
               </div>
