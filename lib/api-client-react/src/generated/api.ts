@@ -49,6 +49,9 @@ import type {
   OrderPhoto,
   OrderUpdate,
   PhotoInput,
+  RawMaterial,
+  RawMaterialInput,
+  RawMaterialUpdate,
   StatusUpdate,
   SuccessEnvelope,
   UploadUrlRequest,
@@ -2222,6 +2225,296 @@ export function useGetBuyerReport<TData = Awaited<ReturnType<typeof getBuyerRepo
 
 
 
+
+export const getListRawMaterialsUrl = () => {
+
+
+
+
+  return `/api/raw-materials`
+}
+
+/**
+ * @summary List all raw materials
+ */
+export const listRawMaterials = async ( options?: RequestInit): Promise<RawMaterial[]> => {
+
+  return customFetch<RawMaterial[]>(getListRawMaterialsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRawMaterialsQueryKey = () => {
+    return [
+    `/api/raw-materials`
+    ] as const;
+    }
+
+
+export const getListRawMaterialsQueryOptions = <TData = Awaited<ReturnType<typeof listRawMaterials>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRawMaterials>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRawMaterialsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRawMaterials>>> = ({ signal }) => listRawMaterials({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRawMaterials>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListRawMaterialsQueryResult = NonNullable<Awaited<ReturnType<typeof listRawMaterials>>>
+export type ListRawMaterialsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all raw materials
+ */
+
+export function useListRawMaterials<TData = Awaited<ReturnType<typeof listRawMaterials>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRawMaterials>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListRawMaterialsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateRawMaterialUrl = () => {
+
+
+
+
+  return `/api/raw-materials`
+}
+
+/**
+ * @summary Create a raw material
+ */
+export const createRawMaterial = async (rawMaterialInput: RawMaterialInput, options?: RequestInit): Promise<RawMaterial> => {
+
+  return customFetch<RawMaterial>(getCreateRawMaterialUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      rawMaterialInput,)
+  }
+);}
+
+
+
+
+export const getCreateRawMaterialMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRawMaterial>>, TError,{data: BodyType<RawMaterialInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRawMaterial>>, TError,{data: BodyType<RawMaterialInput>}, TContext> => {
+
+const mutationKey = ['createRawMaterial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRawMaterial>>, {data: BodyType<RawMaterialInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRawMaterial(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRawMaterialMutationResult = NonNullable<Awaited<ReturnType<typeof createRawMaterial>>>
+    export type CreateRawMaterialMutationBody = BodyType<RawMaterialInput>
+    export type CreateRawMaterialMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a raw material
+ */
+export const useCreateRawMaterial = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRawMaterial>>, TError,{data: BodyType<RawMaterialInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createRawMaterial>>,
+        TError,
+        {data: BodyType<RawMaterialInput>},
+        TContext
+      > => {
+      return useMutation(getCreateRawMaterialMutationOptions(options));
+    }
+
+export const getUpdateRawMaterialUrl = (id: number,) => {
+
+
+
+
+  return `/api/raw-materials/${id}`
+}
+
+/**
+ * @summary Update a raw material
+ */
+export const updateRawMaterial = async (id: number,
+    rawMaterialUpdate: RawMaterialUpdate, options?: RequestInit): Promise<RawMaterial> => {
+
+  return customFetch<RawMaterial>(getUpdateRawMaterialUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      rawMaterialUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateRawMaterialMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRawMaterial>>, TError,{id: number;data: BodyType<RawMaterialUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRawMaterial>>, TError,{id: number;data: BodyType<RawMaterialUpdate>}, TContext> => {
+
+const mutationKey = ['updateRawMaterial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRawMaterial>>, {id: number;data: BodyType<RawMaterialUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateRawMaterial(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRawMaterialMutationResult = NonNullable<Awaited<ReturnType<typeof updateRawMaterial>>>
+    export type UpdateRawMaterialMutationBody = BodyType<RawMaterialUpdate>
+    export type UpdateRawMaterialMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update a raw material
+ */
+export const useUpdateRawMaterial = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRawMaterial>>, TError,{id: number;data: BodyType<RawMaterialUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateRawMaterial>>,
+        TError,
+        {id: number;data: BodyType<RawMaterialUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateRawMaterialMutationOptions(options));
+    }
+
+export const getDeleteRawMaterialUrl = (id: number,) => {
+
+
+
+
+  return `/api/raw-materials/${id}`
+}
+
+/**
+ * @summary Delete a raw material
+ */
+export const deleteRawMaterial = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteRawMaterialUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteRawMaterialMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRawMaterial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRawMaterial>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteRawMaterial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRawMaterial>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteRawMaterial(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRawMaterialMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRawMaterial>>>
+
+    export type DeleteRawMaterialMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a raw material
+ */
+export const useDeleteRawMaterial = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRawMaterial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRawMaterial>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteRawMaterialMutationOptions(options));
+    }
 
 export const getListUsersUrl = () => {
 

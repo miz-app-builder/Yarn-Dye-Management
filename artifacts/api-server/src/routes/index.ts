@@ -12,6 +12,7 @@ import yarnTypesRouter from "./yarnTypes";
 import colorsRouter from "./colors";
 import labDipsRouter from "./labDips";
 import deliveriesRouter from "./deliveries";
+import rawMaterialsRouter from "./rawMaterials";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(yarnTypesRouter);
 router.use(colorsRouter);
 router.use(labDipsRouter);
 router.use(deliveriesRouter);
+router.use(rawMaterialsRouter);
 
 export default router;

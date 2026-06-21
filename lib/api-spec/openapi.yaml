@@ -641,6 +641,77 @@ paths:
                 items:
                   $ref: '#/components/schemas/BuyerReport'
 
+  # ── RAW MATERIALS ───────────────────────────────────────────────────────────
+  /raw-materials:
+    get:
+      tags: [raw-materials]
+      operationId: listRawMaterials
+      summary: List all raw materials
+      responses:
+        '200':
+          description: Raw materials list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RawMaterial'
+    post:
+      tags: [raw-materials]
+      operationId: createRawMaterial
+      summary: Create a raw material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RawMaterialInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawMaterial'
+
+  /raw-materials/{id}:
+    patch:
+      tags: [raw-materials]
+      operationId: updateRawMaterial
+      summary: Update a raw material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RawMaterialUpdate'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawMaterial'
+    delete:
+      tags: [raw-materials]
+      operationId: deleteRawMaterial
+      summary: Delete a raw material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted
+
   # ── USERS ──────────────────────────────────────────────────────────────────
   /users:
     get:
@@ -1160,3 +1231,49 @@ components:
         role:
           type: string
           enum: [admin, manager, operator]
+
+    RawMaterial:
+      type: object
+      required: [id, yarnType, yarnCount, price, createdAt]
+      properties:
+        id:
+          type: integer
+        yarnType:
+          type: string
+        yarnCount:
+          type: string
+        price:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RawMaterialInput:
+      type: object
+      required: [yarnType, yarnCount, price]
+      properties:
+        yarnType:
+          type: string
+          minLength: 1
+        yarnCount:
+          type: string
+          minLength: 1
+        price:
+          type: string
+          minLength: 1
+
+    RawMaterialUpdate:
+      type: object
+      properties:
+        yarnType:
+          type: string
+          minLength: 1
+        yarnCount:
+          type: string
+          minLength: 1
+        price:
+          type: string
+          minLength: 1

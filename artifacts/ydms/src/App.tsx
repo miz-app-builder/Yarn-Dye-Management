@@ -14,6 +14,7 @@ import OrderDetailPage from "@/pages/OrderDetailPage";
 import FactoriesPage from "@/pages/FactoriesPage";
 import ReportsPage from "@/pages/ReportsPage";
 import UsersPage from "@/pages/UsersPage";
+import RawMaterialsPage from "@/pages/RawMaterialsPage";
 import NotFound from "@/pages/not-found";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ function Router() {
           <Route path="/factories" component={FactoriesPage} />
           <Route path="/reports" component={ReportsPage} />
           <Route path="/users" component={UsersPage} />
+          <Route path="/raw-materials" component={RawMaterialsPage} />
           <Route component={NotFound} />
         </Switch>
       </AppShell>

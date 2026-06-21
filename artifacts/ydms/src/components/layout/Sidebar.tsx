@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Package, Factory, BarChart3, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Factory, BarChart3, Users, LogOut, Layers } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Sidebar() {
@@ -11,6 +11,7 @@ export default function Sidebar() {
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/orders", label: "Orders", icon: Package },
     { href: "/factories", label: "Factories", icon: Factory },
+    { href: "/raw-materials", label: "Raw Materials", icon: Layers },
     { href: "/reports", label: "Reports", icon: BarChart3 },
     { href: "/users", label: "Users", icon: Users },
   ];

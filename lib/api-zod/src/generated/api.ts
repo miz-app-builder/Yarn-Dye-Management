@@ -541,6 +541,71 @@ export const GetBuyerReportResponse = zod.array(GetBuyerReportResponseItem)
 
 
 /**
+ * @summary List all raw materials
+ */
+export const ListRawMaterialsResponseItem = zod.object({
+  "id": zod.number(),
+  "yarnType": zod.string(),
+  "yarnCount": zod.string(),
+  "price": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListRawMaterialsResponse = zod.array(ListRawMaterialsResponseItem)
+
+
+/**
+ * @summary Create a raw material
+ */
+
+
+
+
+
+export const CreateRawMaterialBody = zod.object({
+  "yarnType": zod.string().min(1),
+  "yarnCount": zod.string().min(1),
+  "price": zod.string().min(1)
+})
+
+
+/**
+ * @summary Update a raw material
+ */
+export const UpdateRawMaterialParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+
+export const UpdateRawMaterialBody = zod.object({
+  "yarnType": zod.string().min(1).optional(),
+  "yarnCount": zod.string().min(1).optional(),
+  "price": zod.string().min(1).optional()
+})
+
+export const UpdateRawMaterialResponse = zod.object({
+  "id": zod.number(),
+  "yarnType": zod.string(),
+  "yarnCount": zod.string(),
+  "price": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Delete a raw material
+ */
+export const DeleteRawMaterialParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
  * @summary List all users (admin only)
  */
 export const ListUsersResponseItem = zod.object({

@@ -8,3 +8,4 @@ export * from "./yarnTypes";
 export * from "./colors";
 export * from "./labDips";
 export * from "./deliveries";
+export * from "./rawMaterials";

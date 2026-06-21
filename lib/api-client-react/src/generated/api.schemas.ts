@@ -348,6 +348,33 @@ export interface UserRoleUpdate {
   role: UserRoleUpdateRole;
 }
 
+export interface RawMaterial {
+  id: number;
+  yarnType: string;
+  yarnCount: string;
+  price: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface RawMaterialInput {
+  /** @minLength 1 */
+  yarnType: string;
+  /** @minLength 1 */
+  yarnCount: string;
+  /** @minLength 1 */
+  price: string;
+}
+
+export interface RawMaterialUpdate {
+  /** @minLength 1 */
+  yarnType?: string;
+  /** @minLength 1 */
+  yarnCount?: string;
+  /** @minLength 1 */
+  price?: string;
+}
+
 /**
  * Opaque session token — `Bearer <sid>`.
  */
