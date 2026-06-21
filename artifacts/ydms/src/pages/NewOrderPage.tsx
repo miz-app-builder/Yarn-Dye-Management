@@ -204,41 +204,43 @@ export default function NewOrderPage() {
                 )} />
               </div>
 
-              <div className="border-t pt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
-                <FormField control={form.control} name="factoryId" render={({ field }) => (
-                  <FormItem className="space-y-1 col-span-2 md:col-span-1">
-                    <FormLabel className="text-xs">Dyeing Factory *</FormLabel>
-                    <Select onValueChange={handleFactoryChange} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger className="h-8 text-sm">
-                          <SelectValue placeholder="Select…" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {factories?.map((f: any) => (
-                          <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="attn" render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Contact Person</FormLabel>
-                    <FormControl><Input {...field} placeholder="Contact person" className="h-8 text-sm" /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="from" render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Sender Person</FormLabel>
-                    <FormControl><Input {...field} placeholder="Sender name" className="h-8 text-sm" /></FormControl>
-                  </FormItem>
-                )} />
+              <div className="border-t pt-3 space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <FormField control={form.control} name="factoryId" render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-xs font-medium text-gray-600">Dyeing Factory *</FormLabel>
+                      <Select onValueChange={handleFactoryChange} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger className="h-9 text-sm">
+                            <SelectValue placeholder="Select factory…" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {factories?.map((f: any) => (
+                            <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="attn" render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-xs font-medium text-gray-600">Contact Person</FormLabel>
+                      <FormControl><Input {...field} placeholder="e.g. Mr. Arif Sab" className="h-9 text-sm" /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="from" render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-xs font-medium text-gray-600">Sender Person</FormLabel>
+                      <FormControl><Input {...field} placeholder="e.g. Md Masud Ibna Zahid" className="h-9 text-sm" /></FormControl>
+                    </FormItem>
+                  )} />
+                </div>
                 <FormField control={form.control} name="buyerAddress" render={({ field }) => (
-                  <FormItem className="space-y-1 col-span-2 md:col-span-2">
-                    <FormLabel className="text-xs">Address</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs font-medium text-gray-600">Address</FormLabel>
+                    <FormControl><Input {...field} placeholder="Full address…" className="h-9 text-sm" /></FormControl>
                   </FormItem>
                 )} />
               </div>
