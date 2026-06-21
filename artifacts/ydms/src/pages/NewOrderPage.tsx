@@ -181,6 +181,7 @@ export default function NewOrderPage() {
           buyerAddress: values.buyerAddress || undefined,
           attn: values.attn || undefined,
           fromPerson: values.from || undefined,
+          yarnType: values.yarnType || undefined,
           processLossPct: activeProcessLoss ?? undefined,
           processLossKg: processLossAmt ?? undefined,
           grandTotalKg: grandTotal ?? undefined,
