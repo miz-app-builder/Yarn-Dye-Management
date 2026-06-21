@@ -926,6 +926,12 @@ components:
           type: [string, 'null']
         remarks:
           type: [string, 'null']
+        processLossPct:
+          type: [number, 'null']
+        processLossKg:
+          type: [number, 'null']
+        grandTotalKg:
+          type: [number, 'null']
         status:
           type: string
         createdAt:
@@ -988,6 +994,12 @@ components:
           type: string
         fromPerson:
           type: string
+        processLossPct:
+          type: number
+        processLossKg:
+          type: number
+        grandTotalKg:
+          type: number
         colorRows:
           type: array
           items:
@@ -1021,6 +1033,12 @@ components:
           type: string
         fromPerson:
           type: string
+        processLossPct:
+          type: number
+        processLossKg:
+          type: number
+        grandTotalKg:
+          type: number
         status:
           type: string
 

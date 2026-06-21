@@ -1,4 +1,4 @@
-import { pgTable, serial, text, date, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, date, timestamp, integer, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { factoriesTable } from "./factories";
@@ -19,6 +19,9 @@ export const yarnDyeingOrderTable = pgTable("yarn_dyeing_order", {
   fromPerson: text("from_person"),
   yarnType: text("yarn_type"),
   remarks: text("remarks"),
+  processLossPct: numeric("process_loss_pct", { precision: 6, scale: 2 }),
+  processLossKg: numeric("process_loss_kg", { precision: 10, scale: 3 }),
+  grandTotalKg: numeric("grand_total_kg", { precision: 10, scale: 3 }),
   status: text("status").notNull().default("Received"),
   createdBy: text("created_by"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

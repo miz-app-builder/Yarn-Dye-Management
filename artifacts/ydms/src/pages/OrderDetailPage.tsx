@@ -486,6 +486,15 @@ export default function OrderDetailPage() {
               <div><p className="text-xs text-gray-500 mb-1">Receive Date</p><p className="font-medium text-sm">{order.receiveDate ? new Date(order.receiveDate).toLocaleDateString() : "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Delivery Date</p><p className="font-medium text-sm">{order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Total Qty</p><p className="font-medium text-sm">{totalQty > 0 ? `${totalQty.toFixed(2)} Kg` : "—"}</p></div>
+              {(order as any).processLossPct != null && (
+                <div><p className="text-xs text-gray-500 mb-1">Dyeing Process Loss %</p><p className="font-medium text-sm text-amber-700">{Number((order as any).processLossPct).toFixed(2)}%</p></div>
+              )}
+              {(order as any).processLossKg != null && (
+                <div><p className="text-xs text-gray-500 mb-1">Process Loss Qty</p><p className="font-medium text-sm text-amber-700">{Number((order as any).processLossKg).toFixed(3)} Kg</p></div>
+              )}
+              {(order as any).grandTotalKg != null && (
+                <div><p className="text-xs text-gray-500 mb-1">Grand Total</p><p className="font-medium text-sm text-indigo-700">{Number((order as any).grandTotalKg).toFixed(3)} Kg</p></div>
+              )}
               {order.remarks && (
                 <div className="col-span-2 md:col-span-3"><p className="text-xs text-gray-500 mb-1">Remarks</p><p className="text-sm text-gray-700">{order.remarks}</p></div>
               )}

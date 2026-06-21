@@ -250,6 +250,9 @@ export const ListYarnDyeingOrdersResponse = zod.object({
   "fromPerson": zod.string().nullish(),
   "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
+  "processLossPct": zod.number().nullish(),
+  "processLossKg": zod.number().nullish(),
+  "grandTotalKg": zod.number().nullish(),
   "status": zod.string(),
   "createdAt": zod.coerce.date()
 }).and(zod.object({
@@ -285,6 +288,9 @@ export const CreateYarnDyeingOrderBody = zod.object({
   "buyerAddress": zod.string().optional(),
   "attn": zod.string().optional(),
   "fromPerson": zod.string().optional(),
+  "processLossPct": zod.number().optional(),
+  "processLossKg": zod.number().optional(),
+  "grandTotalKg": zod.number().optional(),
   "colorRows": zod.array(zod.object({
   "yarnCount": zod.string().optional(),
   "colorName": zod.string(),
@@ -319,6 +325,9 @@ export const GetYarnDyeingOrderResponse = zod.object({
   "fromPerson": zod.string().nullish(),
   "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
+  "processLossPct": zod.number().nullish(),
+  "processLossKg": zod.number().nullish(),
+  "grandTotalKg": zod.number().nullish(),
   "status": zod.string(),
   "createdAt": zod.coerce.date()
 }).and(zod.object({
@@ -353,6 +362,9 @@ export const UpdateYarnDyeingOrderBody = zod.object({
   "buyerAddress": zod.string().optional(),
   "attn": zod.string().optional(),
   "fromPerson": zod.string().optional(),
+  "processLossPct": zod.number().optional(),
+  "processLossKg": zod.number().optional(),
+  "grandTotalKg": zod.number().optional(),
   "status": zod.string().optional()
 })
 
@@ -373,6 +385,9 @@ export const UpdateYarnDyeingOrderResponse = zod.object({
   "fromPerson": zod.string().nullish(),
   "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
+  "processLossPct": zod.number().nullish(),
+  "processLossKg": zod.number().nullish(),
+  "grandTotalKg": zod.number().nullish(),
   "status": zod.string(),
   "createdAt": zod.coerce.date()
 })
@@ -468,6 +483,9 @@ export const GetDailyReportResponse = zod.object({
   "fromPerson": zod.string().nullish(),
   "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
+  "processLossPct": zod.number().nullish(),
+  "processLossKg": zod.number().nullish(),
+  "grandTotalKg": zod.number().nullish(),
   "status": zod.string(),
   "createdAt": zod.coerce.date()
 })).optional()

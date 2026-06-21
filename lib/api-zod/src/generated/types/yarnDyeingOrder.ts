@@ -36,6 +36,12 @@ export interface YarnDyeingOrder {
   yarnType?: string | null;
   /** @nullable */
   remarks?: string | null;
+  /** @nullable */
+  processLossPct?: number | null;
+  /** @nullable */
+  processLossKg?: number | null;
+  /** @nullable */
+  grandTotalKg?: number | null;
   status: string;
   createdAt: Date;
 }

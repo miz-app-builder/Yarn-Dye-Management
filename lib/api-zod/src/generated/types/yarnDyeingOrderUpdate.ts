@@ -19,5 +19,8 @@ export interface YarnDyeingOrderUpdate {
   buyerAddress?: string;
   attn?: string;
   fromPerson?: string;
+  processLossPct?: number;
+  processLossKg?: number;
+  grandTotalKg?: number;
   status?: string;
 }

@@ -135,6 +135,9 @@ export default function NewOrderPage() {
           buyerAddress: values.buyerAddress || undefined,
           attn: values.attn || undefined,
           fromPerson: values.from || undefined,
+          processLossPct: activeProcessLoss ?? undefined,
+          processLossKg: processLossAmt ?? undefined,
+          grandTotalKg: grandTotal ?? undefined,
           colorRows: values.colorRows.map((r) => ({
             yarnCount: r.yarnCount || undefined,
             colorName: r.colorName,

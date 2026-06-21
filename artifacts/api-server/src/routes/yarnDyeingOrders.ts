@@ -62,6 +62,9 @@ router.get("/yarn-dyeing-orders", async (req, res): Promise<void> => {
           fromPerson: yarnDyeingOrderTable.fromPerson,
           yarnType: yarnDyeingOrderTable.yarnType,
           remarks: yarnDyeingOrderTable.remarks,
+          processLossPct: yarnDyeingOrderTable.processLossPct,
+          processLossKg: yarnDyeingOrderTable.processLossKg,
+          grandTotalKg: yarnDyeingOrderTable.grandTotalKg,
           status: yarnDyeingOrderTable.status,
           createdAt: yarnDyeingOrderTable.createdAt,
         })
@@ -128,6 +131,9 @@ router.post("/yarn-dyeing-orders", async (req, res): Promise<void> => {
       buyerAddress: body.data.buyerAddress ?? null,
       attn: body.data.attn ?? null,
       fromPerson: body.data.fromPerson ?? null,
+      processLossPct: body.data.processLossPct != null ? String(body.data.processLossPct) : null,
+      processLossKg: body.data.processLossKg != null ? String(body.data.processLossKg) : null,
+      grandTotalKg: body.data.grandTotalKg != null ? String(body.data.grandTotalKg) : null,
       status: "Received",
       createdBy: req.user ? req.user.id : null,
     } as any).returning();
@@ -189,6 +195,9 @@ router.get("/yarn-dyeing-orders/:id", async (req, res): Promise<void> => {
         buyerAddress: yarnDyeingOrderTable.buyerAddress,
         attn: yarnDyeingOrderTable.attn,
         fromPerson: yarnDyeingOrderTable.fromPerson,
+        processLossPct: yarnDyeingOrderTable.processLossPct,
+        processLossKg: yarnDyeingOrderTable.processLossKg,
+        grandTotalKg: yarnDyeingOrderTable.grandTotalKg,
         status: yarnDyeingOrderTable.status,
         createdAt: yarnDyeingOrderTable.createdAt,
       })
@@ -241,6 +250,9 @@ router.patch("/yarn-dyeing-orders/:id", async (req, res): Promise<void> => {
     if (body.data.buyerAddress !== undefined) updateData.buyerAddress = body.data.buyerAddress;
     if (body.data.attn !== undefined) updateData.attn = body.data.attn;
     if (body.data.fromPerson !== undefined) updateData.fromPerson = body.data.fromPerson;
+    if (body.data.processLossPct !== undefined) updateData.processLossPct = body.data.processLossPct != null ? String(body.data.processLossPct) : null;
+    if (body.data.processLossKg !== undefined) updateData.processLossKg = body.data.processLossKg != null ? String(body.data.processLossKg) : null;
+    if (body.data.grandTotalKg !== undefined) updateData.grandTotalKg = body.data.grandTotalKg != null ? String(body.data.grandTotalKg) : null;
     if (body.data.status !== undefined) updateData.status = body.data.status;
 
     const [order] = await db
