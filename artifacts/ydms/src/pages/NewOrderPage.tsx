@@ -207,7 +207,7 @@ export default function NewOrderPage() {
               <div className="border-t pt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
                 <FormField control={form.control} name="factoryId" render={({ field }) => (
                   <FormItem className="space-y-1 col-span-2 md:col-span-1">
-                    <FormLabel className="text-xs">Factory *</FormLabel>
+                    <FormLabel className="text-xs">Dyeing Factory *</FormLabel>
                     <Select onValueChange={handleFactoryChange} value={field.value?.toString()}>
                       <FormControl>
                         <SelectTrigger className="h-8 text-sm">
