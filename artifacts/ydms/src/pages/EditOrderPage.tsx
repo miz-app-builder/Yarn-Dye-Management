@@ -57,6 +57,8 @@ export default function EditOrderPage() {
   const updateOrder = useUpdateYarnDyeingOrder();
 
   const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
+  const [selectedProcessLossBulk, setSelectedProcessLossBulk] = useState<number | null>(null);
+  const [selectedProcessLossSample, setSelectedProcessLossSample] = useState<number | null>(null);
 
   const rawMaterials: any[] = Array.isArray(rawMaterialsData) ? rawMaterialsData : [];
 
@@ -89,7 +91,12 @@ export default function EditOrderPage() {
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "colorRows" });
   const watchedRows = form.watch("colorRows");
+  const watchedOrderType = form.watch("orderType");
   const totalQty = watchedRows.reduce((sum, r) => sum + (Number(r.qtyKg) || 0), 0);
+  const activeProcessLoss: number | null =
+    watchedOrderType === "Bulk" ? selectedProcessLossBulk : selectedProcessLossSample;
+  const processLossAmt = activeProcessLoss != null ? (totalQty * activeProcessLoss) / 100 : null;
+  const grandTotal = processLossAmt != null ? totalQty + processLossAmt : null;
 
   useEffect(() => {
     if (!order) return;
@@ -123,6 +130,8 @@ export default function EditOrderPage() {
         const yarnTypeId = factory.yarnTypeId;
         const matchedYarnType = (yarnTypes as any[]).find((y: any) => y.id === yarnTypeId);
         setSelectedYarnTypeName(matchedYarnType?.name ?? null);
+        setSelectedProcessLossBulk(factory.processLossBulk != null ? Number(factory.processLossBulk) : null);
+        setSelectedProcessLossSample(factory.processLossSample != null ? Number(factory.processLossSample) : null);
       }
     }
   }, [order, factories, yarnTypes]);
@@ -135,11 +144,15 @@ export default function EditOrderPage() {
       const yarnTypeId = selected.yarnTypeId;
       const matchedYarnType = (yarnTypes as any[]).find((y: any) => y.id === yarnTypeId);
       setSelectedYarnTypeName(matchedYarnType?.name ?? null);
+      setSelectedProcessLossBulk(selected.processLossBulk != null ? Number(selected.processLossBulk) : null);
+      setSelectedProcessLossSample(selected.processLossSample != null ? Number(selected.processLossSample) : null);
       form.getValues("colorRows").forEach((_, i) => {
         form.setValue(`colorRows.${i}.yarnCount`, "");
       });
     } else {
       setSelectedYarnTypeName(null);
+      setSelectedProcessLossBulk(null);
+      setSelectedProcessLossSample(null);
     }
   }
 
@@ -160,6 +173,9 @@ export default function EditOrderPage() {
           receiveDate: values.date,
           deliveryDate: values.deliveryDate || undefined,
           remarks: values.remarks || undefined,
+          processLossPct: activeProcessLoss ?? undefined,
+          processLossKg: processLossAmt ?? undefined,
+          grandTotalKg: grandTotal ?? undefined,
           colorRows: values.colorRows as any,
         } as any,
       },
@@ -376,6 +392,36 @@ export default function EditOrderPage() {
               >
                 <Plus className="h-3.5 w-3.5" /> Add Color Row
               </button>
+
+              <div className="mt-4 border rounded-md divide-y bg-gray-50 text-xs">
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-gray-600 font-medium">Actual Dye Yarn Qty</span>
+                  <span className="font-semibold text-gray-800">
+                    {totalQty > 0 ? `${totalQty.toFixed(2)} Kg` : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-gray-600 font-medium">
+                    Dyeing Process Loss %
+                    {activeProcessLoss != null && (
+                      <span className="ml-1.5 text-indigo-500">({activeProcessLoss}% — {watchedOrderType})</span>
+                    )}
+                  </span>
+                  <span className="font-semibold text-gray-800">
+                    {processLossAmt != null
+                      ? `${processLossAmt.toFixed(2)} Kg`
+                      : activeProcessLoss == null
+                      ? <span className="text-gray-400 italic">Select factory &amp; order type</span>
+                      : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2 bg-indigo-50 rounded-b-md">
+                  <span className="text-indigo-700 font-semibold">Grand Total</span>
+                  <span className="font-bold text-indigo-700">
+                    {grandTotal != null ? `${grandTotal.toFixed(2)} Kg` : "—"}
+                  </span>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
