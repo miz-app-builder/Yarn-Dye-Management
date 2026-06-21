@@ -122,6 +122,7 @@ export function NewOrderInfoCard({
                     addNewLabel="Add new garment"
                     onAddNew={onAddCustomerGarment}
                     className="w-full"
+                    autoTitleCase
                   />
                 </FormControl>
               </FormItem>
@@ -159,6 +160,7 @@ export function NewOrderInfoCard({
                     addNewLabel="Add new unit"
                     onAddNew={onAddUnitType}
                     className="w-full"
+                    autoTitleCase
                   />
                 </FormControl>
               </FormItem>

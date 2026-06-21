@@ -9,6 +9,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+function toTitleCase(str: string): string {
+  return str.replace(/[^\s]+/g, (word) =>
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  );
+}
+
 interface MasterComboboxOption {
   id: number;
   name: string;
@@ -24,6 +30,7 @@ interface MasterComboboxProps {
   addNewLabel?: string;
   onAddNew: (name: string) => Promise<void>;
   className?: string;
+  autoTitleCase?: boolean;
 }
 
 export function MasterCombobox({
@@ -36,6 +43,7 @@ export function MasterCombobox({
   addNewLabel = "Add new",
   onAddNew,
   className,
+  autoTitleCase = false,
 }: MasterComboboxProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -94,7 +102,10 @@ export function MasterCombobox({
         <Input
           placeholder="Search..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            const raw = e.target.value;
+            setSearch(autoTitleCase ? toTitleCase(raw) : raw);
+          }}
           className="h-7 text-xs"
           autoFocus
         />
@@ -131,7 +142,10 @@ export function MasterCombobox({
               <Input
                 ref={addInputRef}
                 value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setNewName(autoTitleCase ? toTitleCase(raw) : raw);
+                }}
                 placeholder="Enter name..."
                 className="h-7 text-xs flex-1"
                 onKeyDown={(e) => {
