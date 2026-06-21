@@ -643,15 +643,6 @@ export default function OrderDetailPage() {
               <div><p className="text-xs text-gray-500 mb-1">Receive Date</p><p className="font-medium text-sm">{order.receiveDate ? new Date(order.receiveDate).toLocaleDateString() : "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Delivery Date</p><p className="font-medium text-sm">{order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Total Qty</p><p className="font-medium text-sm">{totalQty > 0 ? `${totalQty.toFixed(2)} Kg` : "—"}</p></div>
-              {(order as any).processLossPct != null && (
-                <div><p className="text-xs text-gray-500 mb-1">Dyeing Process Loss %</p><p className="font-medium text-sm text-amber-700">{Number((order as any).processLossPct).toFixed(2)}%</p></div>
-              )}
-              {(order as any).processLossKg != null && (
-                <div><p className="text-xs text-gray-500 mb-1">Process Loss Qty</p><p className="font-medium text-sm text-amber-700">{Number((order as any).processLossKg).toFixed(3)} Kg</p></div>
-              )}
-              {(order as any).grandTotalKg != null && (
-                <div><p className="text-xs text-gray-500 mb-1">Grand Total</p><p className="font-medium text-sm text-indigo-700">{Number((order as any).grandTotalKg).toFixed(3)} Kg</p></div>
-              )}
               {order.remarks && (
                 <div className="col-span-2 md:col-span-3"><p className="text-xs text-gray-500 mb-1">Remarks</p><p className="text-sm text-gray-700">{order.remarks}</p></div>
               )}
@@ -694,6 +685,42 @@ export default function OrderDetailPage() {
                       <td />
                     </tr>
                   </tfoot>
+                </table>
+              </CardContent>
+            </Card>
+          )}
+
+          {((order as any).processLossPct != null || (order as any).grandTotalKg != null) && (
+            <Card>
+              <CardHeader className="pb-3 border-b">
+                <CardTitle className="text-base">Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4 p-0">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="py-2.5 px-4 text-gray-500 text-xs font-medium">Actual Dye Yarn Qty</td>
+                      <td className="py-2.5 px-4 text-right font-semibold tabular-nums">{totalQty.toFixed(2)} Kg</td>
+                    </tr>
+                    {(order as any).processLossPct != null && (
+                      <tr className="border-b">
+                        <td className="py-2.5 px-4 text-amber-700 text-xs font-medium">
+                          Dyeing Process Loss ({Number((order as any).processLossPct).toFixed(2)}%)
+                        </td>
+                        <td className="py-2.5 px-4 text-right font-semibold text-amber-700 tabular-nums">
+                          {Number((order as any).processLossKg).toFixed(3)} Kg
+                        </td>
+                      </tr>
+                    )}
+                    {(order as any).grandTotalKg != null && (
+                      <tr className="bg-indigo-50">
+                        <td className="py-2.5 px-4 text-indigo-700 text-xs font-bold">Grand Total</td>
+                        <td className="py-2.5 px-4 text-right font-bold text-indigo-700 tabular-nums">
+                          {Number((order as any).grandTotalKg).toFixed(3)} Kg
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
                 </table>
               </CardContent>
             </Card>
