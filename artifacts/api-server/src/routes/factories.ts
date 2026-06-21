@@ -66,6 +66,8 @@ router.post("/factories", async (req, res): Promise<void> => {
       email: body.data.email ?? null,
       yarnTypeId: body.data.yarnTypeId ?? null,
       dyeingPrice: body.data.dyeingPrice ?? null,
+      processLossBulk: body.data.processLossBulk ?? null,
+      processLossSample: body.data.processLossSample ?? null,
     } as any).returning();
     res.status(201).json(factory);
   } catch (err) {
