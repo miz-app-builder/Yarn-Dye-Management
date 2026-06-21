@@ -50,12 +50,14 @@ export default function NewOrderPage() {
 
   const rawMaterials: any[] = Array.isArray(rawMaterialsData) ? rawMaterialsData : [];
 
-  const filteredYarnCounts: string[] = rawMaterials
-    .filter((rm) => !selectedYarnTypeName || rm.yarnType === selectedYarnTypeName)
-    .map((rm) => rm.yarnCount)
-    .filter((v): v is string => Boolean(v))
-    .filter((v, i, arr) => arr.indexOf(v) === i)
-    .sort();
+  const filteredYarnCounts: string[] = selectedYarnTypeName
+    ? rawMaterials
+        .filter((rm) => rm.yarnType === selectedYarnTypeName)
+        .map((rm) => rm.yarnCount)
+        .filter((v): v is string => Boolean(v))
+        .filter((v, i, arr) => arr.indexOf(v) === i)
+        .sort()
+    : [];
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -293,10 +295,22 @@ export default function NewOrderPage() {
                           <td className="py-1 px-1">
                             <FormField control={form.control} name={`colorRows.${index}.yarnCount`} render={({ field }) => (
                               <FormItem className="m-0">
-                                <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value ?? ""}
+                                  disabled={!selectedYarnTypeName}
+                                >
                                   <FormControl>
                                     <SelectTrigger className="h-7 text-xs">
-                                      <SelectValue placeholder={rawMaterialsLoading ? "Loading..." : filteredYarnCounts.length ? "Select…" : "No data"} />
+                                      <SelectValue placeholder={
+                                        !selectedYarnTypeName
+                                          ? "Select factory first"
+                                          : rawMaterialsLoading
+                                          ? "Loading..."
+                                          : filteredYarnCounts.length
+                                          ? "Select…"
+                                          : "No data"
+                                      } />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
