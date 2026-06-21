@@ -12,7 +12,7 @@ export default function UsersPage() {
   const { toast } = useToast();
 
   const handleRoleChange = (id: number, role: string) => {
-    updateRole.mutate({ id, data: { role: role as any } }, {
+    updateRole.mutate({ id: String(id), data: { role: role as any } }, {
       onSuccess: () => {
         toast({ title: "Role updated" });
         queryClient.invalidateQueries({ queryKey: ["/api/users"] });

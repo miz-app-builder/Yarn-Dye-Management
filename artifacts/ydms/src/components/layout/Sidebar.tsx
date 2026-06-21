@@ -12,11 +12,8 @@ export default function Sidebar() {
     { href: "/orders", label: "Orders", icon: Package },
     { href: "/factories", label: "Factories", icon: Factory },
     { href: "/reports", label: "Reports", icon: BarChart3 },
+    { href: "/users", label: "Users", icon: Users },
   ];
-
-  if (user?.role === "admin") {
-    links.push({ href: "/users", label: "Users", icon: Users });
-  }
 
   return (
     <div className="w-60 bg-indigo-900 text-white flex flex-col h-full shrink-0">
@@ -50,12 +47,12 @@ export default function Sidebar() {
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10 border border-indigo-700 bg-indigo-800">
               <AvatarFallback className="text-indigo-900 font-medium">
-                {user.firstName?.charAt(0) || user.username?.charAt(0) || "U"}
+                {user.firstName?.charAt(0) || user.email?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.firstName || user.username}</p>
-              <p className="text-xs text-indigo-300 truncate">{user.role}</p>
+              <p className="text-sm font-medium truncate">{[user.firstName, user.lastName].filter(Boolean).join(" ") || user.email || "User"}</p>
+              <p className="text-xs text-indigo-300 truncate">{user.email}</p>
             </div>
             <button
               onClick={logout}

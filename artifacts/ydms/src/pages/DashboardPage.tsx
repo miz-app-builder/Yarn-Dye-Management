@@ -25,8 +25,8 @@ export default function DashboardPage() {
             <SummaryCard title="Today Received" value={summary?.todayReceived} />
             <SummaryCard title="Running Orders" value={summary?.runningOrders} />
             <SummaryCard title="Pending (Lab/Dye)" value={summary?.pendingOrders} />
-            <SummaryCard title="Ready for Pickup" value={summary?.readyForPickup} />
-            <SummaryCard title="Total KG Today" value={summary?.totalKgToday ? `${summary.totalKgToday} kg` : "0 kg"} />
+            <SummaryCard title="Delivered" value={summary?.deliveredOrders} />
+            <SummaryCard title="Total KG" value={summary?.totalKg ? `${summary.totalKg} kg` : "0 kg"} />
           </>
         )}
       </div>

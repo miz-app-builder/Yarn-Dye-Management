@@ -37,7 +37,7 @@ export const AppLayout: FC<AppLayoutProps> = ({ children }) => {
   const [location] = useLocation();
   const { user, logout } = useAuth();
 
-  const isAdmin = user?.role === "admin";
+  const isAdmin = true;
 
   const renderNavItems = () => (
     <>
@@ -100,7 +100,7 @@ export const AppLayout: FC<AppLayoutProps> = ({ children }) => {
                     {user?.firstName} {user?.lastName}
                   </p>
                   <p className="text-xs text-sidebar-foreground/60 truncate capitalize">
-                    {user?.role || "User"}
+                    {user?.email || "User"}
                   </p>
                 </div>
                 <ChevronDown className="w-4 h-4 text-sidebar-foreground/50" />

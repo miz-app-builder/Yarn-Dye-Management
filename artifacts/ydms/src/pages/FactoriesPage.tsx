@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Archive, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  code: z.string().min(1, "Required"),
+  factoryCode: z.string().min(1, "Required"),
   name: z.string().min(1, "Required"),
   contactPerson: z.string().optional(),
   phone: z.string().optional(),
@@ -34,11 +34,11 @@ export default function FactoriesPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { code: "", name: "", contactPerson: "", phone: "", email: "", address: "" }
+    defaultValues: { factoryCode: "", name: "", contactPerson: "", phone: "", email: "", address: "" }
   });
 
-  const openNew = () => { setEditingId(null); form.reset({ code: "", name: "", contactPerson: "", phone: "", email: "", address: "" }); setDialogOpen(true); };
-  const openEdit = (f: any) => { setEditingId(f.id); form.reset({ code: f.code, name: f.name, contactPerson: f.contactPerson || "", phone: f.phone || "", email: f.email || "", address: f.address || "" }); setDialogOpen(true); };
+  const openNew = () => { setEditingId(null); form.reset({ factoryCode: "", name: "", contactPerson: "", phone: "", email: "", address: "" }); setDialogOpen(true); };
+  const openEdit = (f: any) => { setEditingId(f.id); form.reset({ factoryCode: f.factoryCode || f.code || "", name: f.name, contactPerson: f.contactPerson || "", phone: f.phone || "", email: f.email || "", address: f.address || "" }); setDialogOpen(true); };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const action = editingId ? updateFactory.mutateAsync({ id: editingId, data: values }) : createFactory.mutateAsync({ data: values });
@@ -109,7 +109,7 @@ export default function FactoriesPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="code" render={({ field }) => (
+                <FormField control={form.control} name="factoryCode" render={({ field }) => (
                   <FormItem><FormLabel>Code *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="name" render={({ field }) => (

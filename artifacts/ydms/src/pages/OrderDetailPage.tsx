@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { 
-  useGetOrder, useListOrderPhotos, useUpdateOrderStatus, 
-  useAddOrderPhoto, useDeleteOrderPhoto, getGetOrderQueryKey, 
-  getListOrderPhotosQueryKey, useDeleteOrder, useRequestUploadUrl 
+import {
+  useGetOrder, useListOrderPhotos, useUpdateOrderStatus,
+  useAddOrderPhoto, useDeleteOrderPhoto, getGetOrderQueryKey,
+  getListOrderPhotosQueryKey, useDeleteOrder, useRequestUploadUrl
 } from "@workspace/api-client-react";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -32,10 +32,14 @@ export default function OrderDetailPage() {
   const orderId = Number(id);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
-  const { data: order, isLoading } = useGetOrder(orderId, { query: { enabled: !!orderId } });
-  const { data: photos, isLoading: loadingPhotos } = useListOrderPhotos(orderId, { query: { enabled: !!orderId } });
-  
+
+  const { data: order, isLoading } = useGetOrder(orderId, {
+    query: { enabled: !!orderId, queryKey: getGetOrderQueryKey(orderId) }
+  });
+  const { data: photos, isLoading: loadingPhotos } = useListOrderPhotos(orderId, {
+    query: { enabled: !!orderId, queryKey: getListOrderPhotosQueryKey(orderId) }
+  });
+
   const updateStatus = useUpdateOrderStatus();
   const addPhoto = useAddOrderPhoto();
   const deletePhoto = useDeleteOrderPhoto();
@@ -45,7 +49,7 @@ export default function OrderDetailPage() {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [nextStatus, setNextStatus] = useState("");
   const [statusRemarks, setStatusRemarks] = useState("");
-  
+
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [photoType, setPhotoType] = useState("Yarn Photo");
   const [uploading, setUploading] = useState(false);
@@ -77,20 +81,20 @@ export default function OrderDetailPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setUploading(true);
     try {
-      const { uploadURL, objectPath } = await requestUpload.mutateAsync({
+      const uploadRes = await requestUpload.mutateAsync({
         data: { name: file.name, size: file.size, contentType: file.type }
       });
-      
-      await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-      
+
+      await fetch(uploadRes.uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+
       await addPhoto.mutateAsync({
         id: orderId,
-        data: { photoType: photoType as any, objectPath }
+        data: { photoType: photoType as any, photoUrl: uploadRes.objectPath }
       });
-      
+
       toast({ title: "Photo uploaded" });
       queryClient.invalidateQueries({ queryKey: getListOrderPhotosQueryKey(orderId) });
       setUploadDialogOpen(false);
@@ -114,11 +118,11 @@ export default function OrderDetailPage() {
               <Badge className={STATUS_COLORS[order.status] || ""}>{order.status}</Badge>
               <Badge variant="outline">{order.orderType}</Badge>
             </div>
-            <p className="text-gray-500 mt-1">{order.buyerName} • {order.factory?.name}</p>
+            <p className="text-gray-500 mt-1">{order.buyerName} • {order.factoryName || "—"}</p>
           </div>
         </div>
-        <Button variant="destructive" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => {
-          if(confirm("Are you sure?")) {
+        <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => {
+          if (confirm("Are you sure you want to delete this order?")) {
             deleteOrder.mutate({ id: orderId }, {
               onSuccess: () => setLocation("/orders")
             });
@@ -136,10 +140,11 @@ export default function OrderDetailPage() {
             </CardHeader>
             <CardContent className="pt-4 grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
               <div><p className="text-sm text-gray-500 mb-1">Yarn Type</p><p className="font-medium">{order.yarnType}</p></div>
-              <div><p className="text-sm text-gray-500 mb-1">Color</p><div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full border" style={{backgroundColor: order.color.toLowerCase()}}/><span className="font-medium">{order.color}</span></div></div>
+              <div><p className="text-sm text-gray-500 mb-1">Color</p><p className="font-medium">{order.color}</p></div>
               <div><p className="text-sm text-gray-500 mb-1">Quantity</p><p className="font-medium">{order.quantityKg} KG</p></div>
               <div><p className="text-sm text-gray-500 mb-1">Receive Date</p><p className="font-medium">{new Date(order.receiveDate).toLocaleDateString()}</p></div>
-              <div><p className="text-sm text-gray-500 mb-1">Delivery Date</p><p className="font-medium">{new Date(order.deliveryDate).toLocaleDateString()}</p></div>
+              <div><p className="text-sm text-gray-500 mb-1">Delivery Date</p><p className="font-medium">{order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "—"}</p></div>
+              <div><p className="text-sm text-gray-500 mb-1">Factory</p><p className="font-medium">{order.factoryName || "—"}</p></div>
               <div className="col-span-2 md:col-span-3"><p className="text-sm text-gray-500 mb-1">Remarks</p><p className="text-gray-700">{order.remarks || "—"}</p></div>
             </CardContent>
           </Card>
@@ -156,27 +161,26 @@ export default function OrderDetailPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-8 relative">
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 z-0" />
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-indigo-500 z-0 transition-all" style={{ width: `${(currentStatusIndex / (STATUSES.length - 1)) * 100}%` }} />
-                
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-indigo-500 z-0 transition-all"
+                  style={{ width: `${(currentStatusIndex / (STATUSES.length - 1)) * 100}%` }} />
                 {STATUSES.map((s, idx) => (
                   <div key={s} className="relative z-10 flex flex-col items-center gap-2">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${idx <= currentStatusIndex ? "bg-indigo-600 border-indigo-600 text-white" : "bg-white border-gray-300 text-gray-300"}`}>
                       {idx < currentStatusIndex ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-sm font-bold">{idx + 1}</span>}
                     </div>
-                    <span className={`text-xs font-medium ${idx <= currentStatusIndex ? "text-gray-900" : "text-gray-400"}`}>{s}</span>
+                    <span className={`text-xs font-medium text-center max-w-[56px] ${idx <= currentStatusIndex ? "text-gray-900" : "text-gray-400"}`}>{s}</span>
                   </div>
                 ))}
               </div>
-              
+
               <div className="space-y-4 border-t pt-4">
                 <h4 className="text-sm font-semibold text-gray-900">History</h4>
                 {order.statusHistory?.map((h: any) => (
                   <div key={h.id} className="flex gap-4 text-sm">
-                    <div className="w-32 shrink-0 text-gray-500">{new Date(h.createdAt).toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</div>
+                    <div className="w-32 shrink-0 text-gray-500">{new Date(h.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div>
                     <div>
                       <span className="font-medium">{h.status}</span>
                       {h.remarks && <span className="text-gray-500 ml-2">— {h.remarks}</span>}
-                      <span className="text-xs text-gray-400 block mt-0.5">by {h.user?.firstName || "Unknown"}</span>
                     </div>
                   </div>
                 ))}
@@ -200,14 +204,18 @@ export default function OrderDetailPage() {
                 <div className="grid grid-cols-2 gap-3">
                   {photos.map((p: any) => (
                     <div key={p.id} className="relative group border rounded-lg overflow-hidden bg-gray-50 aspect-square flex flex-col">
-                      <img src={`/api/storage${p.objectPath}`} alt={p.photoType} className="flex-1 object-cover w-full h-full" />
+                      <img src={`/api/storage/${p.photoUrl}`} alt={p.photoType} className="flex-1 object-cover w-full h-full" />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <a href={`/api/storage${p.objectPath}`} target="_blank" className="p-2 bg-white/20 rounded-full hover:bg-white/40 text-white"><ExternalLink className="w-4 h-4" /></a>
+                        <a href={`/api/storage/${p.photoUrl}`} target="_blank" rel="noreferrer" className="p-2 bg-white/20 rounded-full hover:bg-white/40 text-white">
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
                         <button onClick={() => {
-                          if(confirm("Delete photo?")) deletePhoto.mutate({ orderId, photoId: p.id }, {
+                          if (confirm("Delete photo?")) deletePhoto.mutate({ id: orderId, photoId: p.id }, {
                             onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOrderPhotosQueryKey(orderId) })
-                          })
-                        }} className="p-2 bg-red-500/80 rounded-full hover:bg-red-500 text-white"><Trash2 className="w-4 h-4" /></button>
+                          });
+                        }} className="p-2 bg-red-500/80 rounded-full hover:bg-red-500 text-white">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] px-2 py-1 truncate">{p.photoType}</div>
                     </div>
@@ -239,14 +247,16 @@ export default function OrderDetailPage() {
 
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Upload Document/Photo</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Upload Document / Photo</DialogTitle></DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Document Type</label>
               <Select value={photoType} onValueChange={setPhotoType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {["Challan", "Yarn Photo", "Shade Card", "Delivery Evidence"].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {["Challan", "Yarn Photo", "Shade Card", "Delivery Evidence"].map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
