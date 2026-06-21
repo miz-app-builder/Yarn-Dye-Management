@@ -140,101 +140,100 @@ export default function NewOrderPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Basic Info */}
+          {/* Order Info + Buyer */}
           <Card>
-            <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="orderNo" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Order No</FormLabel>
-                  <FormControl><Input {...field} placeholder="Auto-generated if blank" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="orderType" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Order Type *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="Sample">Sample</SelectItem>
-                      <SelectItem value="Bulk">Bulk</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="date" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date *</FormLabel>
-                  <FormControl><Input type="date" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="deliveryDate" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delivery Date</FormLabel>
-                  <FormControl><Input type="date" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="yarnType" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Yarn Type</FormLabel>
-                  <FormControl><Input {...field} placeholder="e.g. 100% Cotton 30/1" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-            </CardContent>
-          </Card>
-
-          {/* Buyer Info — auto-filled from factory */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h2 className="font-semibold text-gray-700">Buyer / Factory</h2>
-              <FormField control={form.control} name="factoryId" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Factory *</FormLabel>
-                  <Select onValueChange={handleFactoryChange} value={field.value?.toString()}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select factory (auto-fills buyer info)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {factories?.map((f: any) => (
-                        <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField control={form.control} name="buyerName" render={({ field }) => (
+            <CardContent className="pt-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="orderNo" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Buyer Name *</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormLabel>Order No</FormLabel>
+                    <FormControl><Input {...field} placeholder="Auto-generated if blank" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="buyerAddress" render={({ field }) => (
+                <FormField control={form.control} name="orderType" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormLabel>Order Type *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Sample">Sample</SelectItem>
+                        <SelectItem value="Bulk">Bulk</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="attn" render={({ field }) => (
+                <FormField control={form.control} name="date" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Attn</FormLabel>
-                    <FormControl><Input {...field} placeholder="Contact person" /></FormControl>
+                    <FormLabel>Date *</FormLabel>
+                    <FormControl><Input type="date" {...field} /></FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="from" render={({ field }) => (
+                <FormField control={form.control} name="deliveryDate" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>From</FormLabel>
-                    <FormControl><Input {...field} placeholder="Sender name" /></FormControl>
+                    <FormLabel>Delivery Date</FormLabel>
+                    <FormControl><Input type="date" {...field} /></FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
+                <FormField control={form.control} name="yarnType" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Yarn Type</FormLabel>
+                    <FormControl><Input {...field} placeholder="e.g. 100% Cotton 30/1" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+
+              <div className="border-t pt-6 space-y-4">
+                <h2 className="font-semibold text-gray-700">Buyer / Factory</h2>
+                <FormField control={form.control} name="factoryId" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Factory *</FormLabel>
+                    <Select onValueChange={handleFactoryChange} value={field.value?.toString()}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select factory (auto-fills buyer info)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {factories?.map((f: any) => (
+                          <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField control={form.control} name="buyerName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Buyer Name *</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="buyerAddress" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="attn" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Attn</FormLabel>
+                      <FormControl><Input {...field} placeholder="Contact person" /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="from" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From</FormLabel>
+                      <FormControl><Input {...field} placeholder="Sender name" /></FormControl>
+                    </FormItem>
+                  )} />
+                </div>
               </div>
             </CardContent>
           </Card>
