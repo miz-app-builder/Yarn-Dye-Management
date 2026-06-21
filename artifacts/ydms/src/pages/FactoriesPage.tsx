@@ -125,7 +125,7 @@ export default function FactoriesPage() {
               <TableHead>Code</TableHead>
               <TableHead>Dyeing Factory Name</TableHead>
               <TableHead>From</TableHead>
-              <TableHead>OI Dyeing Type</TableHead>
+              <TableHead>Yarn Dyeing Type</TableHead>
               <TableHead>Dyeing Price</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Status</TableHead>
@@ -206,7 +206,7 @@ export default function FactoriesPage() {
                 {/* OI Dyeing Type */}
                 <FormField control={form.control} name="oiYarnTypeId" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>OI Dyeing Type</FormLabel>
+                    <FormLabel>Yarn Dyeing Type</FormLabel>
                     <Select
                       onValueChange={(val) => field.onChange(Number(val))}
                       value={field.value ? String(field.value) : ""}
