@@ -53,7 +53,7 @@ export default function EditOrderPage() {
     query: { enabled: !!orderId, queryKey: getGetYarnDyeingOrderQueryKey(orderId) }
   });
   const { data: factories } = useListFactories();
-  const { data: yarnTypes = [] } = useListYarnTypes();
+  const { data: yarnTypes = [], isSuccess: yarnTypesLoaded } = useListYarnTypes();
   const { data: rawMaterialsData } = useListRawMaterials();
   const updateOrder = useUpdateYarnDyeingOrder();
 
@@ -105,6 +105,7 @@ export default function EditOrderPage() {
   useEffect(() => {
     if (!order) return;
     if (!(factories as any[])?.length) return;
+    if (!yarnTypesLoaded) return;
     if (initializedForOrderRef.current === orderId) return;
     initializedForOrderRef.current = orderId;
 
@@ -144,7 +145,7 @@ export default function EditOrderPage() {
         setSelectedProcessLossSample(factory.processLossSample != null ? Number(factory.processLossSample) : null);
       }
     }
-  }, [order, factories, yarnTypes, orderId]);
+  }, [order, factories, yarnTypes, yarnTypesLoaded, orderId]);
 
   function handleFactoryChange(factoryId: string) {
     const selected = (factories as any[])?.find((f: any) => f.id.toString() === factoryId);
