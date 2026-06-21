@@ -6,7 +6,7 @@ export const factoriesTable = pgTable("factories", {
   id: serial("id").primaryKey(),
   factoryCode: text("factory_code").notNull().unique(),
   name: text("name").notNull(),
-  location: text("location"),
+  location: text("from"),
   address: text("address"),
   contactPerson: text("contact_person"),
   phone: text("phone"),
