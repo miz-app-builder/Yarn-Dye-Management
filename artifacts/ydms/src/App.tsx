@@ -12,6 +12,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import OrdersPage from "@/pages/OrdersPage";
 import NewOrderPage from "@/pages/NewOrderPage";
 import OrderDetailPage from "@/pages/OrderDetailPage";
+import EditOrderPage from "@/pages/EditOrderPage";
 import FactoriesPage from "@/pages/FactoriesPage";
 import ReportsPage from "@/pages/ReportsPage";
 import UsersPage from "@/pages/UsersPage";
@@ -33,6 +34,7 @@ function Router() {
           <Route path="/" component={DashboardPage} />
           <Route path="/orders" component={OrdersPage} />
           <Route path="/orders/new" component={NewOrderPage} />
+          <Route path="/orders/:id/edit" component={EditOrderPage} />
           <Route path="/orders/:id" component={OrderDetailPage} />
           <Route path="/factories" component={FactoriesPage} />
           <Route path="/reports" component={ReportsPage} />

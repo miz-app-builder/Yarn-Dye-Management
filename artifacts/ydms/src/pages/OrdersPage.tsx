@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Eye } from "lucide-react";
+import { Plus, Search, Eye, Pencil } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
   "Received": "bg-gray-100 text-gray-800 border-gray-200",
@@ -134,9 +134,14 @@ export default function OrdersPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); setLocation(`/orders/${order.id}`); }}>
-                      <Eye className="h-4 w-4 text-gray-500" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); setLocation(`/orders/${order.id}`); }}>
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); setLocation(`/orders/${order.id}/edit`); }}>
+                        <Pencil className="h-4 w-4 text-indigo-500" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
