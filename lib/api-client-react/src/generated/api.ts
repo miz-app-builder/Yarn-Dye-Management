@@ -41,6 +41,7 @@ import type {
   HealthStatus,
   ListFactoriesParams,
   ListOrdersParams,
+  ListYarnTypesParams,
   MonthlyReport,
   Order,
   OrderDetail,
@@ -56,7 +57,9 @@ import type {
   SuccessEnvelope,
   UploadUrlRequest,
   UploadUrlResponse,
-  UserRoleUpdate
+  UserRoleUpdate,
+  YarnTypeInput,
+  YarnTypeItem
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -2225,6 +2228,161 @@ export function useGetBuyerReport<TData = Awaited<ReturnType<typeof getBuyerRepo
 
 
 
+
+export const getListYarnTypesUrl = (params?: ListYarnTypesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/yarn-types?${stringifiedParams}` : `/api/yarn-types`
+}
+
+/**
+ * @summary List yarn types
+ */
+export const listYarnTypes = async (params?: ListYarnTypesParams, options?: RequestInit): Promise<YarnTypeItem[]> => {
+
+  return customFetch<YarnTypeItem[]>(getListYarnTypesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListYarnTypesQueryKey = (params?: ListYarnTypesParams,) => {
+    return [
+    `/api/yarn-types`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListYarnTypesQueryOptions = <TData = Awaited<ReturnType<typeof listYarnTypes>>, TError = ErrorType<unknown>>(params?: ListYarnTypesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listYarnTypes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListYarnTypesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listYarnTypes>>> = ({ signal }) => listYarnTypes(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listYarnTypes>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListYarnTypesQueryResult = NonNullable<Awaited<ReturnType<typeof listYarnTypes>>>
+export type ListYarnTypesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List yarn types
+ */
+
+export function useListYarnTypes<TData = Awaited<ReturnType<typeof listYarnTypes>>, TError = ErrorType<unknown>>(
+ params?: ListYarnTypesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listYarnTypes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListYarnTypesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateYarnTypeUrl = () => {
+
+
+
+
+  return `/api/yarn-types`
+}
+
+/**
+ * @summary Create a yarn type
+ */
+export const createYarnType = async (yarnTypeInput: YarnTypeInput, options?: RequestInit): Promise<YarnTypeItem> => {
+
+  return customFetch<YarnTypeItem>(getCreateYarnTypeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      yarnTypeInput,)
+  }
+);}
+
+
+
+
+export const getCreateYarnTypeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createYarnType>>, TError,{data: BodyType<YarnTypeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createYarnType>>, TError,{data: BodyType<YarnTypeInput>}, TContext> => {
+
+const mutationKey = ['createYarnType'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createYarnType>>, {data: BodyType<YarnTypeInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createYarnType(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateYarnTypeMutationResult = NonNullable<Awaited<ReturnType<typeof createYarnType>>>
+    export type CreateYarnTypeMutationBody = BodyType<YarnTypeInput>
+    export type CreateYarnTypeMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a yarn type
+ */
+export const useCreateYarnType = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createYarnType>>, TError,{data: BodyType<YarnTypeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createYarnType>>,
+        TError,
+        {data: BodyType<YarnTypeInput>},
+        TContext
+      > => {
+      return useMutation(getCreateYarnTypeMutationOptions(options));
+    }
 
 export const getListRawMaterialsUrl = () => {
 

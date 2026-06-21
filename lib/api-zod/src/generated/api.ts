@@ -541,6 +541,39 @@ export const GetBuyerReportResponse = zod.array(GetBuyerReportResponseItem)
 
 
 /**
+ * @summary List yarn types
+ */
+export const ListYarnTypesQueryParams = zod.object({
+  "includeArchived": zod.coerce.boolean().optional()
+})
+
+export const ListYarnTypesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "composition": zod.string().nullish(),
+  "yarnCount": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "status": zod.boolean(),
+  "createdAt": zod.coerce.date()
+})
+export const ListYarnTypesResponse = zod.array(ListYarnTypesResponseItem)
+
+
+/**
+ * @summary Create a yarn type
+ */
+
+
+
+export const CreateYarnTypeBody = zod.object({
+  "name": zod.string().min(1),
+  "composition": zod.string().optional(),
+  "yarnCount": zod.string().optional(),
+  "description": zod.string().optional()
+})
+
+
+/**
  * @summary List all raw materials
  */
 export const ListRawMaterialsResponseItem = zod.object({

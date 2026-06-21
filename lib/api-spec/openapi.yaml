@@ -641,6 +641,44 @@ paths:
                 items:
                   $ref: '#/components/schemas/BuyerReport'
 
+  # ── YARN TYPES ──────────────────────────────────────────────────────────────
+  /yarn-types:
+    get:
+      tags: [yarn-types]
+      operationId: listYarnTypes
+      summary: List yarn types
+      parameters:
+        - name: includeArchived
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Yarn types list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/YarnTypeItem'
+    post:
+      tags: [yarn-types]
+      operationId: createYarnType
+      summary: Create a yarn type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YarnTypeInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YarnTypeItem'
+
   # ── RAW MATERIALS ───────────────────────────────────────────────────────────
   /raw-materials:
     get:
@@ -1277,3 +1315,40 @@ components:
         price:
           type: string
           minLength: 1
+
+    YarnTypeItem:
+      type: object
+      required: [id, name, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        composition:
+          type: string
+          nullable: true
+        yarnCount:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        status:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    YarnTypeInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        composition:
+          type: string
+        yarnCount:
+          type: string
+        description:
+          type: string

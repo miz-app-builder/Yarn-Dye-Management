@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -8,6 +8,9 @@ import {
   useUpdateRawMaterial,
   useDeleteRawMaterial,
   getListRawMaterialsQueryKey,
+  useListYarnTypes,
+  useCreateYarnType,
+  getListYarnTypesQueryKey,
 } from "@workspace/api-client-react";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -16,6 +19,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Pencil, Trash2, X, Check } from "lucide-react";
+import { YarnTypeSelect } from "@/components/ui/YarnTypeSelect";
 
 const schema = z.object({
   yarnType: z.string().min(1, "Required"),
@@ -27,9 +31,11 @@ type FormValues = z.infer<typeof schema>;
 export default function RawMaterialsPage() {
   const { toast } = useToast();
   const { data: items = [], isLoading } = useListRawMaterials();
+  const { data: yarnTypes = [] } = useListYarnTypes();
   const createMutation = useCreateRawMaterial();
   const updateMutation = useUpdateRawMaterial();
   const deleteMutation = useDeleteRawMaterial();
+  const createYarnTypeMutation = useCreateYarnType();
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -46,6 +52,24 @@ export default function RawMaterialsPage() {
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: getListRawMaterialsQueryKey() });
+  }
+
+  async function handleCreateYarnType(name: string) {
+    await new Promise<void>((resolve, reject) => {
+      createYarnTypeMutation.mutate(
+        { data: { name } },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getListYarnTypesQueryKey() });
+            resolve();
+          },
+          onError: (err: any) => {
+            toast({ variant: "destructive", title: "Error", description: err.message });
+            reject(err);
+          },
+        }
+      );
+    });
   }
 
   function onAdd(values: FormValues) {
@@ -97,6 +121,8 @@ export default function RawMaterialsPage() {
     );
   }
 
+  const yarnTypeOptions = yarnTypes.map((t: any) => ({ id: t.id, name: t.name }));
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -120,13 +146,23 @@ export default function RawMaterialsPage() {
           <CardContent className="pt-4 pb-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onAdd)} className="flex items-end gap-3 flex-wrap">
+                {/* Yarn Type — dropdown from server */}
                 <FormField control={form.control} name="yarnType" render={({ field }) => (
-                  <FormItem className="space-y-1 flex-1 min-w-36">
+                  <FormItem className="space-y-1 flex-1 min-w-44">
                     <FormLabel className="text-xs">Yarn Type *</FormLabel>
-                    <FormControl><Input {...field} placeholder="e.g. 100% Cotton" className="h-8 text-sm" /></FormControl>
+                    <FormControl>
+                      <YarnTypeSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={yarnTypeOptions}
+                        onCreateNew={handleCreateYarnType}
+                        isCreating={createYarnTypeMutation.isPending}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
+
                 <FormField control={form.control} name="yarnCount" render={({ field }) => (
                   <FormItem className="space-y-1 flex-1 min-w-28">
                     <FormLabel className="text-xs">Yarn Count *</FormLabel>
@@ -134,6 +170,7 @@ export default function RawMaterialsPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
+
                 <FormField control={form.control} name="price" render={({ field }) => (
                   <FormItem className="space-y-1 flex-1 min-w-28">
                     <FormLabel className="text-xs">Price (per kg) *</FormLabel>
@@ -141,6 +178,7 @@ export default function RawMaterialsPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
+
                 <div className="flex gap-2 pb-0.5">
                   <Button type="submit" size="sm" disabled={createMutation.isPending} className="bg-indigo-600 hover:bg-indigo-700">
                     {createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save"}
@@ -183,19 +221,38 @@ export default function RawMaterialsPage() {
                       <>
                         <td className="py-2 px-4 text-gray-400">{idx + 1}</td>
                         <td className="py-2 px-2">
-                          <FormField control={editForm.control} name="yarnType" render={({ field }) => (
-                            <Input {...field} className="h-7 text-xs" />
-                          )} />
+                          <Controller
+                            control={editForm.control}
+                            name="yarnType"
+                            render={({ field }) => (
+                              <YarnTypeSelect
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={yarnTypeOptions}
+                                onCreateNew={handleCreateYarnType}
+                                isCreating={createYarnTypeMutation.isPending}
+                                className="min-w-36"
+                              />
+                            )}
+                          />
                         </td>
                         <td className="py-2 px-2">
-                          <FormField control={editForm.control} name="yarnCount" render={({ field }) => (
-                            <Input {...field} className="h-7 text-xs" />
-                          )} />
+                          <Controller
+                            control={editForm.control}
+                            name="yarnCount"
+                            render={({ field }) => (
+                              <Input {...field} className="h-7 text-xs" />
+                            )}
+                          />
                         </td>
                         <td className="py-2 px-2">
-                          <FormField control={editForm.control} name="price" render={({ field }) => (
-                            <Input {...field} className="h-7 text-xs" />
-                          )} />
+                          <Controller
+                            control={editForm.control}
+                            name="price"
+                            render={({ field }) => (
+                              <Input {...field} className="h-7 text-xs" />
+                            )}
+                          />
                         </td>
                         <td className="py-2 px-4">
                           <div className="flex gap-1">

@@ -375,6 +375,24 @@ export interface RawMaterialUpdate {
   price?: string;
 }
 
+export interface YarnTypeItem {
+  id: number;
+  name: string;
+  composition?: string | null;
+  yarnCount?: string | null;
+  description?: string | null;
+  status: boolean;
+  createdAt: string;
+}
+
+export interface YarnTypeInput {
+  /** @minLength 1 */
+  name: string;
+  composition?: string;
+  yarnCount?: string;
+  description?: string;
+}
+
 /**
  * Opaque session token — `Bearer <sid>`.
  */
@@ -442,5 +460,9 @@ month?: number;
 
 export type GetFactoryReportParams = {
 factoryId?: number;
+};
+
+export type ListYarnTypesParams = {
+includeArchived?: boolean;
 };
 
