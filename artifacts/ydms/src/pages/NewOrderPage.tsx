@@ -231,7 +231,7 @@ export default function NewOrderPage() {
                 )} />
                 <FormField control={form.control} name="from" render={({ field }) => (
                   <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">From</FormLabel>
+                    <FormLabel className="text-xs">Sender Person</FormLabel>
                     <FormControl><Input {...field} placeholder="Sender name" className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
