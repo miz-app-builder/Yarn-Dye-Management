@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { Loader2, ArrowLeft, Plus, Trash2, ScanLine, AlertTriangle } from "lucide-react";
+import { ScanOrderSheet, type ScannedOrderData } from "@/components/ScanOrderSheet";
 
 const colorRowSchema = z.object({
   yarnCount: z.string().optional(),
@@ -49,6 +50,8 @@ export default function NewOrderPage() {
   const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
   const [selectedProcessLossBulk, setSelectedProcessLossBulk] = useState<number | null>(null);
   const [selectedProcessLossSample, setSelectedProcessLossSample] = useState<number | null>(null);
+  const [showScan, setShowScan] = useState(false);
+  const [scanWarning, setScanWarning] = useState<string | null>(null);
 
   const rawMaterials: any[] = Array.isArray(rawMaterialsData) ? rawMaterialsData : [];
 
@@ -90,6 +93,49 @@ export default function NewOrderPage() {
     watchedOrderType === "Bulk" ? selectedProcessLossBulk : selectedProcessLossSample;
   const processLossAmt = activeProcessLoss != null ? (totalQty * activeProcessLoss) / 100 : null;
   const grandTotal = processLossAmt != null ? totalQty + processLossAmt : null;
+
+  function handleScanData(data: ScannedOrderData) {
+    setScanWarning(null);
+    if (data.orderNo) form.setValue("orderNo", data.orderNo);
+    if (data.orderType) form.setValue("orderType", data.orderType);
+    if (data.date) form.setValue("date", data.date);
+    if (data.jobNo) form.setValue("jobNo", data.jobNo);
+    if (data.unit) form.setValue("unit", data.unit);
+
+    if (data.factoryName && factories) {
+      const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const matched = (factories as any[]).find(
+        (f) => normalize(f.name ?? "").includes(normalize(data.factoryName!)) ||
+               normalize(data.factoryName!).includes(normalize(f.name ?? ""))
+      );
+      if (matched) {
+        handleFactoryChange(matched.id.toString());
+      } else {
+        setScanWarning(`"${data.factoryName}" এই factory টি system-এ নেই। আগে Factory list-এ add করুন।`);
+      }
+    }
+
+    if (data.colorRows.length > 0) {
+      const existing = form.getValues("colorRows");
+      const isEmpty = existing.length === 1 && !existing[0].colorName && !existing[0].qtyKg;
+      const newRows = data.colorRows.map((r) => ({
+        yarnCount: r.yarnCount || "",
+        colorName: r.colorName,
+        colorRef: r.colorRef || "",
+        qtyKg: r.qtyKg || 0,
+      }));
+      if (isEmpty) {
+        form.setValue("colorRows", newRows);
+      } else {
+        form.setValue("colorRows", [...existing, ...newRows]);
+      }
+    }
+
+    toast({
+      title: "Scan সফল হয়েছে!",
+      description: `${data.colorRows.length} টি color row fill হয়েছে। বাকি field গুলো check করুন।`,
+    });
+  }
 
   function handleFactoryChange(factoryId: string) {
     const selected = factories?.find((f: any) => f.id.toString() === factoryId);
@@ -162,12 +208,34 @@ export default function NewOrderPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-3 pb-8">
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLocation("/orders")}>
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLocation("/orders")}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-xl font-bold text-gray-900">New Work Order</h1>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2 border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+          onClick={() => setShowScan(true)}
+        >
+          <ScanLine className="h-4 w-4" />
+          Order Sheet Scan
         </Button>
-        <h1 className="text-xl font-bold text-gray-900">New Work Order</h1>
       </div>
+
+      {scanWarning && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
+          <div>
+            <p className="font-medium">Factory পাওয়া যায়নি</p>
+            <p className="mt-0.5 text-amber-700">{scanWarning}</p>
+          </div>
+          <button onClick={() => setScanWarning(null)} className="ml-auto text-amber-500 hover:text-amber-700">✕</button>
+        </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
@@ -428,6 +496,12 @@ export default function NewOrderPage() {
           </div>
         </form>
       </Form>
+
+      <ScanOrderSheet
+        open={showScan}
+        onClose={() => setShowScan(false)}
+        onData={handleScanData}
+      />
     </div>
   );
 }
