@@ -11,7 +11,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Archive, Loader2 } from "lucide-react";
+import { Plus, Edit, Archive, Loader2, RefreshCw } from "lucide-react";
+
+function generateFactoryCode(): string {
+  const rand = Math.floor(Math.random() * 9000 + 1000);
+  return `FC-${rand}`;
+}
 
 const formSchema = z.object({
   factoryCode: z.string().min(1, "Required"),
@@ -37,7 +42,7 @@ export default function FactoriesPage() {
     defaultValues: { factoryCode: "", name: "", contactPerson: "", phone: "", email: "", address: "" }
   });
 
-  const openNew = () => { setEditingId(null); form.reset({ factoryCode: "", name: "", contactPerson: "", phone: "", email: "", address: "" }); setDialogOpen(true); };
+  const openNew = () => { setEditingId(null); form.reset({ factoryCode: generateFactoryCode(), name: "", contactPerson: "", phone: "", email: "", address: "" }); setDialogOpen(true); };
   const openEdit = (f: any) => { setEditingId(f.id); form.reset({ factoryCode: f.factoryCode || f.code || "", name: f.name, contactPerson: f.contactPerson || "", phone: f.phone || "", email: f.email || "", address: f.address || "" }); setDialogOpen(true); };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -110,7 +115,18 @@ export default function FactoriesPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="factoryCode" render={({ field }) => (
-                  <FormItem><FormLabel>Code *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem>
+                    <FormLabel>Code *</FormLabel>
+                    <div className="flex gap-1">
+                      <FormControl><Input {...field} readOnly={!editingId} className={!editingId ? "bg-gray-50 font-mono" : "font-mono"} /></FormControl>
+                      {!editingId && (
+                        <Button type="button" variant="outline" size="icon" onClick={() => form.setValue("factoryCode", generateFactoryCode())} title="Regenerate code">
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
                 )} />
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem><FormLabel>Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
