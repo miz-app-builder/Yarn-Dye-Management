@@ -50,8 +50,18 @@ export function useAuth() {
   }, []);
 
   const signup = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+    const base = import.meta.env.BASE_URL ?? "/";
+    const apiBase = base.endsWith("/") ? `${base}api` : `${base}/api`;
+    const res = await fetch(`${apiBase}/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error((body as { error?: string }).error || "Signup failed");
+    }
+    await supabase.auth.signInWithPassword({ email, password });
   }, []);
 
   const logout = useCallback(async () => {

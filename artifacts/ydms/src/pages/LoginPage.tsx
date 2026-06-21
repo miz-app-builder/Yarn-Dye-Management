@@ -24,8 +24,6 @@ export default function LoginPage() {
         await login(email, password);
       } else {
         await signup(email, password);
-        toast({ title: "Account created!", description: "Please check your email to confirm, then sign in." });
-        setMode("login");
       }
     } catch (err: any) {
       toast({
