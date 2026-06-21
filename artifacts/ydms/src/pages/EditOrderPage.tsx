@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +32,7 @@ const formSchema = z.object({
   buyerName: z.string().min(1, "Required"),
   buyerAddress: z.string().optional(),
   attn: z.string().optional(),
+  fromPerson: z.string().optional(),
   yarnType: z.string().optional(),
   customerGarmentsName: z.string().optional(),
   jobNo: z.string().optional(),
@@ -59,6 +60,7 @@ export default function EditOrderPage() {
   const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
   const [selectedProcessLossBulk, setSelectedProcessLossBulk] = useState<number | null>(null);
   const [selectedProcessLossSample, setSelectedProcessLossSample] = useState<number | null>(null);
+  const initializedForOrderRef = useRef<number | null>(null);
 
   const rawMaterials: any[] = Array.isArray(rawMaterialsData) ? rawMaterialsData : [];
 
@@ -78,6 +80,7 @@ export default function EditOrderPage() {
       date: new Date().toISOString().split("T")[0],
       deliveryDate: "",
       yarnType: "",
+      fromPerson: "",
       customerGarmentsName: "",
       jobNo: "",
       unit: "",
@@ -89,7 +92,7 @@ export default function EditOrderPage() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({ control: form.control, name: "colorRows" });
+  const { fields, append, remove, replace } = useFieldArray({ control: form.control, name: "colorRows" });
   const watchedRows = form.watch("colorRows");
   const watchedOrderType = form.watch("orderType");
   const watchedFactoryId = form.watch("factoryId");
@@ -101,30 +104,36 @@ export default function EditOrderPage() {
 
   useEffect(() => {
     if (!order) return;
+    if (!(factories as any[])?.length) return;
+    if (initializedForOrderRef.current === orderId) return;
+    initializedForOrderRef.current = orderId;
+
     const colorRowsData = (order as any).colorRows;
-    form.reset({
-      orderType: (order.orderType as "Sample" | "Bulk") ?? "Sample",
-      date: order.receiveDate ?? new Date().toISOString().split("T")[0],
-      deliveryDate: order.deliveryDate ?? "",
-      factoryId: order.factoryId ?? undefined,
-      buyerName: order.buyerName ?? "",
-      buyerAddress: (order as any).buyerAddress ?? "",
-      attn: (order as any).attn ?? "",
-      customerGarmentsName: order.customerGarmentsName ?? "",
-      jobNo: order.jobNo ?? "",
-      unit: order.unit ?? "",
-      yarnType: order.yarnType ?? "",
-      remarks: order.remarks ?? "",
-      colorRows: colorRowsData?.length
-        ? colorRowsData.map((r: any) => ({
-            yarnCount: r.yarnCount ?? "",
-            colorName: r.colorName ?? "",
-            colorRef: r.colorRef ?? "",
-            qtyKg: Number(r.qtyKg) || 0,
-            remarks: r.remarks ?? "",
-          }))
-        : [{ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: "" }],
-    });
+    const rows = colorRowsData?.length
+      ? colorRowsData.map((r: any) => ({
+          yarnCount: r.yarnCount ?? "",
+          colorName: r.colorName ?? "",
+          colorRef: r.colorRef ?? "",
+          qtyKg: Number(r.qtyKg) || 0,
+          remarks: r.remarks ?? "",
+        }))
+      : [{ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: "" }];
+
+    form.setValue("orderType", (order.orderType as "Sample" | "Bulk") ?? "Sample");
+    form.setValue("date", order.receiveDate ?? new Date().toISOString().split("T")[0]);
+    form.setValue("deliveryDate", order.deliveryDate ?? "");
+    form.setValue("factoryId", order.factoryId ?? undefined);
+    form.setValue("buyerName", order.buyerName ?? "");
+    form.setValue("buyerAddress", (order as any).buyerAddress ?? "");
+    form.setValue("attn", (order as any).attn ?? "");
+    form.setValue("fromPerson", (order as any).fromPerson ?? "");
+    form.setValue("customerGarmentsName", order.customerGarmentsName ?? "");
+    form.setValue("jobNo", order.jobNo ?? "");
+    form.setValue("unit", order.unit ?? "");
+    form.setValue("yarnType", order.yarnType ?? "");
+    form.setValue("remarks", order.remarks ?? "");
+    replace(rows);
+
     if (order.factoryId) {
       const factory = (factories as any[])?.find((f: any) => f.id === order.factoryId);
       if (factory) {
@@ -135,16 +144,20 @@ export default function EditOrderPage() {
         setSelectedProcessLossSample(factory.processLossSample != null ? Number(factory.processLossSample) : null);
       }
     }
-  }, [order, factories, yarnTypes]);
+  }, [order, factories, yarnTypes, orderId]);
 
   function handleFactoryChange(factoryId: string) {
     const selected = (factories as any[])?.find((f: any) => f.id.toString() === factoryId);
     if (selected) {
       form.setValue("factoryId", Number(factoryId));
       form.setValue("buyerName", selected.name ?? "");
+      form.setValue("buyerAddress", selected.address ?? "");
+      form.setValue("attn", selected.contactPerson ?? "");
+      form.setValue("fromPerson", (selected as any).location ?? "");
       const yarnTypeId = selected.yarnTypeId;
       const matchedYarnType = (yarnTypes as any[]).find((y: any) => y.id === yarnTypeId);
       setSelectedYarnTypeName(matchedYarnType?.name ?? null);
+      form.setValue("yarnType", matchedYarnType?.name ?? "");
       setSelectedProcessLossBulk(selected.processLossBulk != null ? Number(selected.processLossBulk) : null);
       setSelectedProcessLossSample(selected.processLossSample != null ? Number(selected.processLossSample) : null);
       form.getValues("colorRows").forEach((_, i) => {
@@ -166,6 +179,7 @@ export default function EditOrderPage() {
           buyerName: values.buyerName,
           buyerAddress: values.buyerAddress || undefined,
           attn: values.attn || undefined,
+          fromPerson: values.fromPerson || undefined,
           customerGarmentsName: values.customerGarmentsName || undefined,
           jobNo: values.jobNo || undefined,
           unit: values.unit || undefined,
@@ -239,58 +253,59 @@ export default function EditOrderPage() {
                     <FormControl><Input {...field} type="date" className="h-8 text-xs" /></FormControl>
                   </FormItem>
                 )} />
-                <div className="space-y-1">
-                  <label className="text-xs font-medium">Dyeing Factory</label>
-                  <Select
-                    onValueChange={handleFactoryChange}
-                    value={watchedFactoryId?.toString() ?? ""}
-                  >
-                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select factory" /></SelectTrigger>
-                    <SelectContent>
-                      {(factories as any[] ?? []).map((f: any) => (
-                        <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <FormField control={form.control} name="buyerName" render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Buyer Name</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <FormField control={form.control} name="customerGarmentsName" render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Customer/Garments</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                  <FormItem className="space-y-1 col-span-2">
+                    <FormLabel className="text-xs">Customer/Garments Name</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="jobNo" render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-xs">Job No</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="unit" render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-xs">Unit</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="yarnType" render={({ field }) => (
+              </div>
+
+              <div className="border-t pt-3 space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-600">Dyeing Factory *</label>
+                    <Select onValueChange={handleFactoryChange} value={watchedFactoryId?.toString() ?? ""}>
+                      <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select factory…" /></SelectTrigger>
+                      <SelectContent>
+                        {(factories as any[] ?? []).map((f: any) => (
+                          <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <FormField control={form.control} name="attn" render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-xs font-medium text-gray-600">Contact Person</FormLabel>
+                      <FormControl><Input {...field} readOnly placeholder="e.g. Mr. Arif Sab" className="h-9 text-sm bg-gray-50 cursor-not-allowed" /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="fromPerson" render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-xs font-medium text-gray-600">Sender Person</FormLabel>
+                      <FormControl><Input {...field} readOnly placeholder="e.g. Md Masud Ibna Zahid" className="h-9 text-sm bg-gray-50 cursor-not-allowed" /></FormControl>
+                    </FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="buyerAddress" render={({ field }) => (
                   <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Yarn Type</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="remarks" render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Remarks</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                    <FormLabel className="text-xs font-medium text-gray-600">Address</FormLabel>
+                    <FormControl><Input {...field} readOnly placeholder="Full address…" className="h-9 text-sm bg-gray-50 cursor-not-allowed" /></FormControl>
                   </FormItem>
                 )} />
               </div>
