@@ -426,7 +426,10 @@ export default function EditOrderPage() {
               </div>
               <button
                 type="button"
-                onClick={() => append({ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: "" })}
+                onClick={() => {
+                  const firstRowRemarks = form.getValues("colorRows")[0]?.remarks ?? "";
+                  append({ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: firstRowRemarks });
+                }}
                 className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
               >
                 <Plus className="h-3.5 w-3.5" /> Add Color Row
