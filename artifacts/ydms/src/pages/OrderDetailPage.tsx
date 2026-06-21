@@ -93,7 +93,11 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
       `${Number(cr.qtyKg).toFixed(1)} Kg`,
       cr.remarks ? `${remarkStr}\n${cr.remarks}` : remarkStr,
     ]),
-    foot: [["", "", "Total", `${totalQty.toFixed(2)} Kg`, ""]],
+    foot: [[
+      { content: "Total", colSpan: 3, styles: { halign: "right", fontStyle: "bold" } },
+      { content: `${totalQty.toFixed(2)} Kg`, styles: { halign: "center", fontStyle: "bold" } },
+      { content: "", styles: { fontStyle: "bold" } },
+    ]],
     theme: "grid",
     headStyles: {
       fillColor: [255, 255, 255],
@@ -340,9 +344,9 @@ function printOrder(order: any, colorRows: any[], totalQty: number) {
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="3" style="text-align:right;font-weight:bold">Total</td>
-            <td class="center">${totalQty.toFixed(2)} Kg</td>
-            <td></td>
+            <td colspan="4" style="text-align:right;font-weight:bold;border:1px solid #000;padding:5px 7px;">Total</td>
+            <td style="text-align:center;font-weight:bold;border:1px solid #000;padding:5px 7px;">${totalQty.toFixed(2)} Kg</td>
+            <td style="font-weight:bold;border:1px solid #000;padding:5px 7px;"></td>
           </tr>
         </tfoot>
       </table>
