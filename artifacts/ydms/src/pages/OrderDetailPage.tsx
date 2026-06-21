@@ -1,3 +1,4 @@
+import type ExcelJS from "exceljs";
 import { useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import {
@@ -222,42 +223,126 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
 }
 
 async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
-  const XLSX = await import("xlsx");
+  const ExcelJS = (await import("exceljs")).default;
+  const { saveAs } = await import("file-saver");
 
-  const info = [
-    ["Yarn Dyeing Management System — Order Export"],
-    [],
-    ["Order No", order.orderNo, "", "Status", order.status],
-    ["Type", order.orderType, "", "Factory", order.factoryName || "—"],
-    ["Buyer Name", order.buyerName || "—", "", "Yarn Type", order.yarnType || "—"],
-    ["Customer/Garments", order.customerGarmentsName || "—", "", "Job No", order.jobNo || "—"],
-    ["Receive Date", order.receiveDate || "—", "", "Delivery Date", order.deliveryDate || "—"],
-    ["Unit", order.unit || "—", "", "Remarks", order.remarks || "—"],
-    [],
-    ["#", "Yarn Count", "Color Name", "Color Ref / Swatch", "Qty (Kg)", "Remarks"],
-    ...colorRows.map((cr, i) => [
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Order");
+
+  ws.columns = [
+    { key: "a", width: 6 },
+    { key: "b", width: 20 },
+    { key: "c", width: 22 },
+    { key: "d", width: 22 },
+    { key: "e", width: 14 },
+    { key: "f", width: 28 },
+  ];
+
+  type XlsBorder = { style: ExcelJS.BorderStyle };
+  type XlsBorders = { top: XlsBorder; bottom: XlsBorder; left: XlsBorder; right: XlsBorder };
+  const thinBorder: XlsBorders = {
+    top: { style: "thin" }, bottom: { style: "thin" },
+    left: { style: "thin" }, right: { style: "thin" },
+  };
+  const medBorder: XlsBorders = {
+    top: { style: "medium" }, bottom: { style: "medium" },
+    left: { style: "medium" }, right: { style: "medium" },
+  };
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  const titleRow = ws.addRow(["Yarn Dyeing Management System — Order Export"]);
+  ws.mergeCells(`A${titleRow.number}:F${titleRow.number}`);
+  titleRow.getCell(1).font = { bold: true, size: 13 };
+  titleRow.getCell(1).alignment = { horizontal: "center" };
+  ws.addRow([]);
+
+  // ── Info rows ─────────────────────────────────────────────────────────────
+  const infoData = [
+    ["Order No", order.orderNo, "", "Status", order.status, ""],
+    ["Type", order.orderType, "", "Factory", order.factoryName || "—", ""],
+    ["Buyer Name", order.buyerName || "—", "", "Yarn Type", order.yarnType || "—", ""],
+    ["Customer/Garments", order.customerGarmentsName || "—", "", "Job No", order.jobNo || "—", ""],
+    ["Receive Date", order.receiveDate || "—", "", "Delivery Date", order.deliveryDate || "—", ""],
+    ["Unit", order.unit || "—", "", "Remarks", order.remarks || "—", ""],
+  ];
+  infoData.forEach(([lbl1, val1, , lbl2, val2]) => {
+    const r = ws.addRow([lbl1, val1, "", lbl2, val2, ""]);
+    r.getCell(1).font = { bold: true };
+    r.getCell(4).font = { bold: true };
+  });
+  ws.addRow([]);
+
+  // ── Color table header ────────────────────────────────────────────────────
+  const hdrs = ["#", "Yarn Count", "Color Name", "Color Ref / Swatch", "Qty (Kg)", "Remarks"];
+  const hdrRow = ws.addRow(hdrs);
+  hdrRow.eachCell((cell) => {
+    cell.font = { bold: true };
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE2E8F0" } };
+    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+    cell.border = thinBorder;
+  });
+
+  // ── Color data rows ───────────────────────────────────────────────────────
+  colorRows.forEach((cr, i) => {
+    const r = ws.addRow([
       i + 1,
       cr.yarnCount || "",
       cr.colorName || "",
       cr.colorRef || "",
       Number(cr.qtyKg),
       cr.remarks || "",
-    ]),
-    ["", "", "", "Total", totalQty, ""],
-    [],
-    ...(order.processLossPct != null || order.grandTotalKg != null ? [
+    ]);
+    r.eachCell({ includeEmpty: true }, (cell) => {
+      cell.border = thinBorder;
+      cell.alignment = { vertical: "middle", wrapText: true };
+    });
+    r.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+    r.getCell(5).alignment = { horizontal: "center", vertical: "middle" };
+  });
+
+  // ── Total row (cols A-D merged → "Total", E = qty, F = "") ───────────────
+  const totalRowNum = ws.rowCount + 1;
+  const totalRow = ws.addRow(["Total", "", "", "", totalQty, ""]);
+  ws.mergeCells(`A${totalRowNum}:D${totalRowNum}`);
+  totalRow.eachCell({ includeEmpty: true }, (cell) => {
+    cell.font = { bold: true };
+    cell.border = medBorder;
+  });
+  totalRow.getCell(1).alignment = { horizontal: "right", vertical: "middle" };
+  totalRow.getCell(5).alignment = { horizontal: "center", vertical: "middle" };
+
+  // ── Summary table (right-aligned, 2 columns) ──────────────────────────────
+  if (order.processLossPct != null || order.grandTotalKg != null) {
+    ws.addRow([]);
+    const summaryRows: [string, number][] = [
       ["Actual Dye Yarn Qty", totalQty],
-      ...(order.processLossPct != null ? [[`Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, Number(order.processLossKg)]] : []),
-      ...(order.grandTotalKg != null ? [["Grand Total", Number(order.grandTotalKg)]] : []),
-    ] : []),
-  ];
+      ...(order.processLossPct != null
+        ? [[`Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, Number(order.processLossKg)] as [string, number]]
+        : []),
+      ...(order.grandTotalKg != null
+        ? [["Grand Total", Number(order.grandTotalKg)] as [string, number]]
+        : []),
+    ];
 
-  const ws = XLSX.utils.aoa_to_sheet(info);
-  ws["!cols"] = [{ wch: 22 }, { wch: 20 }, { wch: 5 }, { wch: 22 }, { wch: 20 }, { wch: 25 }];
+    summaryRows.forEach(([label, value], idx) => {
+      const isLast = idx === summaryRows.length - 1;
+      const r = ws.addRow(["", "", "", "", label, value]);
+      r.getCell(5).font = { bold: true, color: isLast ? { argb: "FF3730A3" } : undefined };
+      r.getCell(6).font = { bold: isLast, color: isLast ? { argb: "FF3730A3" } : undefined };
+      if (isLast) {
+        r.getCell(5).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFEEF2FF" } };
+        r.getCell(6).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFEEF2FF" } };
+      }
+      r.getCell(5).border = thinBorder;
+      r.getCell(6).border = thinBorder;
+      r.getCell(5).alignment = { horizontal: "right" };
+      r.getCell(6).alignment = { horizontal: "center" };
+    });
+  }
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Order");
-  XLSX.writeFile(wb, `${order.orderNo}.xlsx`);
+  // ── Save ──────────────────────────────────────────────────────────────────
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${order.orderNo}.xlsx`);
 }
 
 function printOrder(order: any, colorRows: any[], totalQty: number) {
