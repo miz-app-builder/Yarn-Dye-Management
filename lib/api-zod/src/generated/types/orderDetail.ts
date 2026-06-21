@@ -6,10 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { Order } from './order';
+import type { OrderColorRow } from './orderColorRow';
 import type { OrderPhoto } from './orderPhoto';
 import type { StatusHistoryItem } from './statusHistoryItem';
 
 export type OrderDetail = Order & {
+  colorRows?: OrderColorRow[];
   photos?: OrderPhoto[];
   statusHistory?: StatusHistoryItem[];
 };

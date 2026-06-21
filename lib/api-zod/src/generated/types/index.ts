@@ -35,6 +35,8 @@ export * from './listOrdersStatus';
 export * from './listYarnTypesParams';
 export * from './monthlyReport';
 export * from './order';
+export * from './orderColorRow';
+export * from './orderColorRowInput';
 export * from './orderDetail';
 export * from './orderInput';
 export * from './orderInputOrderType';

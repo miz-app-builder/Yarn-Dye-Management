@@ -1000,11 +1000,45 @@ components:
           type: string
           format: date-time
 
+    OrderColorRow:
+      type: object
+      required: [id, orderId, colorName, qtyKg]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        yarnCount:
+          type: [string, 'null']
+        colorName:
+          type: string
+        colorRef:
+          type: [string, 'null']
+        qtyKg:
+          type: number
+
+    OrderColorRowInput:
+      type: object
+      required: [colorName, qtyKg]
+      properties:
+        yarnCount:
+          type: string
+        colorName:
+          type: string
+        colorRef:
+          type: string
+        qtyKg:
+          type: number
+
     OrderDetail:
       allOf:
         - $ref: '#/components/schemas/Order'
         - type: object
           properties:
+            colorRows:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderColorRow'
             photos:
               type: array
               items:
@@ -1031,7 +1065,7 @@ components:
 
     OrderInput:
       type: object
-      required: [buyerName, orderType, yarnType, color, quantityKg, receiveDate]
+      required: [buyerName, orderType, yarnType, color, quantityKg, receiveDate, colorRows]
       properties:
         orderNo:
           type: string
@@ -1056,6 +1090,10 @@ components:
           format: date
         remarks:
           type: string
+        colorRows:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderColorRowInput'
 
     OrderUpdate:
       type: object

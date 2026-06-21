@@ -270,7 +270,13 @@ export const CreateOrderBody = zod.object({
   "quantityKg": zod.number(),
   "receiveDate": zod.coerce.date(),
   "deliveryDate": zod.coerce.date().optional(),
-  "remarks": zod.string().optional()
+  "remarks": zod.string().optional(),
+  "colorRows": zod.array(zod.object({
+  "yarnCount": zod.string().optional(),
+  "colorName": zod.string(),
+  "colorRef": zod.string().optional(),
+  "qtyKg": zod.number()
+}))
 })
 
 
@@ -297,6 +303,14 @@ export const GetOrderResponse = zod.object({
   "remarks": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).and(zod.object({
+  "colorRows": zod.array(zod.object({
+  "id": zod.number(),
+  "orderId": zod.number(),
+  "yarnCount": zod.string().nullish(),
+  "colorName": zod.string(),
+  "colorRef": zod.string().nullish(),
+  "qtyKg": zod.number()
+})).optional(),
   "photos": zod.array(zod.object({
   "id": zod.number(),
   "orderId": zod.number(),

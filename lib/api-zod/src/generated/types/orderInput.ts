@@ -5,6 +5,7 @@
  * Yarn Dyeing Management System API
  * OpenAPI spec version: 0.1.0
  */
+import type { OrderColorRowInput } from './orderColorRowInput';
 import type { OrderInputOrderType } from './orderInputOrderType';
 
 export interface OrderInput {
@@ -19,4 +20,5 @@ export interface OrderInput {
   receiveDate: Date;
   deliveryDate?: Date;
   remarks?: string;
+  colorRows: OrderColorRowInput[];
 }

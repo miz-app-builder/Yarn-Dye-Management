@@ -1,6 +1,7 @@
 export * from "./auth";
 export * from "./factories";
 export * from "./orders";
+export * from "./orderColorRows";
 export * from "./orderPhotos";
 export * from "./orderStatusHistory";
 export * from "./buyers";

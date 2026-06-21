@@ -125,10 +125,6 @@ export default function NewOrderPage() {
       values.unit ? `Unit: ${values.unit}` : "",
     ].filter(Boolean).join(" | ");
 
-    const extraRows = values.colorRows.slice(1).map((r, i) => {
-      return `Row ${i + 2}: ${r.yarnCount ?? ""} | ${r.colorName} | ${r.colorRef ?? ""} | ${r.qtyKg} Kg`;
-    });
-
     createOrder.mutate(
       {
         data: {
@@ -146,11 +142,15 @@ export default function NewOrderPage() {
             values.from ? `Sender: ${values.from}` : "",
             values.buyerAddress ? `Address: ${values.buyerAddress}` : "",
             autoRemarks,
-            `Color Ref: ${firstRow.colorRef ?? ""}`,
-            ...extraRows,
           ]
             .filter(Boolean)
             .join("\n"),
+          colorRows: values.colorRows.map((r) => ({
+            yarnCount: r.yarnCount || undefined,
+            colorName: r.colorName,
+            colorRef: r.colorRef || undefined,
+            qtyKg: r.qtyKg,
+          })),
         } as any,
       },
       {

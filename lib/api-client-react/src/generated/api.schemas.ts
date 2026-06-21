@@ -138,6 +138,24 @@ export interface Order {
   createdAt: string;
 }
 
+export interface OrderColorRow {
+  id: number;
+  orderId: number;
+  /** @nullable */
+  yarnCount?: string | null;
+  colorName: string;
+  /** @nullable */
+  colorRef?: string | null;
+  qtyKg: number;
+}
+
+export interface OrderColorRowInput {
+  yarnCount?: string;
+  colorName: string;
+  colorRef?: string;
+  qtyKg: number;
+}
+
 export type OrderPhotoPhotoType = typeof OrderPhotoPhotoType[keyof typeof OrderPhotoPhotoType];
 
 
@@ -168,6 +186,7 @@ export interface StatusHistoryItem {
 }
 
 export type OrderDetail = Order & {
+  colorRows?: OrderColorRow[];
   photos?: OrderPhoto[];
   statusHistory?: StatusHistoryItem[];
 };
@@ -199,6 +218,7 @@ export interface OrderInput {
   receiveDate: string;
   deliveryDate?: string;
   remarks?: string;
+  colorRows: OrderColorRowInput[];
 }
 
 export type OrderUpdateOrderType = typeof OrderUpdateOrderType[keyof typeof OrderUpdateOrderType];

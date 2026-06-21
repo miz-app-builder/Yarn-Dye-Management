@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, ordersTable, factoriesTable, orderPhotosTable, orderStatusHistoryTable } from "@workspace/db";
+import { db, ordersTable, factoriesTable, orderPhotosTable, orderStatusHistoryTable, orderColorRowsTable } from "@workspace/db";
 import { eq, and, ilike, gte, lte, sql, desc } from "drizzle-orm";
 import {
   CreateOrderBody,
@@ -117,13 +117,32 @@ router.post("/orders", async (req, res): Promise<void> => {
       createdBy: req.user ? req.user.id : null,
     } as any).returning();
 
+    const colorRowsInput = (body.data as any).colorRows as Array<{ yarnCount?: string; colorName: string; colorRef?: string; qtyKg: number }> | undefined;
+    let colorRows: typeof orderColorRowsTable.$inferSelect[] = [];
+    if (colorRowsInput && colorRowsInput.length > 0) {
+      colorRows = await db.insert(orderColorRowsTable).values(
+        colorRowsInput.map((r) => ({
+          orderId: order.id,
+          yarnCount: r.yarnCount ?? null,
+          colorName: r.colorName,
+          colorRef: r.colorRef ?? null,
+          qtyKg: String(r.qtyKg),
+        }))
+      ).returning();
+    }
+
     await db.insert(orderStatusHistoryTable).values({
       orderId: order.id,
       status: "Received",
       updatedBy: req.user ? req.user.id : null,
     });
 
-    res.status(201).json({ ...order, quantityKg: Number(order.quantityKg), factoryName: null });
+    res.status(201).json({
+      ...order,
+      quantityKg: Number(order.quantityKg),
+      factoryName: null,
+      colorRows: colorRows.map((r) => ({ ...r, qtyKg: Number(r.qtyKg) })),
+    });
   } catch (err) {
     req.log.error({ err }, "Failed to create order");
     res.status(500).json({ error: "Failed to create order" });
@@ -164,14 +183,16 @@ router.get("/orders/:id", async (req, res): Promise<void> => {
       return;
     }
 
-    const [photos, statusHistory] = await Promise.all([
+    const [photos, statusHistory, colorRows] = await Promise.all([
       db.select().from(orderPhotosTable).where(eq(orderPhotosTable.orderId, params.data.id)).orderBy(desc(orderPhotosTable.createdAt)),
       db.select().from(orderStatusHistoryTable).where(eq(orderStatusHistoryTable.orderId, params.data.id)).orderBy(desc(orderStatusHistoryTable.createdAt)),
+      db.select().from(orderColorRowsTable).where(eq(orderColorRowsTable.orderId, params.data.id)),
     ]);
 
     res.json({
       ...row,
       quantityKg: Number(row.quantityKg),
+      colorRows: colorRows.map((r) => ({ ...r, qtyKg: Number(r.qtyKg) })),
       photos,
       statusHistory,
     });
