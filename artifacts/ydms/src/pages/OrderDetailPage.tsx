@@ -35,11 +35,13 @@ function buildExportFileName(order: any, totalQty: number): string {
 
   const parts: string[] = [];
   if (order.factoryName) parts.push(sanitize(order.factoryName));
-  if (order.orderNo) parts.push(sanitize(order.orderNo));
-  if (order.orderType) parts.push(sanitize(order.orderType));
+  if (order.orderNo)     parts.push(sanitize(order.orderNo));
+  if (order.orderType)   parts.push(sanitize(order.orderType));
   if (order.receiveDate) parts.push(sanitize(order.receiveDate));
   if (order.deliveryDate) parts.push(sanitize(order.deliveryDate));
   parts.push(`${totalQty.toFixed(2)}Kg`);
+  if (order.grandTotalKg != null)
+    parts.push(`${Number(order.grandTotalKg).toFixed(3)}Kg`);
 
   return parts.join("_");
 }
