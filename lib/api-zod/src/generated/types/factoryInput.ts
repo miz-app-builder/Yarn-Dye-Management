@@ -15,4 +15,6 @@ export interface FactoryInput {
   email?: string;
   yarnTypeId?: number;
   dyeingPrice?: string;
+  processLossBulk?: string;
+  processLossSample?: string;
 }

@@ -24,6 +24,10 @@ export interface Factory {
   yarnTypeId?: number | null;
   /** @nullable */
   dyeingPrice?: string | null;
+  /** @nullable */
+  processLossBulk?: string | null;
+  /** @nullable */
+  processLossSample?: string | null;
   status: boolean;
   createdAt: Date;
 }

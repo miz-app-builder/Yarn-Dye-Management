@@ -15,5 +15,7 @@ export interface FactoryUpdate {
   email?: string;
   yarnTypeId?: number;
   dyeingPrice?: string;
+  processLossBulk?: string;
+  processLossSample?: string;
   status?: boolean;
 }

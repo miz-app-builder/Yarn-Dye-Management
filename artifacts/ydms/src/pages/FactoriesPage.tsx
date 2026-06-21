@@ -23,9 +23,16 @@ const formSchema = z.object({
   address: z.string().optional(),
   yarnTypeId: z.coerce.number().optional(),
   dyeingPrice: z.string().optional(),
+  processLossBulk: z.string().optional(),
+  processLossSample: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const emptyValues: FormValues = {
+  name: "", location: "", contactPerson: "", phone: "",
+  email: "", address: "", dyeingPrice: "", processLossBulk: "", processLossSample: "",
+};
 
 export default function FactoriesPage() {
   const { data: factories, isLoading } = useListFactories();
@@ -38,14 +45,11 @@ export default function FactoriesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: "", location: "", contactPerson: "", phone: "", email: "", address: "", dyeingPrice: "" },
-  });
+  const form = useForm<FormValues>({ resolver: zodResolver(formSchema), defaultValues: emptyValues });
 
   const openNew = () => {
     setEditingId(null);
-    form.reset({ name: "", location: "", contactPerson: "", phone: "", email: "", address: "", dyeingPrice: "" });
+    form.reset(emptyValues);
     setDialogOpen(true);
   };
 
@@ -60,6 +64,8 @@ export default function FactoriesPage() {
       address: f.address || "",
       yarnTypeId: f.yarnTypeId ?? undefined,
       dyeingPrice: f.dyeingPrice || "",
+      processLossBulk: f.processLossBulk || "",
+      processLossSample: f.processLossSample || "",
     });
     setDialogOpen(true);
   };
@@ -74,6 +80,8 @@ export default function FactoriesPage() {
       address: values.address || undefined,
       yarnTypeId: values.yarnTypeId || undefined,
       dyeingPrice: values.dyeingPrice || undefined,
+      processLossBulk: values.processLossBulk || undefined,
+      processLossSample: values.processLossSample || undefined,
     };
 
     const action = editingId
@@ -127,6 +135,7 @@ export default function FactoriesPage() {
               <TableHead>From</TableHead>
               <TableHead>Yarn Dyeing Type</TableHead>
               <TableHead>Dyeing Price</TableHead>
+              <TableHead>Process Loss %</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -135,7 +144,7 @@ export default function FactoriesPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">Loading...</TableCell>
+                <TableCell colSpan={9} className="text-center py-8">Loading...</TableCell>
               </TableRow>
             ) : (factories as any[])?.map((f: any) => (
               <TableRow key={f.id}>
@@ -144,6 +153,14 @@ export default function FactoriesPage() {
                 <TableCell>{f.location || "—"}</TableCell>
                 <TableCell>{getYarnTypeName(f.yarnTypeId)}</TableCell>
                 <TableCell>{f.dyeingPrice ? `৳${f.dyeingPrice}/kg` : "—"}</TableCell>
+                <TableCell>
+                  {f.processLossBulk || f.processLossSample ? (
+                    <div className="text-sm">
+                      {f.processLossBulk && <div>Bulk: {f.processLossBulk}%</div>}
+                      {f.processLossSample && <div>Sample: {f.processLossSample}%</div>}
+                    </div>
+                  ) : "—"}
+                </TableCell>
                 <TableCell>
                   <div className="text-sm">
                     <div>{f.contactPerson || "—"}</div>
@@ -177,43 +194,38 @@ export default function FactoriesPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit" : "Add"} Factory</DialogTitle>
+            <DialogTitle className="text-base">{editingId ? "Edit" : "Add"} Factory</DialogTitle>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 py-1">
 
-                {/* Dyeing Factory Name */}
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Dyeing Factory Name *</FormLabel>
-                    <FormControl><Input {...field} placeholder="Enter factory name" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+              {/* Row 1: Name (full width) */}
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-medium text-gray-600">Dyeing Factory Name *</FormLabel>
+                  <FormControl><Input {...field} placeholder="Enter factory name" className="h-8 text-sm" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
-                {/* From (Location) */}
+              {/* Row 2: From + Yarn Dyeing Type */}
+              <div className="grid grid-cols-2 gap-3">
                 <FormField control={form.control} name="location" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>From</FormLabel>
-                    <FormControl><Input {...field} placeholder="e.g. Narsingdi" /></FormControl>
+                    <FormLabel className="text-xs font-medium text-gray-600">From</FormLabel>
+                    <FormControl><Input {...field} placeholder="e.g. Narsingdi" className="h-8 text-sm" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-
-                {/* OI Dyeing Type */}
                 <FormField control={form.control} name="yarnTypeId" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Yarn Dyeing Type</FormLabel>
-                    <Select
-                      onValueChange={(val) => field.onChange(Number(val))}
-                      value={field.value ? String(field.value) : ""}
-                    >
+                    <FormLabel className="text-xs font-medium text-gray-600">Yarn Dyeing Type</FormLabel>
+                    <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value ? String(field.value) : ""}>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select yarn type" />
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -225,60 +237,80 @@ export default function FactoriesPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
+              </div>
 
-                {/* Dyeing Price */}
+              {/* Row 3: Dyeing Price + Process Loss Bulk + Sample */}
+              <div className="grid grid-cols-3 gap-3">
                 <FormField control={form.control} name="dyeingPrice" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dyeing Price (৳/kg)</FormLabel>
+                    <FormLabel className="text-xs font-medium text-gray-600">Dyeing Price (৳/kg)</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" step="0.01" placeholder="e.g. 45.00" />
+                      <Input {...field} type="number" step="0.01" placeholder="e.g. 45.00" className="h-8 text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
+                <FormField control={form.control} name="processLossBulk" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-medium text-gray-600">Process Loss % (Bulk)</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" step="0.01" placeholder="e.g. 2.50" className="h-8 text-sm" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="processLossSample" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-medium text-gray-600">Process Loss % (Sample)</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" step="0.01" placeholder="e.g. 3.00" className="h-8 text-sm" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
 
-                {/* Contact Person */}
+              {/* Row 4: Contact Person + Phone */}
+              <div className="grid grid-cols-2 gap-3">
                 <FormField control={form.control} name="contactPerson" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Person</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormLabel className="text-xs font-medium text-gray-600">Contact Person</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-
-                {/* Phone */}
                 <FormField control={form.control} name="phone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormLabel className="text-xs font-medium text-gray-600">Phone</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-
-                {/* Email */}
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Email</FormLabel>
-                    <FormControl><Input type="email" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                {/* Address */}
-                <FormField control={form.control} name="address" render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Address</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
               </div>
-              <div className="flex justify-end pt-2">
+
+              {/* Row 5: Email + Address */}
+              <div className="grid grid-cols-2 gap-3">
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-medium text-gray-600">Email</FormLabel>
+                    <FormControl><Input type="email" {...field} className="h-8 text-sm" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="address" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-medium text-gray-600">Address</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+
+              <div className="flex justify-end pt-1">
                 <Button
                   type="submit"
                   disabled={createFactory.isPending || updateFactory.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700"
+                  className="h-8 px-4 text-sm bg-indigo-600 hover:bg-indigo-700"
                 >
                   {createFactory.isPending || updateFactory.isPending ? "Saving..." : "Save"}
                 </Button>

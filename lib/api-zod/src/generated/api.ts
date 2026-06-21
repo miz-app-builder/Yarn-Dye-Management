@@ -101,6 +101,8 @@ export const ListFactoriesResponseItem = zod.object({
   "email": zod.string().nullish(),
   "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
+  "processLossBulk": zod.string().nullish(),
+  "processLossSample": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
@@ -118,7 +120,9 @@ export const CreateFactoryBody = zod.object({
   "phone": zod.string().optional(),
   "email": zod.string().optional(),
   "yarnTypeId": zod.number().optional(),
-  "dyeingPrice": zod.string().optional()
+  "dyeingPrice": zod.string().optional(),
+  "processLossBulk": zod.string().optional(),
+  "processLossSample": zod.string().optional()
 })
 
 
@@ -140,6 +144,8 @@ export const GetFactoryResponse = zod.object({
   "email": zod.string().nullish(),
   "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
+  "processLossBulk": zod.string().nullish(),
+  "processLossSample": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
@@ -161,6 +167,8 @@ export const UpdateFactoryBody = zod.object({
   "email": zod.string().optional(),
   "yarnTypeId": zod.number().optional(),
   "dyeingPrice": zod.string().optional(),
+  "processLossBulk": zod.string().optional(),
+  "processLossSample": zod.string().optional(),
   "status": zod.boolean().optional()
 })
 
@@ -175,6 +183,8 @@ export const UpdateFactoryResponse = zod.object({
   "email": zod.string().nullish(),
   "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
+  "processLossBulk": zod.string().nullish(),
+  "processLossSample": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
@@ -198,6 +208,8 @@ export const ArchiveFactoryResponse = zod.object({
   "email": zod.string().nullish(),
   "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
+  "processLossBulk": zod.string().nullish(),
+  "processLossSample": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })

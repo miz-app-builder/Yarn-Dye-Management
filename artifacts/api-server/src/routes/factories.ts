@@ -38,6 +38,8 @@ router.get("/factories", async (req, res): Promise<void> => {
       email: f.email,
       yarnTypeId: f.yarnTypeId,
       dyeingPrice: f.dyeingPrice,
+      processLossBulk: f.processLossBulk,
+      processLossSample: f.processLossSample,
       status: f.status,
       createdAt: f.createdAt,
     })));

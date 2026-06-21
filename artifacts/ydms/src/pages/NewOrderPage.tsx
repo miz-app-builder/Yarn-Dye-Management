@@ -44,14 +44,17 @@ export default function NewOrderPage() {
   const { toast } = useToast();
   const { data: factories } = useListFactories();
   const { data: yarnTypes = [] } = useListYarnTypes();
-  const { data: rawMaterials = [] } = useListRawMaterials();
+  const { data: rawMaterialsData, isLoading: rawMaterialsLoading } = useListRawMaterials();
   const createOrder = useCreateOrder();
   const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
 
-  const filteredYarnCounts = (rawMaterials as any[])
-    .filter((rm: any) => !selectedYarnTypeName || rm.yarnType === selectedYarnTypeName)
-    .map((rm: any) => rm.yarnCount)
-    .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i)
+  const rawMaterials: any[] = Array.isArray(rawMaterialsData) ? rawMaterialsData : [];
+
+  const filteredYarnCounts: string[] = rawMaterials
+    .filter((rm) => !selectedYarnTypeName || rm.yarnType === selectedYarnTypeName)
+    .map((rm) => rm.yarnCount)
+    .filter((v): v is string => Boolean(v))
+    .filter((v, i, arr) => arr.indexOf(v) === i)
     .sort();
 
   const form = useForm<FormValues>({
@@ -293,7 +296,7 @@ export default function NewOrderPage() {
                                 <Select onValueChange={field.onChange} value={field.value ?? ""}>
                                   <FormControl>
                                     <SelectTrigger className="h-7 text-xs">
-                                      <SelectValue placeholder={filteredYarnCounts.length ? "Select…" : "Select factory first"} />
+                                      <SelectValue placeholder={rawMaterialsLoading ? "Loading..." : filteredYarnCounts.length ? "Select…" : "No data"} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>

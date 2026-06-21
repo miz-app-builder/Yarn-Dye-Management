@@ -62,6 +62,10 @@ export interface Factory {
   yarnTypeId?: number | null;
   /** @nullable */
   dyeingPrice?: string | null;
+  /** @nullable */
+  processLossBulk?: string | null;
+  /** @nullable */
+  processLossSample?: string | null;
   status: boolean;
   createdAt: string;
 }
@@ -75,6 +79,8 @@ export interface FactoryInput {
   email?: string;
   yarnTypeId?: number;
   dyeingPrice?: string;
+  processLossBulk?: string;
+  processLossSample?: string;
 }
 
 export interface FactoryUpdate {
@@ -86,6 +92,8 @@ export interface FactoryUpdate {
   email?: string;
   yarnTypeId?: number;
   dyeingPrice?: string;
+  processLossBulk?: string;
+  processLossSample?: string;
   status?: boolean;
 }
 

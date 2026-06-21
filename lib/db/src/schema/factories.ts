@@ -13,6 +13,8 @@ export const factoriesTable = pgTable("factories", {
   email: text("email"),
   yarnTypeId: integer("yarn_type_id"),
   dyeingPrice: numeric("dyeing_price", { precision: 10, scale: 2 }),
+  processLossBulk: numeric("process_loss_bulk", { precision: 5, scale: 2 }),
+  processLossSample: numeric("process_loss_sample", { precision: 5, scale: 2 }),
   status: boolean("status").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

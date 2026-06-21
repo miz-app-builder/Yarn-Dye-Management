@@ -900,6 +900,10 @@ components:
           type: [integer, 'null']
         dyeingPrice:
           type: [string, 'null']
+        processLossBulk:
+          type: [string, 'null']
+        processLossSample:
+          type: [string, 'null']
         status:
           type: boolean
         createdAt:
@@ -926,6 +930,10 @@ components:
           type: integer
         dyeingPrice:
           type: string
+        processLossBulk:
+          type: string
+        processLossSample:
+          type: string
 
     FactoryUpdate:
       type: object
@@ -945,6 +953,10 @@ components:
         yarnTypeId:
           type: integer
         dyeingPrice:
+          type: string
+        processLossBulk:
+          type: string
+        processLossSample:
           type: string
         status:
           type: boolean
