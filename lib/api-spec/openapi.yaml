@@ -27,6 +27,8 @@ tags:
     description: Dashboard aggregates
   - name: reports
     description: Reporting
+  - name: yarnDyeingOrders
+    description: Yarn dyeing order management (new table)
 
 paths:
   /healthz:
@@ -497,6 +499,148 @@ paths:
           schema:
             type: integer
         - name: photoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+
+  # ── YARN DYEING ORDERS ─────────────────────────────────────────────────────
+  /yarn-dyeing-orders:
+    get:
+      tags: [yarnDyeingOrders]
+      operationId: listYarnDyeingOrders
+      summary: List yarn dyeing orders with optional filters
+      parameters:
+        - name: factoryId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: orderType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [Sample, Bulk]
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: dateFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated yarn dyeing order list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YarnDyeingOrderListResponse'
+    post:
+      tags: [yarnDyeingOrders]
+      operationId: createYarnDyeingOrder
+      summary: Create a new yarn dyeing order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YarnDyeingOrderInput'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YarnDyeingOrderDetail'
+
+  /yarn-dyeing-orders/{id}:
+    get:
+      tags: [yarnDyeingOrders]
+      operationId: getYarnDyeingOrder
+      summary: Get a yarn dyeing order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YarnDyeingOrderDetail'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [yarnDyeingOrders]
+      operationId: updateYarnDyeingOrder
+      summary: Update a yarn dyeing order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YarnDyeingOrderUpdate'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YarnDyeingOrder'
+    delete:
+      tags: [yarnDyeingOrders]
+      operationId: deleteYarnDyeingOrder
+      summary: Delete a yarn dyeing order
+      parameters:
+        - name: id
           in: path
           required: true
           schema:
@@ -1214,6 +1358,174 @@ components:
         photoType:
           type: string
           enum: [Challan, Yarn Photo, Shade Card, Delivery Evidence]
+
+    # Yarn Dyeing Order schemas
+    YarnDyeingOrderColorRow:
+      type: object
+      required: [id, orderId, colorName, qtyKg]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        yarnCount:
+          type: [string, 'null']
+        colorName:
+          type: string
+        colorRef:
+          type: [string, 'null']
+        qtyKg:
+          type: number
+        remarks:
+          type: [string, 'null']
+
+    YarnDyeingOrderColorRowInput:
+      type: object
+      required: [colorName, qtyKg]
+      properties:
+        yarnCount:
+          type: string
+        colorName:
+          type: string
+        colorRef:
+          type: string
+        qtyKg:
+          type: number
+        remarks:
+          type: string
+
+    YarnDyeingOrder:
+      type: object
+      required: [id, orderNo, orderType, receiveDate, status, createdAt]
+      properties:
+        id:
+          type: integer
+        orderNo:
+          type: string
+        orderType:
+          type: string
+          enum: [Sample, Bulk]
+        receiveDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: [string, 'null']
+          format: date
+        customerGarmentsName:
+          type: [string, 'null']
+        jobNo:
+          type: [string, 'null']
+        unit:
+          type: [string, 'null']
+        factoryId:
+          type: [integer, 'null']
+        factoryName:
+          type: [string, 'null']
+        buyerName:
+          type: [string, 'null']
+        buyerAddress:
+          type: [string, 'null']
+        attn:
+          type: [string, 'null']
+        fromPerson:
+          type: [string, 'null']
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    YarnDyeingOrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/YarnDyeingOrder'
+        - type: object
+          properties:
+            colorRows:
+              type: array
+              items:
+                $ref: '#/components/schemas/YarnDyeingOrderColorRow'
+
+    YarnDyeingOrderListResponse:
+      type: object
+      required: [orders, total, page, pageSize]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/YarnDyeingOrder'
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+
+    YarnDyeingOrderInput:
+      type: object
+      required: [orderType, receiveDate, factoryId, colorRows]
+      properties:
+        orderNo:
+          type: string
+        orderType:
+          type: string
+          enum: [Sample, Bulk]
+        receiveDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: string
+          format: date
+        customerGarmentsName:
+          type: string
+        jobNo:
+          type: string
+        unit:
+          type: string
+        factoryId:
+          type: integer
+        buyerName:
+          type: string
+        buyerAddress:
+          type: string
+        attn:
+          type: string
+        fromPerson:
+          type: string
+        colorRows:
+          type: array
+          items:
+            $ref: '#/components/schemas/YarnDyeingOrderColorRowInput'
+
+    YarnDyeingOrderUpdate:
+      type: object
+      properties:
+        orderType:
+          type: string
+          enum: [Sample, Bulk]
+        receiveDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: string
+          format: date
+        customerGarmentsName:
+          type: string
+        jobNo:
+          type: string
+        unit:
+          type: string
+        factoryId:
+          type: integer
+        buyerName:
+          type: string
+        buyerAddress:
+          type: string
+        attn:
+          type: string
+        fromPerson:
+          type: string
+        status:
+          type: string
 
     # Dashboard schemas
     DashboardSummary:

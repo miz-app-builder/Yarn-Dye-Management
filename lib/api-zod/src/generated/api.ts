@@ -489,6 +489,165 @@ export const DeleteOrderPhotoResponse = zod.object({
 
 
 /**
+ * @summary List yarn dyeing orders with optional filters
+ */
+export const listYarnDyeingOrdersQueryPageDefault = 1;
+export const listYarnDyeingOrdersQueryPageSizeDefault = 20;
+
+export const ListYarnDyeingOrdersQueryParams = zod.object({
+  "factoryId": zod.coerce.number().optional(),
+  "orderType": zod.enum(['Sample', 'Bulk']).optional(),
+  "status": zod.coerce.string().optional(),
+  "dateFrom": zod.date().optional(),
+  "dateTo": zod.date().optional(),
+  "search": zod.coerce.string().optional(),
+  "page": zod.coerce.number().default(listYarnDyeingOrdersQueryPageDefault),
+  "pageSize": zod.coerce.number().default(listYarnDyeingOrdersQueryPageSizeDefault)
+})
+
+export const ListYarnDyeingOrdersResponse = zod.object({
+  "orders": zod.array(zod.object({
+  "id": zod.number(),
+  "orderNo": zod.string(),
+  "orderType": zod.enum(['Sample', 'Bulk']),
+  "receiveDate": zod.coerce.date(),
+  "deliveryDate": zod.coerce.date().nullish(),
+  "customerGarmentsName": zod.string().nullish(),
+  "jobNo": zod.string().nullish(),
+  "unit": zod.string().nullish(),
+  "factoryId": zod.number().nullish(),
+  "factoryName": zod.string().nullish(),
+  "buyerName": zod.string().nullish(),
+  "buyerAddress": zod.string().nullish(),
+  "attn": zod.string().nullish(),
+  "fromPerson": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "pageSize": zod.number()
+})
+
+
+/**
+ * @summary Create a new yarn dyeing order
+ */
+export const CreateYarnDyeingOrderBody = zod.object({
+  "orderNo": zod.string().optional(),
+  "orderType": zod.enum(['Sample', 'Bulk']),
+  "receiveDate": zod.coerce.date(),
+  "deliveryDate": zod.coerce.date().optional(),
+  "customerGarmentsName": zod.string().optional(),
+  "jobNo": zod.string().optional(),
+  "unit": zod.string().optional(),
+  "factoryId": zod.number(),
+  "buyerName": zod.string().optional(),
+  "buyerAddress": zod.string().optional(),
+  "attn": zod.string().optional(),
+  "fromPerson": zod.string().optional(),
+  "colorRows": zod.array(zod.object({
+  "yarnCount": zod.string().optional(),
+  "colorName": zod.string(),
+  "colorRef": zod.string().optional(),
+  "qtyKg": zod.number(),
+  "remarks": zod.string().optional()
+}))
+})
+
+
+/**
+ * @summary Get a yarn dyeing order by ID
+ */
+export const GetYarnDyeingOrderParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetYarnDyeingOrderResponse = zod.object({
+  "id": zod.number(),
+  "orderNo": zod.string(),
+  "orderType": zod.enum(['Sample', 'Bulk']),
+  "receiveDate": zod.coerce.date(),
+  "deliveryDate": zod.coerce.date().nullish(),
+  "customerGarmentsName": zod.string().nullish(),
+  "jobNo": zod.string().nullish(),
+  "unit": zod.string().nullish(),
+  "factoryId": zod.number().nullish(),
+  "factoryName": zod.string().nullish(),
+  "buyerName": zod.string().nullish(),
+  "buyerAddress": zod.string().nullish(),
+  "attn": zod.string().nullish(),
+  "fromPerson": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "colorRows": zod.array(zod.object({
+  "id": zod.number(),
+  "orderId": zod.number(),
+  "yarnCount": zod.string().nullish(),
+  "colorName": zod.string(),
+  "colorRef": zod.string().nullish(),
+  "qtyKg": zod.number(),
+  "remarks": zod.string().nullish()
+})).optional()
+}))
+
+
+/**
+ * @summary Update a yarn dyeing order
+ */
+export const UpdateYarnDyeingOrderParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateYarnDyeingOrderBody = zod.object({
+  "orderType": zod.enum(['Sample', 'Bulk']).optional(),
+  "receiveDate": zod.coerce.date().optional(),
+  "deliveryDate": zod.coerce.date().optional(),
+  "customerGarmentsName": zod.string().optional(),
+  "jobNo": zod.string().optional(),
+  "unit": zod.string().optional(),
+  "factoryId": zod.number().optional(),
+  "buyerName": zod.string().optional(),
+  "buyerAddress": zod.string().optional(),
+  "attn": zod.string().optional(),
+  "fromPerson": zod.string().optional(),
+  "status": zod.string().optional()
+})
+
+export const UpdateYarnDyeingOrderResponse = zod.object({
+  "id": zod.number(),
+  "orderNo": zod.string(),
+  "orderType": zod.enum(['Sample', 'Bulk']),
+  "receiveDate": zod.coerce.date(),
+  "deliveryDate": zod.coerce.date().nullish(),
+  "customerGarmentsName": zod.string().nullish(),
+  "jobNo": zod.string().nullish(),
+  "unit": zod.string().nullish(),
+  "factoryId": zod.number().nullish(),
+  "factoryName": zod.string().nullish(),
+  "buyerName": zod.string().nullish(),
+  "buyerAddress": zod.string().nullish(),
+  "attn": zod.string().nullish(),
+  "fromPerson": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a yarn dyeing order
+ */
+export const DeleteYarnDyeingOrderParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteYarnDyeingOrderResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
  * @summary Get dashboard summary counts and KG totals
  */
 export const GetDashboardSummaryResponse = zod.object({

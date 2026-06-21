@@ -41,6 +41,7 @@ import type {
   HealthStatus,
   ListFactoriesParams,
   ListOrdersParams,
+  ListYarnDyeingOrdersParams,
   ListYarnTypesParams,
   MonthlyReport,
   Order,
@@ -58,6 +59,11 @@ import type {
   UploadUrlRequest,
   UploadUrlResponse,
   UserRoleUpdate,
+  YarnDyeingOrder,
+  YarnDyeingOrderDetail,
+  YarnDyeingOrderInput,
+  YarnDyeingOrderListResponse,
+  YarnDyeingOrderUpdate,
   YarnTypeInput,
   YarnTypeItem
 } from './api.schemas';
@@ -1660,6 +1666,380 @@ export const useDeleteOrderPhoto = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDeleteOrderPhotoMutationOptions(options));
+    }
+
+export const getListYarnDyeingOrdersUrl = (params?: ListYarnDyeingOrdersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/yarn-dyeing-orders?${stringifiedParams}` : `/api/yarn-dyeing-orders`
+}
+
+/**
+ * @summary List yarn dyeing orders with optional filters
+ */
+export const listYarnDyeingOrders = async (params?: ListYarnDyeingOrdersParams, options?: RequestInit): Promise<YarnDyeingOrderListResponse> => {
+
+  return customFetch<YarnDyeingOrderListResponse>(getListYarnDyeingOrdersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListYarnDyeingOrdersQueryKey = (params?: ListYarnDyeingOrdersParams,) => {
+    return [
+    `/api/yarn-dyeing-orders`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListYarnDyeingOrdersQueryOptions = <TData = Awaited<ReturnType<typeof listYarnDyeingOrders>>, TError = ErrorType<unknown>>(params?: ListYarnDyeingOrdersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listYarnDyeingOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListYarnDyeingOrdersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listYarnDyeingOrders>>> = ({ signal }) => listYarnDyeingOrders(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listYarnDyeingOrders>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListYarnDyeingOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof listYarnDyeingOrders>>>
+export type ListYarnDyeingOrdersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List yarn dyeing orders with optional filters
+ */
+
+export function useListYarnDyeingOrders<TData = Awaited<ReturnType<typeof listYarnDyeingOrders>>, TError = ErrorType<unknown>>(
+ params?: ListYarnDyeingOrdersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listYarnDyeingOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListYarnDyeingOrdersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateYarnDyeingOrderUrl = () => {
+
+
+
+
+  return `/api/yarn-dyeing-orders`
+}
+
+/**
+ * @summary Create a new yarn dyeing order
+ */
+export const createYarnDyeingOrder = async (yarnDyeingOrderInput: YarnDyeingOrderInput, options?: RequestInit): Promise<YarnDyeingOrderDetail> => {
+
+  return customFetch<YarnDyeingOrderDetail>(getCreateYarnDyeingOrderUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      yarnDyeingOrderInput,)
+  }
+);}
+
+
+
+
+export const getCreateYarnDyeingOrderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createYarnDyeingOrder>>, TError,{data: BodyType<YarnDyeingOrderInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createYarnDyeingOrder>>, TError,{data: BodyType<YarnDyeingOrderInput>}, TContext> => {
+
+const mutationKey = ['createYarnDyeingOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createYarnDyeingOrder>>, {data: BodyType<YarnDyeingOrderInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createYarnDyeingOrder(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateYarnDyeingOrderMutationResult = NonNullable<Awaited<ReturnType<typeof createYarnDyeingOrder>>>
+    export type CreateYarnDyeingOrderMutationBody = BodyType<YarnDyeingOrderInput>
+    export type CreateYarnDyeingOrderMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a new yarn dyeing order
+ */
+export const useCreateYarnDyeingOrder = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createYarnDyeingOrder>>, TError,{data: BodyType<YarnDyeingOrderInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createYarnDyeingOrder>>,
+        TError,
+        {data: BodyType<YarnDyeingOrderInput>},
+        TContext
+      > => {
+      return useMutation(getCreateYarnDyeingOrderMutationOptions(options));
+    }
+
+export const getGetYarnDyeingOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/yarn-dyeing-orders/${id}`
+}
+
+/**
+ * @summary Get a yarn dyeing order by ID
+ */
+export const getYarnDyeingOrder = async (id: number, options?: RequestInit): Promise<YarnDyeingOrderDetail> => {
+
+  return customFetch<YarnDyeingOrderDetail>(getGetYarnDyeingOrderUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetYarnDyeingOrderQueryKey = (id: number,) => {
+    return [
+    `/api/yarn-dyeing-orders/${id}`
+    ] as const;
+    }
+
+
+export const getGetYarnDyeingOrderQueryOptions = <TData = Awaited<ReturnType<typeof getYarnDyeingOrder>>, TError = ErrorType<ErrorEnvelope>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYarnDyeingOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetYarnDyeingOrderQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getYarnDyeingOrder>>> = ({ signal }) => getYarnDyeingOrder(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getYarnDyeingOrder>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetYarnDyeingOrderQueryResult = NonNullable<Awaited<ReturnType<typeof getYarnDyeingOrder>>>
+export type GetYarnDyeingOrderQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a yarn dyeing order by ID
+ */
+
+export function useGetYarnDyeingOrder<TData = Awaited<ReturnType<typeof getYarnDyeingOrder>>, TError = ErrorType<ErrorEnvelope>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYarnDyeingOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetYarnDyeingOrderQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateYarnDyeingOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/yarn-dyeing-orders/${id}`
+}
+
+/**
+ * @summary Update a yarn dyeing order
+ */
+export const updateYarnDyeingOrder = async (id: number,
+    yarnDyeingOrderUpdate: YarnDyeingOrderUpdate, options?: RequestInit): Promise<YarnDyeingOrder> => {
+
+  return customFetch<YarnDyeingOrder>(getUpdateYarnDyeingOrderUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      yarnDyeingOrderUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateYarnDyeingOrderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateYarnDyeingOrder>>, TError,{id: number;data: BodyType<YarnDyeingOrderUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateYarnDyeingOrder>>, TError,{id: number;data: BodyType<YarnDyeingOrderUpdate>}, TContext> => {
+
+const mutationKey = ['updateYarnDyeingOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateYarnDyeingOrder>>, {id: number;data: BodyType<YarnDyeingOrderUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateYarnDyeingOrder(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateYarnDyeingOrderMutationResult = NonNullable<Awaited<ReturnType<typeof updateYarnDyeingOrder>>>
+    export type UpdateYarnDyeingOrderMutationBody = BodyType<YarnDyeingOrderUpdate>
+    export type UpdateYarnDyeingOrderMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update a yarn dyeing order
+ */
+export const useUpdateYarnDyeingOrder = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateYarnDyeingOrder>>, TError,{id: number;data: BodyType<YarnDyeingOrderUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateYarnDyeingOrder>>,
+        TError,
+        {id: number;data: BodyType<YarnDyeingOrderUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateYarnDyeingOrderMutationOptions(options));
+    }
+
+export const getDeleteYarnDyeingOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/yarn-dyeing-orders/${id}`
+}
+
+/**
+ * @summary Delete a yarn dyeing order
+ */
+export const deleteYarnDyeingOrder = async (id: number, options?: RequestInit): Promise<SuccessEnvelope> => {
+
+  return customFetch<SuccessEnvelope>(getDeleteYarnDyeingOrderUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteYarnDyeingOrderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteYarnDyeingOrder>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteYarnDyeingOrder>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteYarnDyeingOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteYarnDyeingOrder>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteYarnDyeingOrder(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteYarnDyeingOrderMutationResult = NonNullable<Awaited<ReturnType<typeof deleteYarnDyeingOrder>>>
+
+    export type DeleteYarnDyeingOrderMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a yarn dyeing order
+ */
+export const useDeleteYarnDyeingOrder = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteYarnDyeingOrder>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteYarnDyeingOrder>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteYarnDyeingOrderMutationOptions(options));
     }
 
 export const getGetDashboardSummaryUrl = () => {

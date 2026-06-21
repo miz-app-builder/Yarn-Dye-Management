@@ -311,6 +311,122 @@ export interface PhotoInput {
   photoType: PhotoInputPhotoType;
 }
 
+export interface YarnDyeingOrderColorRow {
+  id: number;
+  orderId: number;
+  /** @nullable */
+  yarnCount?: string | null;
+  colorName: string;
+  /** @nullable */
+  colorRef?: string | null;
+  qtyKg: number;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface YarnDyeingOrderColorRowInput {
+  yarnCount?: string;
+  colorName: string;
+  colorRef?: string;
+  qtyKg: number;
+  remarks?: string;
+}
+
+export type YarnDyeingOrderOrderType = typeof YarnDyeingOrderOrderType[keyof typeof YarnDyeingOrderOrderType];
+
+
+export const YarnDyeingOrderOrderType = {
+  Sample: 'Sample',
+  Bulk: 'Bulk',
+} as const;
+
+export interface YarnDyeingOrder {
+  id: number;
+  orderNo: string;
+  orderType: YarnDyeingOrderOrderType;
+  receiveDate: string;
+  /** @nullable */
+  deliveryDate?: string | null;
+  /** @nullable */
+  customerGarmentsName?: string | null;
+  /** @nullable */
+  jobNo?: string | null;
+  /** @nullable */
+  unit?: string | null;
+  /** @nullable */
+  factoryId?: number | null;
+  /** @nullable */
+  factoryName?: string | null;
+  /** @nullable */
+  buyerName?: string | null;
+  /** @nullable */
+  buyerAddress?: string | null;
+  /** @nullable */
+  attn?: string | null;
+  /** @nullable */
+  fromPerson?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export type YarnDyeingOrderDetail = YarnDyeingOrder & {
+  colorRows?: YarnDyeingOrderColorRow[];
+};
+
+export interface YarnDyeingOrderListResponse {
+  orders: YarnDyeingOrder[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export type YarnDyeingOrderInputOrderType = typeof YarnDyeingOrderInputOrderType[keyof typeof YarnDyeingOrderInputOrderType];
+
+
+export const YarnDyeingOrderInputOrderType = {
+  Sample: 'Sample',
+  Bulk: 'Bulk',
+} as const;
+
+export interface YarnDyeingOrderInput {
+  orderNo?: string;
+  orderType: YarnDyeingOrderInputOrderType;
+  receiveDate: string;
+  deliveryDate?: string;
+  customerGarmentsName?: string;
+  jobNo?: string;
+  unit?: string;
+  factoryId: number;
+  buyerName?: string;
+  buyerAddress?: string;
+  attn?: string;
+  fromPerson?: string;
+  colorRows: YarnDyeingOrderColorRowInput[];
+}
+
+export type YarnDyeingOrderUpdateOrderType = typeof YarnDyeingOrderUpdateOrderType[keyof typeof YarnDyeingOrderUpdateOrderType];
+
+
+export const YarnDyeingOrderUpdateOrderType = {
+  Sample: 'Sample',
+  Bulk: 'Bulk',
+} as const;
+
+export interface YarnDyeingOrderUpdate {
+  orderType?: YarnDyeingOrderUpdateOrderType;
+  receiveDate?: string;
+  deliveryDate?: string;
+  customerGarmentsName?: string;
+  jobNo?: string;
+  unit?: string;
+  factoryId?: number;
+  buyerName?: string;
+  buyerAddress?: string;
+  attn?: string;
+  fromPerson?: string;
+  status?: string;
+}
+
 export interface DashboardSummary {
   todayReceived: number;
   runningOrders: number;
@@ -505,6 +621,25 @@ export const ListOrdersStatus = {
   Finishing: 'Finishing',
   Ready: 'Ready',
   Delivered: 'Delivered',
+} as const;
+
+export type ListYarnDyeingOrdersParams = {
+factoryId?: number;
+orderType?: ListYarnDyeingOrdersOrderType;
+status?: string;
+dateFrom?: string;
+dateTo?: string;
+search?: string;
+page?: number;
+pageSize?: number;
+};
+
+export type ListYarnDyeingOrdersOrderType = typeof ListYarnDyeingOrdersOrderType[keyof typeof ListYarnDyeingOrdersOrderType];
+
+
+export const ListYarnDyeingOrdersOrderType = {
+  Sample: 'Sample',
+  Bulk: 'Bulk',
 } as const;
 
 export type GetRecentActivityParams = {
