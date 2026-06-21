@@ -29,6 +29,21 @@ const STATUS_COLORS: Record<string, string> = {
   "Delivered": "bg-teal-100 text-teal-800",
 };
 
+function buildExportFileName(order: any, totalQty: number): string {
+  const sanitize = (s: string) =>
+    s.trim().replace(/\s+/g, "-").replace(/[^\w\-]/g, "");
+
+  const parts: string[] = [];
+  if (order.factoryName) parts.push(sanitize(order.factoryName));
+  if (order.orderNo) parts.push(sanitize(order.orderNo));
+  if (order.orderType) parts.push(sanitize(order.orderType));
+  if (order.receiveDate) parts.push(sanitize(order.receiveDate));
+  if (order.deliveryDate) parts.push(sanitize(order.deliveryDate));
+  parts.push(`${totalQty.toFixed(2)}Kg`);
+
+  return parts.join("_");
+}
+
 const NOTE_LINES = [
   "Dyes & Chemicals Should Be Oekotex Standard.",
   "Color Should be as Per Attached Sample",
@@ -219,7 +234,7 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
     doc.text(lbl, x, footY + 5, { align: "center" });
   });
 
-  doc.save(`${order.orderNo}.pdf`);
+  doc.save(`${buildExportFileName(order, totalQty)}.pdf`);
 }
 
 async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
@@ -342,7 +357,7 @@ async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
 
   // ── Save ──────────────────────────────────────────────────────────────────
   const buf = await wb.xlsx.writeBuffer();
-  saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${order.orderNo}.xlsx`);
+  saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${buildExportFileName(order, totalQty)}.xlsx`);
 }
 
 function printOrder(order: any, colorRows: any[], totalQty: number) {
@@ -357,7 +372,7 @@ function printOrder(order: any, colorRows: any[], totalQty: number) {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>${order.orderNo}</title>
+      <title>${buildExportFileName(order, totalQty)}</title>
       <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 28px 32px; }
