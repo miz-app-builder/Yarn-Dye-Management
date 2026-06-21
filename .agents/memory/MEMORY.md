@@ -2,3 +2,4 @@
 - [YDMS Database Architecture](db-architecture.md) — all data on Supabase: DB via SUPABASE_DATABASE_URL, file storage via Supabase Storage (bucket: "uploads"); no Replit local DB or GCS
 - [Express 5 Async Handler Pattern](express5-handlers.md) — async route handlers must declare `: Promise<void>` and use `res.xxx(); return;` (not `return res.xxx()`) to avoid TS7030
 - [Drizzle Insert Type Inference](drizzle-insert.md) — Drizzle `.values()` overload resolution fails for complex inserts; use `as any` cast as workaround
+- [Orval Codegen Compatibility](orval-codegen.md) — orval 8.9.1 breaks on OpenAPI 3.1 nullable array types and non-ASCII YAML chars; fix before running codegen
