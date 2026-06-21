@@ -239,9 +239,13 @@ async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
       Number(cr.qtyKg),
       cr.remarks || "",
     ]),
-    ["", "", "", "Total Qty (Actual Dye Yarn)", totalQty, ""],
-    ...(order.processLossPct != null ? [["", "", "", `Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, Number(order.processLossKg), ""]] : []),
-    ...(order.grandTotalKg != null ? [["", "", "", "Grand Total", Number(order.grandTotalKg), ""]] : []),
+    ["", "", "", "Total", totalQty, ""],
+    [],
+    ...(order.processLossPct != null || order.grandTotalKg != null ? [
+      ["Actual Dye Yarn Qty", totalQty],
+      ...(order.processLossPct != null ? [[`Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, Number(order.processLossKg)]] : []),
+      ...(order.grandTotalKg != null ? [["Grand Total", Number(order.grandTotalKg)]] : []),
+    ] : []),
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(info);
