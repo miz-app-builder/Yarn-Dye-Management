@@ -93,11 +93,7 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
       `${Number(cr.qtyKg).toFixed(1)} Kg`,
       cr.remarks ? `${remarkStr}\n${cr.remarks}` : remarkStr,
     ]),
-    foot: [
-      ["", "", "Total Qty (Actual Dye Yarn)", `${totalQty.toFixed(2)} Kg`, ""],
-      ...(order.processLossPct != null ? [["", "", `Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, `${Number(order.processLossKg).toFixed(3)} Kg`, ""]] : []),
-      ...(order.grandTotalKg != null ? [["", "", "Grand Total", `${Number(order.grandTotalKg).toFixed(3)} Kg`, ""]] : []),
-    ],
+    foot: [["", "", "Total", `${totalQty.toFixed(2)} Kg`, ""]],
     theme: "grid",
     headStyles: {
       fillColor: [255, 255, 255],
@@ -133,7 +129,44 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
     margin: { left: margin, right: margin },
   });
 
-  y = (doc as any).lastAutoTable.finalY + 8;
+  y = (doc as any).lastAutoTable.finalY + 4;
+
+  // ── Summary Table (Actual Dye Yarn / Process Loss / Grand Total) ───────────
+  if (order.processLossPct != null || order.grandTotalKg != null) {
+    const summaryBody: string[][] = [
+      ["Actual Dye Yarn Qty", `${totalQty.toFixed(2)} Kg`],
+    ];
+    if (order.processLossPct != null) {
+      summaryBody.push([`Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, `${Number(order.processLossKg).toFixed(3)} Kg`]);
+    }
+    if (order.grandTotalKg != null) {
+      summaryBody.push(["Grand Total", `${Number(order.grandTotalKg).toFixed(3)} Kg`]);
+    }
+    const summaryTableWidth = 80;
+    autoTable(doc, {
+      startY: y,
+      tableWidth: summaryTableWidth,
+      margin: { left: pageW - margin - summaryTableWidth, right: margin },
+      body: summaryBody,
+      theme: "grid",
+      bodyStyles: { fontSize: 9, textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.3 },
+      columnStyles: {
+        0: { fontStyle: "bold", cellWidth: 52 },
+        1: { halign: "center", cellWidth: 28 },
+      },
+      didParseCell: (data) => {
+        const isLast = data.row.index === summaryBody.length - 1;
+        if (isLast) {
+          data.cell.styles.fontStyle = "bold";
+          data.cell.styles.fillColor = [238, 242, 255];
+          data.cell.styles.textColor = [55, 48, 163];
+        }
+      },
+    });
+    y = (doc as any).lastAutoTable.finalY + 6;
+  } else {
+    y += 4;
+  }
 
   // ── Note Section ───────────────────────────────────────────────────────────
   doc.setFontSize(9);
@@ -303,24 +336,32 @@ function printOrder(order: any, colorRows: any[], totalQty: number) {
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="3" style="text-align:right;font-weight:bold">Total Qty (Actual Dye Yarn)</td>
+            <td colspan="3" style="text-align:right;font-weight:bold">Total</td>
             <td class="center">${totalQty.toFixed(2)} Kg</td>
             <td></td>
           </tr>
+        </tfoot>
+      </table>
+
+      ${(order.processLossPct != null || order.grandTotalKg != null) ? `
+      <table style="width:auto;margin-left:auto;margin-bottom:12px;border-collapse:collapse;">
+        <tbody>
+          <tr>
+            <td style="border:1px solid #000;padding:4px 10px;font-size:10px;font-weight:bold;">Actual Dye Yarn Qty</td>
+            <td style="border:1px solid #000;padding:4px 10px;font-size:10px;text-align:center;min-width:80px;">${totalQty.toFixed(2)} Kg</td>
+          </tr>
           ${order.processLossPct != null ? `
           <tr>
-            <td colspan="3" style="text-align:right;font-weight:bold">Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)</td>
-            <td class="center">${Number(order.processLossKg).toFixed(3)} Kg</td>
-            <td></td>
+            <td style="border:1px solid #000;padding:4px 10px;font-size:10px;font-weight:bold;">Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)</td>
+            <td style="border:1px solid #000;padding:4px 10px;font-size:10px;text-align:center;">${Number(order.processLossKg).toFixed(3)} Kg</td>
           </tr>` : ""}
           ${order.grandTotalKg != null ? `
           <tr style="background:#eef2ff;">
-            <td colspan="3" style="text-align:right;font-weight:bold;color:#3730a3">Grand Total</td>
-            <td class="center" style="font-weight:bold;color:#3730a3">${Number(order.grandTotalKg).toFixed(3)} Kg</td>
-            <td></td>
+            <td style="border:1px solid #000;padding:4px 10px;font-size:10px;font-weight:bold;color:#3730a3;">Grand Total</td>
+            <td style="border:1px solid #000;padding:4px 10px;font-size:10px;text-align:center;font-weight:bold;color:#3730a3;">${Number(order.grandTotalKg).toFixed(3)} Kg</td>
           </tr>` : ""}
-        </tfoot>
-      </table>
+        </tbody>
+      </table>` : ""}
 
       <div class="note-section">
         <div class="note-header">
