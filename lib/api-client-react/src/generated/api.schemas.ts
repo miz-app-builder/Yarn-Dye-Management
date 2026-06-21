@@ -198,6 +198,7 @@ export interface YarnDyeingOrderUpdate {
   processLossKg?: number;
   grandTotalKg?: number;
   status?: string;
+  colorRows?: YarnDyeingOrderColorRowInput[];
 }
 
 export interface DashboardSummary {

@@ -270,6 +270,23 @@ router.patch("/yarn-dyeing-orders/:id", async (req, res): Promise<void> => {
       return;
     }
 
+    if (Array.isArray(body.data.colorRows) && body.data.colorRows.length > 0) {
+      await db
+        .delete(yarnDyeingOrderColorRowTable)
+        .where(eq(yarnDyeingOrderColorRowTable.orderId, order.id));
+
+      await db.insert(yarnDyeingOrderColorRowTable).values(
+        body.data.colorRows.map((r: any) => ({
+          orderId: order.id,
+          yarnCount: r.yarnCount ?? null,
+          colorName: r.colorName,
+          colorRef: r.colorRef ?? null,
+          qtyKg: String(r.qtyKg),
+          remarks: r.remarks ?? null,
+        }))
+      );
+    }
+
     res.json({ ...order, factoryName: null });
   } catch (err) {
     req.log.error({ err }, "Failed to update yarn dyeing order");

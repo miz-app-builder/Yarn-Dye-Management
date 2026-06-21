@@ -1174,6 +1174,10 @@ components:
           type: number
         status:
           type: string
+        colorRows:
+          type: array
+          items:
+            $ref: '#/components/schemas/YarnDyeingOrderColorRowInput'
 
     # Dashboard schemas
     DashboardSummary:

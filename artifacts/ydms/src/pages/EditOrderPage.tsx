@@ -220,7 +220,7 @@ export default function EditOrderPage() {
       {
         onSuccess: () => {
           toast({ title: "Order updated successfully" });
-          queryClient.invalidateQueries({ queryKey: getGetYarnDyeingOrderQueryKey(orderId) });
+          queryClient.removeQueries({ queryKey: getGetYarnDyeingOrderQueryKey(orderId) });
           queryClient.invalidateQueries({ queryKey: getListYarnDyeingOrdersQueryKey() });
           setLocation(`/orders/${orderId}`);
         },

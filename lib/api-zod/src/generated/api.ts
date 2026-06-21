@@ -367,7 +367,14 @@ export const UpdateYarnDyeingOrderBody = zod.object({
   "processLossPct": zod.number().optional(),
   "processLossKg": zod.number().optional(),
   "grandTotalKg": zod.number().optional(),
-  "status": zod.string().optional()
+  "status": zod.string().optional(),
+  "colorRows": zod.array(zod.object({
+  "yarnCount": zod.string().optional(),
+  "colorName": zod.string(),
+  "colorRef": zod.string().optional(),
+  "qtyKg": zod.number(),
+  "remarks": zod.string().optional()
+})).optional()
 })
 
 export const UpdateYarnDyeingOrderResponse = zod.object({

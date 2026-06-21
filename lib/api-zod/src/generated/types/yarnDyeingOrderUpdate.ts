@@ -5,6 +5,7 @@
  * Yarn Dyeing Management System API
  * OpenAPI spec version: 0.1.0
  */
+import type { YarnDyeingOrderColorRowInput } from './yarnDyeingOrderColorRowInput';
 import type { YarnDyeingOrderUpdateOrderType } from './yarnDyeingOrderUpdateOrderType';
 
 export interface YarnDyeingOrderUpdate {
@@ -24,4 +25,5 @@ export interface YarnDyeingOrderUpdate {
   processLossKg?: number;
   grandTotalKg?: number;
   status?: string;
+  colorRows?: YarnDyeingOrderColorRowInput[];
 }
