@@ -1,5 +1,5 @@
 import type ExcelJS from "exceljs";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import {
   useGetYarnDyeingOrder, useDeleteYarnDyeingOrder,
@@ -19,6 +19,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_COLORS: Record<string, string> = {
   "Received": "bg-gray-100 text-gray-800",
@@ -517,6 +527,7 @@ export default function OrderDetailPage() {
   });
 
   const deleteOrder = useDeleteYarnDyeingOrder();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   if (isLoading) return (
     <div className="space-y-4 p-8">
@@ -530,7 +541,6 @@ export default function OrderDetailPage() {
   const totalQty = colorRows.reduce((sum: number, r: any) => sum + (Number(r.qtyKg) || 0), 0);
 
   function handleDelete() {
-    if (!confirm("Are you sure you want to delete this order?")) return;
     deleteOrder.mutate({ id: orderId }, {
       onSuccess: () => {
         toast({ title: "Order deleted" });
@@ -612,12 +622,9 @@ export default function OrderDetailPage() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="gap-2 cursor-pointer text-red-600 focus:text-red-600"
-                onClick={handleDelete}
-                disabled={deleteOrder.isPending}
+                onClick={() => setShowDeleteDialog(true)}
               >
-                {deleteOrder.isPending
-                  ? <Loader2 className="w-4 h-4 animate-spin" />
-                  : <Trash2 className="w-4 h-4" />}
+                <Trash2 className="w-4 h-4" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -759,6 +766,28 @@ export default function OrderDetailPage() {
           </Card>
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>অর্ডার মুছে ফেলবেন?</AlertDialogTitle>
+            <AlertDialogDescription>
+              এই অর্ডারটি ({order.orderNo}) স্থায়ীভাবে মুছে যাবে। এটি আর ফিরিয়ে আনা যাবে না।
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>বাতিল</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDelete}
+              disabled={deleteOrder.isPending}
+            >
+              {deleteOrder.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              হ্যাঁ, মুছে ফেলুন
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
