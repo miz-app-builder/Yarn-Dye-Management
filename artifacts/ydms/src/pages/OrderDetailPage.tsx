@@ -95,12 +95,6 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
 
   // ── Color Table ────────────────────────────────────────────────────────────
   y += 7;
-  const remarkStr = [
-    order.factoryName ? `Factory: ${order.factoryName}` : "",
-    order.jobNo ? `Job No: ${order.jobNo}` : "",
-    order.unit ? `Unit: ${order.unit}` : "",
-  ].filter(Boolean).join("\n");
-
   autoTable(doc, {
     startY: y,
     head: [["Sl. No", "Color Name", "Color Approval\nSwatch", "Qty. in Kg.", "Remarks"]],
@@ -109,7 +103,7 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
       `${cr.colorName || ""}${cr.yarnCount ? `\n${cr.yarnCount}` : ""}`,
       cr.colorRef || "S/OK",
       `${Number(cr.qtyKg).toFixed(1)} Kg`,
-      cr.remarks ? `${remarkStr}\n${cr.remarks}` : remarkStr,
+      cr.remarks || "",
     ]),
     foot: [[
       { content: "Total", colSpan: 3, styles: { halign: "right", fontStyle: "bold" } },
@@ -364,11 +358,6 @@ async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
 
 function printOrder(order: any, colorRows: any[], totalQty: number) {
   const title = `${order.orderType === "Sample" ? "Sample" : "Bulk"} Dyeing Work Order Sheet`;
-  const remarkStr = [
-    order.factoryName ? `Factory: ${order.factoryName}` : "",
-    order.jobNo ? `Job No: ${order.jobNo}` : "",
-    order.unit ? `Unit: ${order.unit}` : "",
-  ].filter(Boolean).join("<br>");
 
   const html = `
     <!DOCTYPE html>
@@ -440,7 +429,7 @@ function printOrder(order: any, colorRows: any[], totalQty: number) {
               <td>${cr.colorName || ""}${cr.yarnCount ? `<br><span style="font-size:9px;color:#333">${cr.yarnCount}</span>` : ""}</td>
               <td class="center">${cr.colorRef || "S/OK"}</td>
               <td class="center">${Number(cr.qtyKg).toFixed(1)} Kg</td>
-              <td style="font-size:9.5px">${remarkStr}${cr.remarks ? `<br>${cr.remarks}` : ""}</td>
+              <td style="font-size:9.5px">${cr.remarks || ""}</td>
             </tr>
           `).join("")}
         </tbody>
