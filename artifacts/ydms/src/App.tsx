@@ -1,4 +1,5 @@
 import "./lib/api"; // side effect: sets axios baseURL
+import { supabaseMisconfigured } from "@/lib/supabase";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -44,7 +45,26 @@ function Router() {
   );
 }
 
+function SupabaseMisconfiguredScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md text-center p-8 bg-white rounded-xl shadow border">
+        <div className="text-4xl mb-4">⚠️</div>
+        <h1 className="text-xl font-semibold text-gray-800 mb-2">Configuration Error</h1>
+        <p className="text-gray-500 text-sm">
+          <code className="bg-gray-100 px-1 rounded">SUPABASE_URL</code> or{" "}
+          <code className="bg-gray-100 px-1 rounded">SUPABASE_ANON_KEY</code> is missing.
+          <br /><br />
+          Please ensure both secrets are set, then restart the workflow.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  if (supabaseMisconfigured) return <SupabaseMisconfiguredScreen />;
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

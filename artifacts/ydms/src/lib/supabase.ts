@@ -6,8 +6,8 @@ declare const __SUPABASE_ANON_KEY__: string;
 const supabaseUrl = __SUPABASE_URL__;
 const supabaseAnonKey = __SUPABASE_ANON_KEY__;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables");
-}
+export const supabaseMisconfigured = !supabaseUrl || !supabaseAnonKey;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = supabaseMisconfigured
+  ? (null as unknown as ReturnType<typeof createClient>)
+  : createClient(supabaseUrl, supabaseAnonKey);
