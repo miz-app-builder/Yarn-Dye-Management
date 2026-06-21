@@ -164,7 +164,7 @@ export type YarnDyeingOrderDetail = YarnDyeingOrder & {
 };
 
 export interface YarnDyeingOrderListResponse {
-  orders: YarnDyeingOrder[];
+  orders: YarnDyeingOrderDetail[];
   total: number;
   page: number;
   pageSize: number;

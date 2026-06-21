@@ -60,6 +60,8 @@ router.get("/yarn-dyeing-orders", async (req, res): Promise<void> => {
           buyerAddress: yarnDyeingOrderTable.buyerAddress,
           attn: yarnDyeingOrderTable.attn,
           fromPerson: yarnDyeingOrderTable.fromPerson,
+          yarnType: yarnDyeingOrderTable.yarnType,
+          remarks: yarnDyeingOrderTable.remarks,
           status: yarnDyeingOrderTable.status,
           createdAt: yarnDyeingOrderTable.createdAt,
         })
@@ -75,8 +77,24 @@ router.get("/yarn-dyeing-orders", async (req, res): Promise<void> => {
         .where(whereClause),
     ]);
 
+    const orderIds = rows.map((r) => r.id);
+    let colorRowsMap: Record<number, typeof yarnDyeingOrderColorRowTable.$inferSelect[]> = {};
+    if (orderIds.length > 0) {
+      const allColorRows = await db
+        .select()
+        .from(yarnDyeingOrderColorRowTable)
+        .where(sql`${yarnDyeingOrderColorRowTable.orderId} = ANY(${sql.raw(`ARRAY[${orderIds.join(",")}]::int[]`)})`);
+      for (const cr of allColorRows) {
+        if (!colorRowsMap[cr.orderId]) colorRowsMap[cr.orderId] = [];
+        colorRowsMap[cr.orderId].push(cr);
+      }
+    }
+
     res.json({
-      orders: rows,
+      orders: rows.map((r) => ({
+        ...r,
+        colorRows: (colorRowsMap[r.id] ?? []).map((cr) => ({ ...cr, qtyKg: Number(cr.qtyKg) })),
+      })),
       total: countResult[0]?.count ?? 0,
       page,
       pageSize,

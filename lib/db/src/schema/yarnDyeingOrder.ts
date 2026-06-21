@@ -17,6 +17,8 @@ export const yarnDyeingOrderTable = pgTable("yarn_dyeing_order", {
   buyerAddress: text("buyer_address"),
   attn: text("attn"),
   fromPerson: text("from_person"),
+  yarnType: text("yarn_type"),
+  remarks: text("remarks"),
   status: text("status").notNull().default("Received"),
   createdBy: text("created_by"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

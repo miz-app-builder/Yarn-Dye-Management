@@ -252,7 +252,17 @@ export const ListYarnDyeingOrdersResponse = zod.object({
   "remarks": zod.string().nullish(),
   "status": zod.string(),
   "createdAt": zod.coerce.date()
-})),
+}).and(zod.object({
+  "colorRows": zod.array(zod.object({
+  "id": zod.number(),
+  "orderId": zod.number(),
+  "yarnCount": zod.string().nullish(),
+  "colorName": zod.string(),
+  "colorRef": zod.string().nullish(),
+  "qtyKg": zod.number(),
+  "remarks": zod.string().nullish()
+})).optional()
+}))),
   "total": zod.number(),
   "page": zod.number(),
   "pageSize": zod.number()

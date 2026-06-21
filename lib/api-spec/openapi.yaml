@@ -949,7 +949,7 @@ components:
         orders:
           type: array
           items:
-            $ref: '#/components/schemas/YarnDyeingOrder'
+            $ref: '#/components/schemas/YarnDyeingOrderDetail'
         total:
           type: integer
         page:

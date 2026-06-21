@@ -5,10 +5,10 @@
  * Yarn Dyeing Management System API
  * OpenAPI spec version: 0.1.0
  */
-import type { YarnDyeingOrder } from './yarnDyeingOrder';
+import type { YarnDyeingOrderDetail } from './yarnDyeingOrderDetail';
 
 export interface YarnDyeingOrderListResponse {
-  orders: YarnDyeingOrder[];
+  orders: YarnDyeingOrderDetail[];
   total: number;
   page: number;
   pageSize: number;
