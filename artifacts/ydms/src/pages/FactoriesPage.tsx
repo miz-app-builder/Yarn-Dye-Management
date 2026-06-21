@@ -7,25 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Archive } from "lucide-react";
-
-const LOCATIONS = [
-  "Narsingdi",
-  "Narayanganj",
-  "Gazipur",
-  "Savar",
-  "Tongi",
-  "Manikganj",
-  "Munshiganj",
-  "Dhaka",
-  "Chattogram",
-  "Other",
-];
 
 const formSchema = z.object({
   name: z.string().min(1, "Required"),
@@ -211,18 +197,7 @@ export default function FactoriesPage() {
                 <FormField control={form.control} name="location" render={({ field }) => (
                   <FormItem>
                     <FormLabel>From</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select location" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {LOCATIONS.map(loc => (
-                          <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl><Input {...field} placeholder="e.g. Narsingdi" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
