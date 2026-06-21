@@ -93,7 +93,11 @@ async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
       `${Number(cr.qtyKg).toFixed(1)} Kg`,
       cr.remarks ? `${remarkStr}\n${cr.remarks}` : remarkStr,
     ]),
-    foot: [["", "", "Total Qty", `${totalQty.toFixed(1)} Kgs`, ""]],
+    foot: [
+      ["", "", "Total Qty (Actual Dye Yarn)", `${totalQty.toFixed(2)} Kg`, ""],
+      ...(order.processLossPct != null ? [["", "", `Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, `${Number(order.processLossKg).toFixed(3)} Kg`, ""]] : []),
+      ...(order.grandTotalKg != null ? [["", "", "Grand Total", `${Number(order.grandTotalKg).toFixed(3)} Kg`, ""]] : []),
+    ],
     theme: "grid",
     headStyles: {
       fillColor: [255, 255, 255],
@@ -202,7 +206,9 @@ async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
       Number(cr.qtyKg),
       cr.remarks || "",
     ]),
-    ["", "", "", "Total", totalQty, ""],
+    ["", "", "", "Total Qty (Actual Dye Yarn)", totalQty, ""],
+    ...(order.processLossPct != null ? [["", "", "", `Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)`, Number(order.processLossKg), ""]] : []),
+    ...(order.grandTotalKg != null ? [["", "", "", "Grand Total", Number(order.grandTotalKg), ""]] : []),
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(info);
@@ -297,10 +303,22 @@ function printOrder(order: any, colorRows: any[], totalQty: number) {
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="3" style="text-align:right;font-weight:bold">Total Qty</td>
-            <td class="center">${totalQty.toFixed(1)} Kgs</td>
+            <td colspan="3" style="text-align:right;font-weight:bold">Total Qty (Actual Dye Yarn)</td>
+            <td class="center">${totalQty.toFixed(2)} Kg</td>
             <td></td>
           </tr>
+          ${order.processLossPct != null ? `
+          <tr>
+            <td colspan="3" style="text-align:right;font-weight:bold">Dyeing Process Loss (${Number(order.processLossPct).toFixed(2)}%)</td>
+            <td class="center">${Number(order.processLossKg).toFixed(3)} Kg</td>
+            <td></td>
+          </tr>` : ""}
+          ${order.grandTotalKg != null ? `
+          <tr style="background:#eef2ff;">
+            <td colspan="3" style="text-align:right;font-weight:bold;color:#3730a3">Grand Total</td>
+            <td class="center" style="font-weight:bold;color:#3730a3">${Number(order.grandTotalKg).toFixed(3)} Kg</td>
+            <td></td>
+          </tr>` : ""}
         </tfoot>
       </table>
 
