@@ -71,6 +71,7 @@ export default function NewOrderPage() {
       form.setValue("buyerName", selected.name ?? "");
       form.setValue("buyerAddress", selected.address ?? "");
       form.setValue("attn", selected.contactPerson ?? "");
+      form.setValue("from", (selected as any).location ?? "");
     }
   }
 
