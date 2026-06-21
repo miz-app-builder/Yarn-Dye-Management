@@ -1,0 +1,3 @@
+- [Supabase Auth Architecture](supabase-auth.md) — frontend calls Supabase directly; backend verifies JWT via admin client; no server-side sessions
+- [Express 5 Async Handler Pattern](express5-handlers.md) — async route handlers must declare `: Promise<void>` and use `res.xxx(); return;` (not `return res.xxx()`) to avoid TS7030
+- [Drizzle Insert Type Inference](drizzle-insert.md) — Drizzle `.values()` overload resolution fails for complex inserts; use `as any` cast as workaround

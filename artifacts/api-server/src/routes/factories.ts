@@ -12,7 +12,7 @@ import {
 
 const router = Router();
 
-router.get("/factories", async (req, res) => {
+router.get("/factories", async (req, res): Promise<void> => {
   try {
     const query = ListFactoriesQueryParams.safeParse(req.query);
     const includeArchived = query.success ? query.data.includeArchived : false;
@@ -39,11 +39,12 @@ router.get("/factories", async (req, res) => {
   }
 });
 
-router.post("/factories", async (req, res) => {
+router.post("/factories", async (req, res): Promise<void> => {
   try {
     const body = CreateFactoryBody.safeParse(req.body);
     if (!body.success) {
-      return res.status(400).json({ error: "Invalid request body" });
+      res.status(400).json({ error: "Invalid request body" });
+      return;
     }
     const [factory] = await db.insert(factoriesTable).values({
       factoryCode: body.data.factoryCode,
@@ -60,13 +61,19 @@ router.post("/factories", async (req, res) => {
   }
 });
 
-router.get("/factories/:id", async (req, res) => {
+router.get("/factories/:id", async (req, res): Promise<void> => {
   try {
     const params = GetFactoryParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
 
     const [factory] = await db.select().from(factoriesTable).where(eq(factoriesTable.id, params.data.id));
-    if (!factory) return res.status(404).json({ error: "Factory not found" });
+    if (!factory) {
+      res.status(404).json({ error: "Factory not found" });
+      return;
+    }
     res.json(factory);
   } catch (err) {
     req.log.error({ err }, "Failed to get factory");
@@ -74,19 +81,28 @@ router.get("/factories/:id", async (req, res) => {
   }
 });
 
-router.patch("/factories/:id", async (req, res) => {
+router.patch("/factories/:id", async (req, res): Promise<void> => {
   try {
     const params = UpdateFactoryParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
     const body = UpdateFactoryBody.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: "Invalid request body" });
+    if (!body.success) {
+      res.status(400).json({ error: "Invalid request body" });
+      return;
+    }
 
     const [factory] = await db
       .update(factoriesTable)
       .set({ ...body.data })
       .where(eq(factoriesTable.id, params.data.id))
       .returning();
-    if (!factory) return res.status(404).json({ error: "Factory not found" });
+    if (!factory) {
+      res.status(404).json({ error: "Factory not found" });
+      return;
+    }
     res.json(factory);
   } catch (err) {
     req.log.error({ err }, "Failed to update factory");
@@ -94,17 +110,23 @@ router.patch("/factories/:id", async (req, res) => {
   }
 });
 
-router.delete("/factories/:id", async (req, res) => {
+router.delete("/factories/:id", async (req, res): Promise<void> => {
   try {
     const params = ArchiveFactoryParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
 
     const [factory] = await db
       .update(factoriesTable)
       .set({ status: false })
       .where(eq(factoriesTable.id, params.data.id))
       .returning();
-    if (!factory) return res.status(404).json({ error: "Factory not found" });
+    if (!factory) {
+      res.status(404).json({ error: "Factory not found" });
+      return;
+    }
     res.json(factory);
   } catch (err) {
     req.log.error({ err }, "Failed to archive factory");

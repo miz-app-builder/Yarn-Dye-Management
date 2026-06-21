@@ -5,10 +5,11 @@ import { UpdateUserRoleParams, UpdateUserRoleBody } from "@workspace/api-zod";
 
 const router = Router();
 
-router.get("/users", async (req, res) => {
+router.get("/users", async (req, res): Promise<void> => {
   try {
-    if (!req.isAuthenticated() || req.user?.role !== "admin") {
-      return res.status(403).json({ error: "Forbidden" });
+    if (!req.isAuthenticated() || req.user.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
     }
     const users = await db.select().from(usersTable).orderBy(usersTable.createdAt);
     res.json(users.map(u => ({
@@ -25,22 +26,32 @@ router.get("/users", async (req, res) => {
   }
 });
 
-router.patch("/users/:id/role", async (req, res) => {
+router.patch("/users/:id/role", async (req, res): Promise<void> => {
   try {
-    if (!req.isAuthenticated() || req.user?.role !== "admin") {
-      return res.status(403).json({ error: "Forbidden" });
+    if (!req.isAuthenticated() || req.user.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
     }
     const params = UpdateUserRoleParams.safeParse({ id: req.params.id });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
     const body = UpdateUserRoleBody.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: "Invalid request body" });
+    if (!body.success) {
+      res.status(400).json({ error: "Invalid request body" });
+      return;
+    }
 
     const [user] = await db
       .update(usersTable)
       .set({ role: body.data.role })
       .where(eq(usersTable.id, params.data.id))
       .returning();
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
     res.json({
       id: user.id,
       name: [user.firstName, user.lastName].filter(Boolean).join(" ") || null,

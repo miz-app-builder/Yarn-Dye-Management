@@ -27,10 +27,10 @@ function generateOrderNo(): string {
   return `ORD-${y}${m}${d}-${rand}`;
 }
 
-router.get("/orders", async (req, res) => {
+router.get("/orders", async (req, res): Promise<void> => {
   try {
     const q = ListOrdersQueryParams.safeParse(req.query);
-    const params = q.success ? q.data : {};
+    const params = (q.success ? q.data : {}) as NonNullable<typeof q.data>;
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 20;
     const offset = (page - 1) * pageSize;
@@ -39,8 +39,8 @@ router.get("/orders", async (req, res) => {
     if (params.factoryId) conditions.push(eq(ordersTable.factoryId, params.factoryId));
     if (params.orderType) conditions.push(eq(ordersTable.orderType, params.orderType));
     if (params.status) conditions.push(eq(ordersTable.status, params.status));
-    if (params.dateFrom) conditions.push(gte(ordersTable.receiveDate, params.dateFrom));
-    if (params.dateTo) conditions.push(lte(ordersTable.receiveDate, params.dateTo));
+    if (params.dateFrom) conditions.push(gte(ordersTable.receiveDate, String(params.dateFrom)));
+    if (params.dateTo) conditions.push(lte(ordersTable.receiveDate, String(params.dateTo)));
     if (params.buyerName) conditions.push(ilike(ordersTable.buyerName, `%${params.buyerName}%`));
     if (params.color) conditions.push(ilike(ordersTable.color, `%${params.color}%`));
     if (params.search) {
@@ -93,13 +93,15 @@ router.get("/orders", async (req, res) => {
   }
 });
 
-router.post("/orders", async (req, res) => {
+router.post("/orders", async (req, res): Promise<void> => {
   try {
     const body = CreateOrderBody.safeParse(req.body);
     if (!body.success) {
-      return res.status(400).json({ error: "Invalid request body" });
+      res.status(400).json({ error: "Invalid request body" });
+      return;
     }
-    const orderNo = body.data.orderNo || generateOrderNo();
+    const orderNo = body.data.orderNo ?? generateOrderNo();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [order] = await db.insert(ordersTable).values({
       orderNo,
       buyerName: body.data.buyerName,
@@ -112,13 +114,13 @@ router.post("/orders", async (req, res) => {
       deliveryDate: body.data.deliveryDate ?? null,
       remarks: body.data.remarks ?? null,
       status: "Received",
-      createdBy: req.user?.id ?? null,
-    }).returning();
+      createdBy: req.user ? req.user.id : null,
+    } as any).returning();
 
     await db.insert(orderStatusHistoryTable).values({
       orderId: order.id,
       status: "Received",
-      updatedBy: req.user?.id ?? null,
+      updatedBy: req.user ? req.user.id : null,
     });
 
     res.status(201).json({ ...order, quantityKg: Number(order.quantityKg), factoryName: null });
@@ -128,10 +130,13 @@ router.post("/orders", async (req, res) => {
   }
 });
 
-router.get("/orders/:id", async (req, res) => {
+router.get("/orders/:id", async (req, res): Promise<void> => {
   try {
     const params = GetOrderParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
 
     const [row] = await db
       .select({
@@ -154,7 +159,10 @@ router.get("/orders/:id", async (req, res) => {
       .leftJoin(factoriesTable, eq(ordersTable.factoryId, factoriesTable.id))
       .where(eq(ordersTable.id, params.data.id));
 
-    if (!row) return res.status(404).json({ error: "Order not found" });
+    if (!row) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
 
     const [photos, statusHistory] = await Promise.all([
       db.select().from(orderPhotosTable).where(eq(orderPhotosTable.orderId, params.data.id)).orderBy(desc(orderPhotosTable.createdAt)),
@@ -173,12 +181,18 @@ router.get("/orders/:id", async (req, res) => {
   }
 });
 
-router.patch("/orders/:id", async (req, res) => {
+router.patch("/orders/:id", async (req, res): Promise<void> => {
   try {
     const params = UpdateOrderParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
     const body = UpdateOrderBody.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: "Invalid request body" });
+    if (!body.success) {
+      res.status(400).json({ error: "Invalid request body" });
+      return;
+    }
 
     const updateData: Record<string, unknown> = {};
     if (body.data.buyerName !== undefined) updateData.buyerName = body.data.buyerName;
@@ -197,7 +211,10 @@ router.patch("/orders/:id", async (req, res) => {
       .set(updateData)
       .where(eq(ordersTable.id, params.data.id))
       .returning();
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!order) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
     res.json({ ...order, quantityKg: Number(order.quantityKg), factoryName: null });
   } catch (err) {
     req.log.error({ err }, "Failed to update order");
@@ -205,10 +222,13 @@ router.patch("/orders/:id", async (req, res) => {
   }
 });
 
-router.delete("/orders/:id", async (req, res) => {
+router.delete("/orders/:id", async (req, res): Promise<void> => {
   try {
     const params = DeleteOrderParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
 
     await db.delete(ordersTable).where(eq(ordersTable.id, params.data.id));
     res.json({ success: true });
@@ -218,25 +238,34 @@ router.delete("/orders/:id", async (req, res) => {
   }
 });
 
-router.post("/orders/:id/status", async (req, res) => {
+router.post("/orders/:id/status", async (req, res): Promise<void> => {
   try {
     const params = UpdateOrderStatusParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
     const body = UpdateOrderStatusBody.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: "Invalid request body" });
+    if (!body.success) {
+      res.status(400).json({ error: "Invalid request body" });
+      return;
+    }
 
     const [order] = await db
       .update(ordersTable)
       .set({ status: body.data.status })
       .where(eq(ordersTable.id, params.data.id))
       .returning();
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!order) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
 
     await db.insert(orderStatusHistoryTable).values({
       orderId: params.data.id,
       status: body.data.status,
       remarks: body.data.remarks ?? null,
-      updatedBy: req.user?.id ?? null,
+      updatedBy: req.user ? req.user.id : null,
     });
 
     res.json({ ...order, quantityKg: Number(order.quantityKg), factoryName: null });
@@ -246,11 +275,13 @@ router.post("/orders/:id/status", async (req, res) => {
   }
 });
 
-// Photos
-router.get("/orders/:id/photos", async (req, res) => {
+router.get("/orders/:id/photos", async (req, res): Promise<void> => {
   try {
     const params = ListOrderPhotosParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
 
     const photos = await db.select().from(orderPhotosTable).where(eq(orderPhotosTable.orderId, params.data.id)).orderBy(desc(orderPhotosTable.createdAt));
     res.json(photos);
@@ -260,18 +291,24 @@ router.get("/orders/:id/photos", async (req, res) => {
   }
 });
 
-router.post("/orders/:id/photos", async (req, res) => {
+router.post("/orders/:id/photos", async (req, res): Promise<void> => {
   try {
     const params = AddOrderPhotoParams.safeParse({ id: Number(req.params.id) });
-    if (!params.success) return res.status(400).json({ error: "Invalid id" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
     const body = AddOrderPhotoBody.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: "Invalid request body" });
+    if (!body.success) {
+      res.status(400).json({ error: "Invalid request body" });
+      return;
+    }
 
     const [photo] = await db.insert(orderPhotosTable).values({
       orderId: params.data.id,
       photoUrl: body.data.photoUrl,
       photoType: body.data.photoType,
-      uploadedBy: req.user?.id ?? null,
+      uploadedBy: req.user ? req.user.id : null,
     }).returning();
     res.status(201).json(photo);
   } catch (err) {
@@ -280,10 +317,13 @@ router.post("/orders/:id/photos", async (req, res) => {
   }
 });
 
-router.delete("/orders/:id/photos/:photoId", async (req, res) => {
+router.delete("/orders/:id/photos/:photoId", async (req, res): Promise<void> => {
   try {
     const params = DeleteOrderPhotoParams.safeParse({ id: Number(req.params.id), photoId: Number(req.params.photoId) });
-    if (!params.success) return res.status(400).json({ error: "Invalid params" });
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid params" });
+      return;
+    }
 
     await db.delete(orderPhotosTable).where(
       and(eq(orderPhotosTable.id, params.data.photoId), eq(orderPhotosTable.orderId, params.data.id))

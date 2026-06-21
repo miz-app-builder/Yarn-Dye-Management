@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   LayoutDashboard, 
   Package, 
