@@ -43,15 +43,26 @@ async function upsertUser(supabaseUser: {
     profileImageUrl: meta.avatar_url || null,
   };
 
-  const [user] = await db
-    .insert(usersTable)
-    .values(userData)
-    .onConflictDoUpdate({
-      target: usersTable.id,
-      set: { ...userData, updatedAt: new Date() },
-    })
-    .returning();
-  return user;
+  try {
+    const [user] = await db
+      .insert(usersTable)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: usersTable.id,
+        set: { ...userData, updatedAt: new Date() },
+      })
+      .returning();
+    return user;
+  } catch {
+    // Email unique constraint conflict — look up the existing user by email
+    const { eq } = await import("drizzle-orm");
+    const [existing] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, userData.email!));
+    if (existing) return existing;
+    throw new Error("Failed to upsert user");
+  }
 }
 
 export async function authMiddleware(
