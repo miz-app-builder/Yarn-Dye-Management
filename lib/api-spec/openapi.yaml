@@ -918,6 +918,8 @@ components:
           type: [string, 'null']
         buyerAddress:
           type: [string, 'null']
+        yarnType:
+          type: [string, 'null']
         attn:
           type: [string, 'null']
         fromPerson:
@@ -994,6 +996,8 @@ components:
           type: string
         fromPerson:
           type: string
+        yarnType:
+          type: string
         processLossPct:
           type: number
         processLossKg:
@@ -1032,6 +1036,8 @@ components:
         attn:
           type: string
         fromPerson:
+          type: string
+        yarnType:
           type: string
         processLossPct:
           type: number

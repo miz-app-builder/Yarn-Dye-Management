@@ -253,7 +253,7 @@ router.patch("/yarn-dyeing-orders/:id", async (req, res): Promise<void> => {
     if (body.data.buyerAddress !== undefined) updateData.buyerAddress = body.data.buyerAddress;
     if (body.data.attn !== undefined) updateData.attn = body.data.attn;
     if (body.data.fromPerson !== undefined) updateData.fromPerson = body.data.fromPerson;
-    if ((body.data as any).yarnType !== undefined) updateData.yarnType = (body.data as any).yarnType;
+    if (body.data.yarnType !== undefined) updateData.yarnType = body.data.yarnType;
     if (body.data.processLossPct !== undefined) updateData.processLossPct = body.data.processLossPct != null ? String(body.data.processLossPct) : null;
     if (body.data.processLossKg !== undefined) updateData.processLossKg = body.data.processLossKg != null ? String(body.data.processLossKg) : null;
     if (body.data.grandTotalKg !== undefined) updateData.grandTotalKg = body.data.grandTotalKg != null ? String(body.data.grandTotalKg) : null;

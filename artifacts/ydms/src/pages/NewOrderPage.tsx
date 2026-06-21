@@ -149,6 +149,7 @@ export default function NewOrderPage() {
       const yarnTypeId = (selected as any).yarnTypeId;
       const matchedYarnType = (yarnTypes as any[]).find((y: any) => y.id === yarnTypeId);
       setSelectedYarnTypeName(matchedYarnType?.name ?? null);
+      form.setValue("yarnType", matchedYarnType?.name ?? "");
       // store process loss values from selected factory
       setSelectedProcessLossBulk(selected.processLossBulk != null ? Number(selected.processLossBulk) : null);
       setSelectedProcessLossSample(selected.processLossSample != null ? Number(selected.processLossSample) : null);

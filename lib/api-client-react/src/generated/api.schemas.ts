@@ -197,6 +197,7 @@ export interface YarnDyeingOrderInput {
   buyerAddress?: string;
   attn?: string;
   fromPerson?: string;
+  yarnType?: string;
   processLossPct?: number;
   processLossKg?: number;
   grandTotalKg?: number;
@@ -223,6 +224,7 @@ export interface YarnDyeingOrderUpdate {
   buyerAddress?: string;
   attn?: string;
   fromPerson?: string;
+  yarnType?: string;
   processLossPct?: number;
   processLossKg?: number;
   grandTotalKg?: number;
