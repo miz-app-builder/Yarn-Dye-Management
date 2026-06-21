@@ -1,8 +1,9 @@
 import { useLocation } from "wouter";
+import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateOrder, useListFactories, useListYarnTypes, getListOrdersQueryKey } from "@workspace/api-client-react";
+import { useCreateOrder, useListFactories, useListYarnTypes, useListRawMaterials, getListOrdersQueryKey } from "@workspace/api-client-react";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Plus, Trash2 } from "lucide-react";
 
 const colorRowSchema = z.object({
-  yarnTypeId: z.coerce.number().optional(),
+  yarnCount: z.string().optional(),
   colorName: z.string().min(1, "Required"),
   colorRef: z.string().optional(),
   qtyKg: z.coerce.number().min(0.01, "Must be > 0"),
@@ -43,7 +44,15 @@ export default function NewOrderPage() {
   const { toast } = useToast();
   const { data: factories } = useListFactories();
   const { data: yarnTypes = [] } = useListYarnTypes();
+  const { data: rawMaterials = [] } = useListRawMaterials();
   const createOrder = useCreateOrder();
+  const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
+
+  const filteredYarnCounts = (rawMaterials as any[])
+    .filter((rm: any) => !selectedYarnTypeName || rm.yarnType === selectedYarnTypeName)
+    .map((rm: any) => rm.yarnCount)
+    .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i)
+    .sort();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -60,7 +69,7 @@ export default function NewOrderPage() {
       buyerAddress: "",
       attn: "",
       from: "",
-      colorRows: [{ yarnTypeId: undefined, colorName: "", colorRef: "", qtyKg: 0 }],
+      colorRows: [{ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0 }],
     },
   });
 
@@ -77,6 +86,14 @@ export default function NewOrderPage() {
       form.setValue("buyerAddress", selected.address ?? "");
       form.setValue("attn", selected.contactPerson ?? "");
       form.setValue("from", (selected as any).location ?? "");
+      // look up yarn type name from yarn_types using factory's yarn_type_id
+      const yarnTypeId = (selected as any).yarnTypeId;
+      const matchedYarnType = (yarnTypes as any[]).find((y: any) => y.id === yarnTypeId);
+      setSelectedYarnTypeName(matchedYarnType?.name ?? null);
+      // reset all yarnCount selections when factory changes
+      form.getValues("colorRows").forEach((_, i) => {
+        form.setValue(`colorRows.${i}.yarnCount`, "");
+      });
     }
   }
 
@@ -89,8 +106,7 @@ export default function NewOrderPage() {
     ].filter(Boolean).join(" | ");
 
     const extraRows = values.colorRows.slice(1).map((r, i) => {
-      const yn = (yarnTypes as any[]).find((y: any) => y.id === r.yarnTypeId);
-      return `Row ${i + 2}: ${yn?.name ?? ""} | ${r.colorName} | ${r.colorRef ?? ""} | ${r.qtyKg} Kg`;
+      return `Row ${i + 2}: ${r.yarnCount ?? ""} | ${r.colorName} | ${r.colorRef ?? ""} | ${r.qtyKg} Kg`;
     });
 
     createOrder.mutate(
@@ -272,17 +288,17 @@ export default function NewOrderPage() {
                         <tr key={field.id} className="border-b last:border-0">
                           <td className="py-1 px-2 text-gray-400 font-medium">{index + 1}</td>
                           <td className="py-1 px-1">
-                            <FormField control={form.control} name={`colorRows.${index}.yarnTypeId`} render={({ field }) => (
+                            <FormField control={form.control} name={`colorRows.${index}.yarnCount`} render={({ field }) => (
                               <FormItem className="m-0">
-                                <Select onValueChange={(v) => field.onChange(Number(v))} value={field.value != null ? field.value.toString() : ""}>
+                                <Select onValueChange={field.onChange} value={field.value ?? ""}>
                                   <FormControl>
                                     <SelectTrigger className="h-7 text-xs">
-                                      <SelectValue placeholder="Select…" />
+                                      <SelectValue placeholder={filteredYarnCounts.length ? "Select…" : "Select factory first"} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {(yarnTypes as any[]).map((y: any) => (
-                                      <SelectItem key={y.id} value={y.id.toString()}>{y.name}</SelectItem>
+                                    {filteredYarnCounts.map((yc: string) => (
+                                      <SelectItem key={yc} value={yc}>{yc}</SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
@@ -339,7 +355,7 @@ export default function NewOrderPage() {
               </div>
               <button
                 type="button"
-                onClick={() => append({ yarnTypeId: undefined, colorName: "", colorRef: "", qtyKg: 0 })}
+                onClick={() => append({ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0 })}
                 className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
               >
                 <Plus className="h-3.5 w-3.5" /> Add Color Row
