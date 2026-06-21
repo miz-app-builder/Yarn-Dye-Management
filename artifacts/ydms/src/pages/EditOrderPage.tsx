@@ -92,6 +92,7 @@ export default function EditOrderPage() {
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "colorRows" });
   const watchedRows = form.watch("colorRows");
   const watchedOrderType = form.watch("orderType");
+  const watchedFactoryId = form.watch("factoryId");
   const totalQty = watchedRows.reduce((sum, r) => sum + (Number(r.qtyKg) || 0), 0);
   const activeProcessLoss: number | null =
     watchedOrderType === "Bulk" ? selectedProcessLossBulk : selectedProcessLossSample;
@@ -242,7 +243,7 @@ export default function EditOrderPage() {
                   <label className="text-xs font-medium">Dyeing Factory</label>
                   <Select
                     onValueChange={handleFactoryChange}
-                    value={form.watch("factoryId")?.toString() ?? ""}
+                    value={watchedFactoryId?.toString() ?? ""}
                   >
                     <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select factory" /></SelectTrigger>
                     <SelectContent>
