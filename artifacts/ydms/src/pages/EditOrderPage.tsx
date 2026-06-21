@@ -61,6 +61,7 @@ export default function EditOrderPage() {
   const [selectedProcessLossBulk, setSelectedProcessLossBulk] = useState<number | null>(null);
   const [selectedProcessLossSample, setSelectedProcessLossSample] = useState<number | null>(null);
   const initializedForOrderRef = useRef<number | null>(null);
+  const prevColorRowsLengthRef = useRef<number>(0);
 
   const rawMaterials: any[] = Array.isArray(rawMaterialsData) ? rawMaterialsData : [];
 
@@ -146,6 +147,27 @@ export default function EditOrderPage() {
       }
     }
   }, [order, factories, yarnTypes, yarnTypesLoaded, orderId]);
+
+  useEffect(() => {
+    if (fields.length <= prevColorRowsLengthRef.current) {
+      prevColorRowsLengthRef.current = fields.length;
+      return;
+    }
+    prevColorRowsLengthRef.current = fields.length;
+
+    const rows = document.querySelectorAll("[data-color-row]");
+    const lastRow = rows[rows.length - 1] as HTMLElement | undefined;
+    if (!lastRow) return;
+
+    const yarnTrigger = lastRow.querySelector<HTMLButtonElement>(
+      'button[role="combobox"]:not([disabled])'
+    );
+    if (yarnTrigger) {
+      yarnTrigger.focus();
+    } else {
+      lastRow.querySelector<HTMLInputElement>("input")?.focus();
+    }
+  }, [fields.length]);
 
   function handleFactoryChange(factoryId: string) {
     const selected = (factories as any[])?.find((f: any) => f.id.toString() === factoryId);
@@ -333,7 +355,7 @@ export default function EditOrderPage() {
                   </thead>
                   <tbody>
                     {fields.map((field, index) => (
-                      <tr key={field.id} className="border-b last:border-0">
+                      <tr key={field.id} data-color-row className="border-b last:border-0">
                         <td className="py-1 px-2 text-gray-400 font-medium">{index + 1}</td>
                         <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.yarnCount`} render={({ field }) => (

@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { UseFormReturn, FieldArrayWithId } from "react-hook-form";
 import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,29 @@ export function NewOrderColorRows({
   watchedOrderType,
   remarks,
 }: NewOrderColorRowsProps) {
+  const prevLengthRef = useRef(fields.length);
+
+  useEffect(() => {
+    if (fields.length <= prevLengthRef.current) {
+      prevLengthRef.current = fields.length;
+      return;
+    }
+    prevLengthRef.current = fields.length;
+
+    const rows = document.querySelectorAll("[data-color-row]");
+    const lastRow = rows[rows.length - 1] as HTMLElement | undefined;
+    if (!lastRow) return;
+
+    const yarnTrigger = lastRow.querySelector<HTMLButtonElement>(
+      'button[role="combobox"]:not([disabled])'
+    );
+    if (yarnTrigger) {
+      yarnTrigger.focus();
+    } else {
+      lastRow.querySelector<HTMLInputElement>("input")?.focus();
+    }
+  }, [fields.length]);
+
   return (
     <>
       <div className="overflow-x-auto">
@@ -55,7 +79,7 @@ export function NewOrderColorRows({
           </thead>
           <tbody>
             {fields.map((field, index) => (
-              <tr key={field.id} className="border-b last:border-0">
+              <tr key={field.id} data-color-row className="border-b last:border-0">
                 <td className="py-1 px-2 text-gray-400 font-medium">{index + 1}</td>
                 <td className="py-1 px-1">
                   <FormField
