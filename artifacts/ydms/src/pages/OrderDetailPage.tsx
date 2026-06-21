@@ -635,11 +635,10 @@ export default function OrderDetailPage() {
               <div><p className="text-xs text-gray-500 mb-1">Order No</p><p className="font-medium text-sm">{order.orderNo}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Order Type</p><p className="font-medium text-sm">{order.orderType}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Status</p><p className="font-medium text-sm">{order.status}</p></div>
-              <div><p className="text-xs text-gray-500 mb-1">Buyer Name</p><p className="font-medium text-sm">{order.buyerName || "—"}</p></div>
+              <div><p className="text-xs text-gray-500 mb-1">Dyeing Factory Name</p><p className="font-medium text-sm">{order.factoryName || "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Customer/Garments</p><p className="font-medium text-sm">{order.customerGarmentsName || "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Job No</p><p className="font-medium text-sm">{order.jobNo || "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Unit</p><p className="font-medium text-sm">{order.unit || "—"}</p></div>
-              <div><p className="text-xs text-gray-500 mb-1">Factory</p><p className="font-medium text-sm">{order.factoryName || "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Yarn Type</p><p className="font-medium text-sm">{order.yarnType || "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Receive Date</p><p className="font-medium text-sm">{order.receiveDate ? new Date(order.receiveDate).toLocaleDateString() : "—"}</p></div>
               <div><p className="text-xs text-gray-500 mb-1">Delivery Date</p><p className="font-medium text-sm">{order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "—"}</p></div>
