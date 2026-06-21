@@ -32,6 +32,10 @@ export interface YarnDyeingOrder {
   attn?: string | null;
   /** @nullable */
   fromPerson?: string | null;
+  /** @nullable */
+  yarnType?: string | null;
+  /** @nullable */
+  remarks?: string | null;
   status: string;
   createdAt: Date;
 }

@@ -4,8 +4,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  useGetOrder, useUpdateOrder, useListFactories, useListYarnTypes,
-  useListRawMaterials, getGetOrderQueryKey, getListOrdersQueryKey,
+  useGetYarnDyeingOrder, useUpdateYarnDyeingOrder, useListFactories, useListYarnTypes,
+  useListRawMaterials, getGetYarnDyeingOrderQueryKey, getListYarnDyeingOrdersQueryKey,
 } from "@workspace/api-client-react";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ const colorRowSchema = z.object({
   colorName: z.string().min(1, "Required"),
   colorRef: z.string().optional(),
   qtyKg: z.coerce.number().min(0.01, "Must be > 0"),
+  remarks: z.string().optional(),
 });
 
 const formSchema = z.object({
@@ -47,13 +48,13 @@ export default function EditOrderPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: order, isLoading: orderLoading } = useGetOrder(orderId, {
-    query: { enabled: !!orderId, queryKey: getGetOrderQueryKey(orderId) }
+  const { data: order, isLoading: orderLoading } = useGetYarnDyeingOrder(orderId, {
+    query: { enabled: !!orderId, queryKey: getGetYarnDyeingOrderQueryKey(orderId) }
   });
   const { data: factories } = useListFactories();
   const { data: yarnTypes = [] } = useListYarnTypes();
   const { data: rawMaterialsData } = useListRawMaterials();
-  const updateOrder = useUpdateOrder();
+  const updateOrder = useUpdateYarnDyeingOrder();
 
   const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
 
@@ -82,7 +83,7 @@ export default function EditOrderPage() {
       buyerAddress: "",
       attn: "",
       remarks: "",
-      colorRows: [{ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0 }],
+      colorRows: [{ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: "" }],
     },
   });
 
@@ -99,6 +100,11 @@ export default function EditOrderPage() {
       deliveryDate: order.deliveryDate ?? "",
       factoryId: order.factoryId ?? undefined,
       buyerName: order.buyerName ?? "",
+      buyerAddress: (order as any).buyerAddress ?? "",
+      attn: (order as any).attn ?? "",
+      customerGarmentsName: order.customerGarmentsName ?? "",
+      jobNo: order.jobNo ?? "",
+      unit: order.unit ?? "",
       yarnType: order.yarnType ?? "",
       remarks: order.remarks ?? "",
       colorRows: colorRowsData?.length
@@ -107,8 +113,9 @@ export default function EditOrderPage() {
             colorName: r.colorName ?? "",
             colorRef: r.colorRef ?? "",
             qtyKg: Number(r.qtyKg) || 0,
+            remarks: r.remarks ?? "",
           }))
-        : [{ yarnCount: "", colorName: order.color ?? "", colorRef: "", qtyKg: Number(order.quantityKg) || 0 }],
+        : [{ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: "" }],
     });
     if (order.factoryId) {
       const factory = (factories as any[])?.find((f: any) => f.id === order.factoryId);
@@ -137,27 +144,30 @@ export default function EditOrderPage() {
   }
 
   function onSubmit(values: FormValues) {
-    const firstRow = values.colorRows[0];
     updateOrder.mutate(
       {
         id: orderId,
         data: {
           orderType: values.orderType,
           buyerName: values.buyerName,
+          buyerAddress: values.buyerAddress || undefined,
+          attn: values.attn || undefined,
+          customerGarmentsName: values.customerGarmentsName || undefined,
+          jobNo: values.jobNo || undefined,
+          unit: values.unit || undefined,
           factoryId: values.factoryId ?? null,
-          yarnType: values.yarnType || firstRow.colorName,
-          color: firstRow.colorName,
-          quantityKg: totalQty,
+          yarnType: values.yarnType || undefined,
           receiveDate: values.date,
           deliveryDate: values.deliveryDate || undefined,
           remarks: values.remarks || undefined,
+          colorRows: values.colorRows as any,
         } as any,
       },
       {
         onSuccess: () => {
           toast({ title: "Order updated successfully" });
-          queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(orderId) });
-          queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetYarnDyeingOrderQueryKey(orderId) });
+          queryClient.invalidateQueries({ queryKey: getListYarnDyeingOrdersQueryKey() });
           setLocation(`/orders/${orderId}`);
         },
         onError: (err: any) => {
@@ -236,6 +246,24 @@ export default function EditOrderPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
+                <FormField control={form.control} name="customerGarmentsName" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Customer/Garments</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="jobNo" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Job No</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="unit" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Unit</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
+                  </FormItem>
+                )} />
                 <FormField control={form.control} name="yarnType" render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-xs">Yarn Type</FormLabel>
@@ -266,6 +294,7 @@ export default function EditOrderPage() {
                       <th className="py-1.5 px-1 text-left">Color Name</th>
                       <th className="py-1.5 px-1 text-left w-28">Color Ref</th>
                       <th className="py-1.5 px-1 text-left w-24">Qty (Kg)</th>
+                      <th className="py-1.5 px-1 text-left">Remarks</th>
                       <th className="py-1.5 px-1 w-8"></th>
                     </tr>
                   </thead>
@@ -315,6 +344,13 @@ export default function EditOrderPage() {
                           )} />
                         </td>
                         <td className="py-1 px-1">
+                          <FormField control={form.control} name={`colorRows.${index}.remarks`} render={({ field }) => (
+                            <FormItem className="m-0">
+                              <FormControl><Input {...field} placeholder="Remarks" className="h-7 text-xs" /></FormControl>
+                            </FormItem>
+                          )} />
+                        </td>
+                        <td className="py-1 px-1">
                           {fields.length > 1 && (
                             <button type="button" onClick={() => remove(index)} className="text-red-400 hover:text-red-600">
                               <Trash2 className="h-3.5 w-3.5" />
@@ -326,7 +362,7 @@ export default function EditOrderPage() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t bg-gray-50">
-                      <td colSpan={3} className="py-1.5 px-2 font-semibold text-right text-xs">Total Qty</td>
+                      <td colSpan={4} className="py-1.5 px-2 font-semibold text-right text-xs">Total Qty</td>
                       <td colSpan={2} className="py-1.5 px-2 font-semibold text-xs">{totalQty > 0 ? `${totalQty.toFixed(2)} Kg` : "—"}</td>
                       <td />
                     </tr>
@@ -335,7 +371,7 @@ export default function EditOrderPage() {
               </div>
               <button
                 type="button"
-                onClick={() => append({ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0 })}
+                onClick={() => append({ yarnCount: "", colorName: "", colorRef: "", qtyKg: 0, remarks: "" })}
                 className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
               >
                 <Plus className="h-3.5 w-3.5" /> Add Color Row

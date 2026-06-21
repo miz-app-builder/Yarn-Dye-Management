@@ -97,220 +97,6 @@ export interface FactoryUpdate {
   status?: boolean;
 }
 
-export type OrderOrderType = typeof OrderOrderType[keyof typeof OrderOrderType];
-
-
-export const OrderOrderType = {
-  Sample: 'Sample',
-  Bulk: 'Bulk',
-} as const;
-
-export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
-
-
-export const OrderStatus = {
-  Received: 'Received',
-  Lab_Dip: 'Lab Dip',
-  Dyeing_Running: 'Dyeing Running',
-  Finishing: 'Finishing',
-  Ready: 'Ready',
-  Delivered: 'Delivered',
-} as const;
-
-export interface Order {
-  id: number;
-  orderNo: string;
-  buyerName: string;
-  /** @nullable */
-  buyerAddress?: string | null;
-  /** @nullable */
-  attn?: string | null;
-  /** @nullable */
-  fromPerson?: string | null;
-  /** @nullable */
-  customerGarmentsName?: string | null;
-  /** @nullable */
-  jobNo?: string | null;
-  /** @nullable */
-  unit?: string | null;
-  /** @nullable */
-  factoryId?: number | null;
-  /** @nullable */
-  factoryName?: string | null;
-  orderType: OrderOrderType;
-  yarnType: string;
-  color: string;
-  quantityKg: number;
-  receiveDate: string;
-  /** @nullable */
-  deliveryDate?: string | null;
-  status: OrderStatus;
-  /** @nullable */
-  remarks?: string | null;
-  createdAt: string;
-}
-
-export interface OrderColorRow {
-  id: number;
-  orderId: number;
-  /** @nullable */
-  yarnCount?: string | null;
-  colorName: string;
-  /** @nullable */
-  colorRef?: string | null;
-  qtyKg: number;
-}
-
-export interface OrderColorRowInput {
-  yarnCount?: string;
-  colorName: string;
-  colorRef?: string;
-  qtyKg: number;
-}
-
-export type OrderPhotoPhotoType = typeof OrderPhotoPhotoType[keyof typeof OrderPhotoPhotoType];
-
-
-export const OrderPhotoPhotoType = {
-  Challan: 'Challan',
-  Yarn_Photo: 'Yarn Photo',
-  Shade_Card: 'Shade Card',
-  Delivery_Evidence: 'Delivery Evidence',
-} as const;
-
-export interface OrderPhoto {
-  id: number;
-  orderId: number;
-  photoUrl: string;
-  photoType: OrderPhotoPhotoType;
-  createdAt: string;
-}
-
-export interface StatusHistoryItem {
-  id: number;
-  orderId: number;
-  status: string;
-  /** @nullable */
-  remarks?: string | null;
-  /** @nullable */
-  updatedBy?: string | null;
-  createdAt: string;
-}
-
-export type OrderDetail = Order & {
-  colorRows?: OrderColorRow[];
-  photos?: OrderPhoto[];
-  statusHistory?: StatusHistoryItem[];
-};
-
-export interface OrderListResponse {
-  orders: Order[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-export type OrderInputOrderType = typeof OrderInputOrderType[keyof typeof OrderInputOrderType];
-
-
-export const OrderInputOrderType = {
-  Sample: 'Sample',
-  Bulk: 'Bulk',
-} as const;
-
-export interface OrderInput {
-  orderNo?: string;
-  buyerName: string;
-  buyerAddress?: string;
-  attn?: string;
-  fromPerson?: string;
-  customerGarmentsName?: string;
-  jobNo?: string;
-  unit?: string;
-  /** @nullable */
-  factoryId?: number | null;
-  orderType: OrderInputOrderType;
-  yarnType: string;
-  color: string;
-  quantityKg: number;
-  receiveDate: string;
-  deliveryDate?: string;
-  remarks?: string;
-  colorRows: OrderColorRowInput[];
-}
-
-export type OrderUpdateOrderType = typeof OrderUpdateOrderType[keyof typeof OrderUpdateOrderType];
-
-
-export const OrderUpdateOrderType = {
-  Sample: 'Sample',
-  Bulk: 'Bulk',
-} as const;
-
-export type OrderUpdateStatus = typeof OrderUpdateStatus[keyof typeof OrderUpdateStatus];
-
-
-export const OrderUpdateStatus = {
-  Received: 'Received',
-  Lab_Dip: 'Lab Dip',
-  Dyeing_Running: 'Dyeing Running',
-  Finishing: 'Finishing',
-  Ready: 'Ready',
-  Delivered: 'Delivered',
-} as const;
-
-export interface OrderUpdate {
-  buyerName?: string;
-  buyerAddress?: string;
-  attn?: string;
-  fromPerson?: string;
-  customerGarmentsName?: string;
-  jobNo?: string;
-  unit?: string;
-  /** @nullable */
-  factoryId?: number | null;
-  orderType?: OrderUpdateOrderType;
-  yarnType?: string;
-  color?: string;
-  quantityKg?: number;
-  receiveDate?: string;
-  deliveryDate?: string;
-  status?: OrderUpdateStatus;
-  remarks?: string;
-}
-
-export type StatusUpdateStatus = typeof StatusUpdateStatus[keyof typeof StatusUpdateStatus];
-
-
-export const StatusUpdateStatus = {
-  Received: 'Received',
-  Lab_Dip: 'Lab Dip',
-  Dyeing_Running: 'Dyeing Running',
-  Finishing: 'Finishing',
-  Ready: 'Ready',
-  Delivered: 'Delivered',
-} as const;
-
-export interface StatusUpdate {
-  status: StatusUpdateStatus;
-  remarks?: string;
-}
-
-export type PhotoInputPhotoType = typeof PhotoInputPhotoType[keyof typeof PhotoInputPhotoType];
-
-
-export const PhotoInputPhotoType = {
-  Challan: 'Challan',
-  Yarn_Photo: 'Yarn Photo',
-  Shade_Card: 'Shade Card',
-  Delivery_Evidence: 'Delivery Evidence',
-} as const;
-
-export interface PhotoInput {
-  photoUrl: string;
-  photoType: PhotoInputPhotoType;
-}
-
 export interface YarnDyeingOrderColorRow {
   id: number;
   orderId: number;
@@ -365,6 +151,10 @@ export interface YarnDyeingOrder {
   attn?: string | null;
   /** @nullable */
   fromPerson?: string | null;
+  /** @nullable */
+  yarnType?: string | null;
+  /** @nullable */
+  remarks?: string | null;
   status: string;
   createdAt: string;
 }
@@ -462,7 +252,7 @@ export interface DailyReport {
   ordersReceived: number;
   totalKg: number;
   deliveredOrders: number;
-  orders?: Order[];
+  orders?: YarnDyeingOrder[];
 }
 
 export interface MonthlyReport {
@@ -589,39 +379,6 @@ iss?: string;
 export type ListFactoriesParams = {
 includeArchived?: boolean;
 };
-
-export type ListOrdersParams = {
-factoryId?: number;
-buyerName?: string;
-color?: string;
-orderType?: ListOrdersOrderType;
-status?: ListOrdersStatus;
-dateFrom?: string;
-dateTo?: string;
-search?: string;
-page?: number;
-pageSize?: number;
-};
-
-export type ListOrdersOrderType = typeof ListOrdersOrderType[keyof typeof ListOrdersOrderType];
-
-
-export const ListOrdersOrderType = {
-  Sample: 'Sample',
-  Bulk: 'Bulk',
-} as const;
-
-export type ListOrdersStatus = typeof ListOrdersStatus[keyof typeof ListOrdersStatus];
-
-
-export const ListOrdersStatus = {
-  Received: 'Received',
-  Lab_Dip: 'Lab Dip',
-  Dyeing_Running: 'Dyeing Running',
-  Finishing: 'Finishing',
-  Ready: 'Ready',
-  Delivered: 'Delivered',
-} as const;
 
 export type ListYarnDyeingOrdersParams = {
 factoryId?: number;

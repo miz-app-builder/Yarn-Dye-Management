@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, deliveriesTable, ordersTable } from "@workspace/db";
+import { db, deliveriesTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 
 const router = Router();
@@ -25,9 +25,6 @@ router.post("/orders/:id/deliveries", async (req, res): Promise<void> => {
       res.status(400).json({ error: "challanNo, deliveryDate and quantityKg are required" });
       return;
     }
-    const [order] = await db.select({ id: ordersTable.id }).from(ordersTable).where(eq(ordersTable.id, orderId));
-    if (!order) { res.status(404).json({ error: "Order not found" }); return; }
-
     const [row] = await db.insert(deliveriesTable).values({
       orderId,
       challanNo,

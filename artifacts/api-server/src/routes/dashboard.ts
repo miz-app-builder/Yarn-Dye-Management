@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db, ordersTable, factoriesTable, orderStatusHistoryTable } from "@workspace/db";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { db, yarnDyeingOrderTable, yarnDyeingOrderColorRowTable, factoriesTable } from "@workspace/db";
+import { eq, sql, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -10,16 +10,17 @@ router.get("/dashboard/summary", async (req, res) => {
 
     const [summary] = await db
       .select({
-        totalOrders: sql<number>`count(*)::int`,
-        totalKg: sql<number>`coalesce(sum(${ordersTable.quantityKg}::numeric), 0)::float`,
-        deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'Delivered')::int`,
-        pendingOrders: sql<number>`count(*) filter (where ${ordersTable.status} != 'Delivered')::int`,
-        runningOrders: sql<number>`count(*) filter (where ${ordersTable.status} in ('Lab Dip', 'Dyeing Running', 'Finishing'))::int`,
-        todayReceived: sql<number>`count(*) filter (where ${ordersTable.receiveDate} = ${today})::int`,
-        sampleOrders: sql<number>`count(*) filter (where ${ordersTable.orderType} = 'Sample')::int`,
-        bulkOrders: sql<number>`count(*) filter (where ${ordersTable.orderType} = 'Bulk')::int`,
+        totalOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id})::int`,
+        totalKg: sql<number>`coalesce(sum(${yarnDyeingOrderColorRowTable.qtyKg}::numeric), 0)::float`,
+        deliveredOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} = 'Delivered')::int`,
+        pendingOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} != 'Delivered')::int`,
+        runningOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} in ('Lab Dip', 'Dyeing Running', 'Finishing'))::int`,
+        todayReceived: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.receiveDate} = ${today})::int`,
+        sampleOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.orderType} = 'Sample')::int`,
+        bulkOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.orderType} = 'Bulk')::int`,
       })
-      .from(ordersTable);
+      .from(yarnDyeingOrderTable)
+      .leftJoin(yarnDyeingOrderColorRowTable, eq(yarnDyeingOrderColorRowTable.orderId, yarnDyeingOrderTable.id));
 
     res.json(summary);
   } catch (err) {
@@ -34,16 +35,17 @@ router.get("/dashboard/factory-performance", async (req, res) => {
       .select({
         factoryId: factoriesTable.id,
         factoryName: factoriesTable.name,
-        totalOrders: sql<number>`count(${ordersTable.id})::int`,
-        completedOrders: sql<number>`count(${ordersTable.id}) filter (where ${ordersTable.status} = 'Delivered')::int`,
-        pendingOrders: sql<number>`count(${ordersTable.id}) filter (where ${ordersTable.status} != 'Delivered')::int`,
-        totalKg: sql<number>`coalesce(sum(${ordersTable.quantityKg}::numeric), 0)::float`,
+        totalOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id})::int`,
+        completedOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} = 'Delivered')::int`,
+        pendingOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} != 'Delivered')::int`,
+        totalKg: sql<number>`coalesce(sum(${yarnDyeingOrderColorRowTable.qtyKg}::numeric), 0)::float`,
       })
       .from(factoriesTable)
-      .leftJoin(ordersTable, eq(ordersTable.factoryId, factoriesTable.id))
+      .leftJoin(yarnDyeingOrderTable, eq(yarnDyeingOrderTable.factoryId, factoriesTable.id))
+      .leftJoin(yarnDyeingOrderColorRowTable, eq(yarnDyeingOrderColorRowTable.orderId, yarnDyeingOrderTable.id))
       .where(eq(factoriesTable.status, true))
       .groupBy(factoriesTable.id, factoriesTable.name)
-      .orderBy(desc(sql`count(${ordersTable.id})`));
+      .orderBy(desc(sql`count(distinct ${yarnDyeingOrderTable.id})`));
 
     res.json(rows);
   } catch (err) {
@@ -58,17 +60,16 @@ router.get("/dashboard/recent-activity", async (req, res) => {
 
     const rows = await db
       .select({
-        id: orderStatusHistoryTable.id,
-        orderNo: ordersTable.orderNo,
-        buyerName: ordersTable.buyerName,
+        id: yarnDyeingOrderTable.id,
+        orderNo: yarnDyeingOrderTable.orderNo,
+        buyerName: yarnDyeingOrderTable.customerGarmentsName,
         factoryName: factoriesTable.name,
-        status: orderStatusHistoryTable.status,
-        createdAt: orderStatusHistoryTable.createdAt,
+        status: yarnDyeingOrderTable.status,
+        createdAt: yarnDyeingOrderTable.createdAt,
       })
-      .from(orderStatusHistoryTable)
-      .innerJoin(ordersTable, eq(orderStatusHistoryTable.orderId, ordersTable.id))
-      .leftJoin(factoriesTable, eq(ordersTable.factoryId, factoriesTable.id))
-      .orderBy(desc(orderStatusHistoryTable.createdAt))
+      .from(yarnDyeingOrderTable)
+      .leftJoin(factoriesTable, eq(yarnDyeingOrderTable.factoryId, factoriesTable.id))
+      .orderBy(desc(yarnDyeingOrderTable.createdAt))
       .limit(limit);
 
     res.json(rows);

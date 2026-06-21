@@ -1,11 +1,11 @@
 import { pgTable, serial, text, date, numeric, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { ordersTable } from "./orders";
+import { yarnDyeingOrderTable } from "./yarnDyeingOrder";
 
 export const deliveriesTable = pgTable("deliveries", {
   id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull().references(() => ordersTable.id, { onDelete: "cascade" }),
+  orderId: integer("order_id").notNull().references(() => yarnDyeingOrderTable.id, { onDelete: "cascade" }),
   challanNo: text("challan_no").notNull(),
   deliveryDate: date("delivery_date", { mode: "string" }).notNull(),
   quantityKg: numeric("quantity_kg", { precision: 10, scale: 2 }).notNull(),

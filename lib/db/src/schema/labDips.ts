@@ -1,11 +1,11 @@
 import { pgTable, serial, text, date, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { ordersTable } from "./orders";
+import { yarnDyeingOrderTable } from "./yarnDyeingOrder";
 
 export const labDipsTable = pgTable("lab_dips", {
   id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull().references(() => ordersTable.id, { onDelete: "cascade" }),
+  orderId: integer("order_id").notNull().references(() => yarnDyeingOrderTable.id, { onDelete: "cascade" }),
   labDipNo: text("lab_dip_no").notNull(),
   shadeRef: text("shade_ref"),
   submissionDate: date("submission_date", { mode: "string" }).notNull(),

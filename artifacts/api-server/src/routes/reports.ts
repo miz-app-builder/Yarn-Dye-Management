@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, ordersTable, factoriesTable } from "@workspace/db";
+import { db, yarnDyeingOrderTable, yarnDyeingOrderColorRowTable, factoriesTable } from "@workspace/db";
 import { eq, and, sql, gte, lte, desc } from "drizzle-orm";
 
 const router = Router();
@@ -10,41 +10,40 @@ router.get("/reports/daily", async (req, res) => {
 
     const [summary] = await db
       .select({
-        ordersReceived: sql<number>`count(*)::int`,
-        totalKg: sql<number>`coalesce(sum(${ordersTable.quantityKg}::numeric), 0)::float`,
-        deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'Delivered')::int`,
+        ordersReceived: sql<number>`count(distinct ${yarnDyeingOrderTable.id})::int`,
+        totalKg: sql<number>`coalesce(sum(${yarnDyeingOrderColorRowTable.qtyKg}::numeric), 0)::float`,
+        deliveredOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} = 'Delivered')::int`,
       })
-      .from(ordersTable)
-      .where(eq(ordersTable.receiveDate, date));
+      .from(yarnDyeingOrderTable)
+      .leftJoin(yarnDyeingOrderColorRowTable, eq(yarnDyeingOrderColorRowTable.orderId, yarnDyeingOrderTable.id))
+      .where(eq(yarnDyeingOrderTable.receiveDate, date));
 
     const orders = await db
       .select({
-        id: ordersTable.id,
-        orderNo: ordersTable.orderNo,
-        buyerName: ordersTable.buyerName,
-        factoryId: ordersTable.factoryId,
+        id: yarnDyeingOrderTable.id,
+        orderNo: yarnDyeingOrderTable.orderNo,
+        customerGarmentsName: yarnDyeingOrderTable.customerGarmentsName,
+        jobNo: yarnDyeingOrderTable.jobNo,
+        unit: yarnDyeingOrderTable.unit,
+        factoryId: yarnDyeingOrderTable.factoryId,
         factoryName: factoriesTable.name,
-        orderType: ordersTable.orderType,
-        yarnType: ordersTable.yarnType,
-        color: ordersTable.color,
-        quantityKg: ordersTable.quantityKg,
-        receiveDate: ordersTable.receiveDate,
-        deliveryDate: ordersTable.deliveryDate,
-        status: ordersTable.status,
-        remarks: ordersTable.remarks,
-        createdAt: ordersTable.createdAt,
+        orderType: yarnDyeingOrderTable.orderType,
+        receiveDate: yarnDyeingOrderTable.receiveDate,
+        deliveryDate: yarnDyeingOrderTable.deliveryDate,
+        status: yarnDyeingOrderTable.status,
+        createdAt: yarnDyeingOrderTable.createdAt,
       })
-      .from(ordersTable)
-      .leftJoin(factoriesTable, eq(ordersTable.factoryId, factoriesTable.id))
-      .where(eq(ordersTable.receiveDate, date))
-      .orderBy(desc(ordersTable.createdAt));
+      .from(yarnDyeingOrderTable)
+      .leftJoin(factoriesTable, eq(yarnDyeingOrderTable.factoryId, factoriesTable.id))
+      .where(eq(yarnDyeingOrderTable.receiveDate, date))
+      .orderBy(desc(yarnDyeingOrderTable.createdAt));
 
     res.json({
       date,
       ordersReceived: summary?.ordersReceived ?? 0,
       totalKg: summary?.totalKg ?? 0,
       deliveredOrders: summary?.deliveredOrders ?? 0,
-      orders: orders.map(o => ({ ...o, quantityKg: Number(o.quantityKg) })),
+      orders,
     });
   } catch (err) {
     req.log.error({ err }, "Failed to get daily report");
@@ -63,14 +62,15 @@ router.get("/reports/monthly", async (req, res) => {
 
     const [summary] = await db
       .select({
-        totalOrders: sql<number>`count(*)::int`,
-        sampleOrders: sql<number>`count(*) filter (where ${ordersTable.orderType} = 'Sample')::int`,
-        bulkOrders: sql<number>`count(*) filter (where ${ordersTable.orderType} = 'Bulk')::int`,
-        totalKg: sql<number>`coalesce(sum(${ordersTable.quantityKg}::numeric), 0)::float`,
-        deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'Delivered')::int`,
+        totalOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id})::int`,
+        sampleOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.orderType} = 'Sample')::int`,
+        bulkOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.orderType} = 'Bulk')::int`,
+        totalKg: sql<number>`coalesce(sum(${yarnDyeingOrderColorRowTable.qtyKg}::numeric), 0)::float`,
+        deliveredOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} = 'Delivered')::int`,
       })
-      .from(ordersTable)
-      .where(and(gte(ordersTable.receiveDate, fromDate), lte(ordersTable.receiveDate, toDate)));
+      .from(yarnDyeingOrderTable)
+      .leftJoin(yarnDyeingOrderColorRowTable, eq(yarnDyeingOrderColorRowTable.orderId, yarnDyeingOrderTable.id))
+      .where(and(gte(yarnDyeingOrderTable.receiveDate, fromDate), lte(yarnDyeingOrderTable.receiveDate, toDate)));
 
     res.json({
       year,
@@ -95,13 +95,14 @@ router.get("/reports/factory", async (req, res) => {
       .select({
         factoryId: factoriesTable.id,
         factoryName: factoriesTable.name,
-        totalOrders: sql<number>`count(${ordersTable.id})::int`,
-        completedOrders: sql<number>`count(${ordersTable.id}) filter (where ${ordersTable.status} = 'Delivered')::int`,
-        pendingOrders: sql<number>`count(${ordersTable.id}) filter (where ${ordersTable.status} != 'Delivered')::int`,
-        totalKg: sql<number>`coalesce(sum(${ordersTable.quantityKg}::numeric), 0)::float`,
+        totalOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id})::int`,
+        completedOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} = 'Delivered')::int`,
+        pendingOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.status} != 'Delivered')::int`,
+        totalKg: sql<number>`coalesce(sum(${yarnDyeingOrderColorRowTable.qtyKg}::numeric), 0)::float`,
       })
       .from(factoriesTable)
-      .leftJoin(ordersTable, eq(ordersTable.factoryId, factoriesTable.id))
+      .leftJoin(yarnDyeingOrderTable, eq(yarnDyeingOrderTable.factoryId, factoriesTable.id))
+      .leftJoin(yarnDyeingOrderColorRowTable, eq(yarnDyeingOrderColorRowTable.orderId, yarnDyeingOrderTable.id))
       .where(factoryId ? eq(factoriesTable.id, factoryId) : eq(factoriesTable.status, true))
       .groupBy(factoriesTable.id, factoriesTable.name)
       .orderBy(factoriesTable.name);
@@ -117,15 +118,16 @@ router.get("/reports/buyer", async (req, res) => {
   try {
     const rows = await db
       .select({
-        buyerName: ordersTable.buyerName,
-        totalOrders: sql<number>`count(*)::int`,
-        totalKg: sql<number>`coalesce(sum(${ordersTable.quantityKg}::numeric), 0)::float`,
-        sampleOrders: sql<number>`count(*) filter (where ${ordersTable.orderType} = 'Sample')::int`,
-        bulkOrders: sql<number>`count(*) filter (where ${ordersTable.orderType} = 'Bulk')::int`,
+        buyerName: yarnDyeingOrderTable.customerGarmentsName,
+        totalOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id})::int`,
+        totalKg: sql<number>`coalesce(sum(${yarnDyeingOrderColorRowTable.qtyKg}::numeric), 0)::float`,
+        sampleOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.orderType} = 'Sample')::int`,
+        bulkOrders: sql<number>`count(distinct ${yarnDyeingOrderTable.id}) filter (where ${yarnDyeingOrderTable.orderType} = 'Bulk')::int`,
       })
-      .from(ordersTable)
-      .groupBy(ordersTable.buyerName)
-      .orderBy(desc(sql`count(*)`));
+      .from(yarnDyeingOrderTable)
+      .leftJoin(yarnDyeingOrderColorRowTable, eq(yarnDyeingOrderColorRowTable.orderId, yarnDyeingOrderTable.id))
+      .groupBy(yarnDyeingOrderTable.customerGarmentsName)
+      .orderBy(desc(sql`count(distinct ${yarnDyeingOrderTable.id})`));
 
     res.json(rows);
   } catch (err) {

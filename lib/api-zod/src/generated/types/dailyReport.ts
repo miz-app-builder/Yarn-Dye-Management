@@ -5,12 +5,12 @@
  * Yarn Dyeing Management System API
  * OpenAPI spec version: 0.1.0
  */
-import type { Order } from './order';
+import type { YarnDyeingOrder } from './yarnDyeingOrder';
 
 export interface DailyReport {
   date: Date;
   ordersReceived: number;
   totalKg: number;
   deliveredOrders: number;
-  orders?: Order[];
+  orders?: YarnDyeingOrder[];
 }
