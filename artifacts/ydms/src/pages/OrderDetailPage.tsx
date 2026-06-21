@@ -28,100 +28,154 @@ const STATUS_COLORS: Record<string, string> = {
   "Delivered": "bg-teal-100 text-teal-800",
 };
 
+const NOTE_LINES = [
+  "Dyes & Chemicals Should Be Oekotex Standard.",
+  "Color Should be as Per Attached Sample",
+  "Color fastness to: Dry Rubbing, Wet Rubbing, Water, Perspiration, Light",
+  "EU Wash Test",
+  "Banned Azo Dyes (NPEO & OPEO)",
+  "Formaldehyde JIS L 1041-1983",
+  "pH (4.5-7.5)",
+  "Phenolic Yellowing",
+];
+
 async function exportToPdf(order: any, colorRows: any[], totalQty: number) {
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
-  const margin = 14;
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 18;
+  const title = `${order.orderType === "Sample" ? "Sample" : "Bulk"} Dyeing Work Order Sheet`;
 
-  doc.setFontSize(16);
+  // ── Title ──────────────────────────────────────────────────────────────────
+  doc.setFontSize(15);
   doc.setFont("helvetica", "bold");
-  doc.text("Yarn Dyeing Management System", margin, 18);
+  doc.text(title, pageW / 2, 18, { align: "center" });
+  // underline
+  const titleW = doc.getTextWidth(title);
+  doc.setLineWidth(0.4);
+  doc.line(pageW / 2 - titleW / 2, 19.5, pageW / 2 + titleW / 2, 19.5);
 
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(80, 80, 80);
-  doc.text("Dyeing Order Details", margin, 25);
-
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text(`Order No: ${order.orderNo}`, margin, 34);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Status: ${order.status}`, margin + 80, 34);
-  doc.text(`Type: ${order.orderType}`, margin + 140, 34);
-
-  let y = 40;
+  // ── Order No / Date ────────────────────────────────────────────────────────
   doc.setFontSize(9);
-  const infoLeft = [
-    ["Buyer Name", order.buyerName || "—"],
-    ["Customer / Garments", order.customerGarmentsName || "—"],
-    ["Job No", order.jobNo || "—"],
-    ["Unit", order.unit || "—"],
-  ];
-  const infoRight = [
-    ["Factory", order.factoryName || "—"],
-    ["Yarn Type", order.yarnType || "—"],
-    ["Receive Date", order.receiveDate || "—"],
-    ["Delivery Date", order.deliveryDate || "—"],
-  ];
+  doc.setFont("helvetica", "normal");
+  let y = 27;
+  doc.text(`Order No:  ${order.orderNo}`, margin, y);
+  doc.text(`Date  :  ${order.receiveDate || ""}`, margin, y + 5);
 
-  infoLeft.forEach(([label, value], i) => {
-    doc.setFont("helvetica", "bold");
-    doc.text(`${label}:`, margin, y + i * 6);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(value), margin + 40, y + i * 6);
-  });
-  infoRight.forEach(([label, value], i) => {
-    doc.setFont("helvetica", "bold");
-    doc.text(`${label}:`, pageW / 2 + 4, y + i * 6);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(value), pageW / 2 + 40, y + i * 6);
-  });
+  // ── To / Attn / From ──────────────────────────────────────────────────────
+  y += 13;
+  doc.setFont("helvetica", "normal");
+  doc.text("To", margin, y);
+  if (order.buyerName) { y += 5; doc.text(`${order.buyerName}`, margin, y); }
+  if ((order as any).customerGarmentsName) { y += 5; doc.text(`${(order as any).customerGarmentsName}`, margin, y); }
+  if ((order as any).buyerAddress) { y += 5; doc.text(`${(order as any).buyerAddress}`, margin, y); }
+  if ((order as any).attn) { y += 5; doc.text(`Attn: ${(order as any).attn}`, margin, y); }
+  if (order.fromPerson) { y += 5; doc.text(`From: ${order.fromPerson}`, margin, y); }
 
-  if (order.remarks) {
-    y += infoLeft.length * 6 + 4;
-    doc.setFont("helvetica", "bold");
-    doc.text("Remarks:", margin, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(order.remarks, margin + 20, y);
-  }
-
-  y = 68;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Color Rows", margin, y);
+  // ── Color Table ────────────────────────────────────────────────────────────
+  y += 7;
+  const remarkStr = [
+    order.factoryName ? `Factory: ${order.factoryName}` : "",
+    order.jobNo ? `Job No: ${order.jobNo}` : "",
+    order.unit ? `Unit: ${order.unit}` : "",
+  ].filter(Boolean).join("\n");
 
   autoTable(doc, {
-    startY: y + 4,
-    head: [["#", "Yarn Count", "Color Name", "Color Ref / Swatch", "Qty (Kg)", "Remarks"]],
+    startY: y,
+    head: [["Sl. No", "Color Name", "Color Approval\nSwatch", "Qty. in Kg.", "Remarks"]],
     body: colorRows.map((cr, i) => [
       i + 1,
-      cr.yarnCount || "—",
-      cr.colorName || "—",
-      cr.colorRef || "—",
-      Number(cr.qtyKg).toFixed(2),
-      cr.remarks || "—",
+      `${cr.colorName || ""}${cr.yarnCount ? `\n${cr.yarnCount}` : ""}`,
+      cr.colorRef || "S/OK",
+      `${Number(cr.qtyKg).toFixed(1)} Kg`,
+      cr.remarks ? `${remarkStr}\n${cr.remarks}` : remarkStr,
     ]),
-    foot: [["", "", "", "Total", totalQty.toFixed(2), ""]],
+    foot: [["", "", "Total Qty", `${totalQty.toFixed(1)} Kgs`, ""]],
     theme: "grid",
-    headStyles: { fillColor: [79, 70, 229], fontSize: 9, fontStyle: "bold" },
-    footStyles: { fillColor: [240, 240, 255], fontSize: 9, fontStyle: "bold" },
-    bodyStyles: { fontSize: 9 },
-    columnStyles: { 4: { halign: "right" } },
+    headStyles: {
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      fontSize: 9,
+      halign: "center",
+      lineColor: [0, 0, 0],
+      lineWidth: 0.3,
+    },
+    footStyles: {
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      fontSize: 9,
+      halign: "center",
+      lineColor: [0, 0, 0],
+      lineWidth: 0.3,
+    },
+    bodyStyles: {
+      fontSize: 9,
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.3,
+    },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 14 },
+      1: { cellWidth: 48 },
+      2: { halign: "center", cellWidth: 32 },
+      3: { halign: "center", cellWidth: 24 },
+      4: { cellWidth: "auto" as any },
+    },
     margin: { left: margin, right: margin },
   });
 
-  const pageCount = (doc.internal as any).getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setTextColor(150);
-    doc.text(`Page ${i} of ${pageCount}`, pageW - margin, doc.internal.pageSize.getHeight() - 8, { align: "right" });
-    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, doc.internal.pageSize.getHeight() - 8);
-  }
+  y = (doc as any).lastAutoTable.finalY + 8;
+
+  // ── Note Section ───────────────────────────────────────────────────────────
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("Note:", margin, y);
+  const noteLabel = "All Test Requirement.";
+  doc.text(noteLabel, margin + 12, y);
+  const nlW = doc.getTextWidth(noteLabel);
+  doc.setLineWidth(0.3);
+  doc.line(margin + 12, y + 1, margin + 12 + nlW, y + 1);
+
+  // "Light Source = D65" box (right side)
+  const boxX = pageW - margin - 45;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.rect(boxX, y - 4, 45, 8);
+  doc.text("Light Source = D65", boxX + 22.5, y + 0.5, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  y += 6;
+  NOTE_LINES.forEach((line) => {
+    doc.text(`  *  ${line}`, margin + 2, y);
+    y += 5;
+  });
+
+  // "BUYER = ..." box
+  y += 2;
+  const buyerBox = `BUYER = ${order.buyerName || ""}`;
+  const bbW = Math.max(60, doc.getTextWidth(buyerBox) + 8);
+  doc.setLineWidth(0.4);
+  doc.rect(margin + 8, y - 4, bbW, 8);
+  doc.setFont("helvetica", "bold");
+  doc.text(buyerBox, margin + 8 + bbW / 2, y + 0.5, { align: "center" });
+
+  // ── Footer signature line ──────────────────────────────────────────────────
+  const footY = pageH - 16;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  const footLabels = ["Received By", "Accountant", "Store Incharge", "Authorised Signature"];
+  const footSpacing = (pageW - margin * 2) / (footLabels.length - 1);
+  footLabels.forEach((lbl, i) => {
+    const x = margin + i * footSpacing;
+    doc.line(x - 12, footY, x + 12, footY);
+    doc.text(lbl, x, footY + 5, { align: "center" });
+  });
 
   doc.save(`${order.orderNo}.pdf`);
 }
@@ -160,6 +214,13 @@ async function exportToExcel(order: any, colorRows: any[], totalQty: number) {
 }
 
 function printOrder(order: any, colorRows: any[], totalQty: number) {
+  const title = `${order.orderType === "Sample" ? "Sample" : "Bulk"} Dyeing Work Order Sheet`;
+  const remarkStr = [
+    order.factoryName ? `Factory: ${order.factoryName}` : "",
+    order.jobNo ? `Job No: ${order.jobNo}` : "",
+    order.unit ? `Unit: ${order.unit}` : "",
+  ].filter(Boolean).join("<br>");
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -167,63 +228,114 @@ function printOrder(order: any, colorRows: any[], totalQty: number) {
       <title>${order.orderNo}</title>
       <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; font-size: 11px; color: #111; padding: 20px; }
-        h1 { font-size: 16px; margin-bottom: 2px; }
-        .subtitle { color: #555; margin-bottom: 14px; font-size: 12px; }
-        .header-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        .order-no { font-size: 14px; font-weight: bold; }
-        .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-bottom: 14px; }
-        .meta-item { display: flex; gap: 6px; }
-        .meta-label { font-weight: bold; color: #444; min-width: 130px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #4f46e5; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
-        td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; }
-        tfoot td { font-weight: bold; background: #f0f0ff; }
-        .text-right { text-align: right; }
-        @media print { body { padding: 10px; } }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 28px 32px; }
+        h1 { font-size: 16px; font-weight: bold; text-align: center; text-decoration: underline; margin-bottom: 14px; }
+        .top-info { margin-bottom: 4px; }
+        .top-info p { margin-bottom: 3px; }
+        .to-section { margin: 10px 0 8px 0; }
+        .to-section p { margin-bottom: 2px; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0 14px 0; }
+        th { border: 1px solid #000; padding: 5px 7px; text-align: center; font-size: 10px; font-weight: bold; background: #fff; }
+        td { border: 1px solid #000; padding: 5px 7px; font-size: 10px; vertical-align: top; }
+        td.center { text-align: center; }
+        tfoot td { font-weight: bold; text-align: center; }
+        .note-section { margin-top: 6px; }
+        .note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .note-title { font-weight: bold; font-size: 11px; }
+        .note-title u { text-decoration: underline; }
+        .light-box { border: 1.5px solid #000; padding: 4px 10px; font-weight: bold; font-size: 11px; }
+        .note-list { list-style: none; padding: 0; margin: 0 0 8px 8px; }
+        .note-list li { margin-bottom: 3px; }
+        .note-list li::before { content: "* "; font-weight: bold; }
+        .buyer-box { display: inline-block; border: 1.5px solid #000; padding: 4px 14px; font-weight: bold; font-size: 11px; margin: 4px 0 0 8px; }
+        .footer { display: flex; justify-content: space-between; margin-top: 40px; }
+        .footer-item { text-align: center; min-width: 100px; }
+        .footer-item .line { border-top: 1px solid #000; margin-bottom: 4px; }
+        @media print {
+          body { padding: 14px 18px; }
+          @page { margin: 10mm; }
+        }
       </style>
     </head>
     <body>
-      <h1>Yarn Dyeing Management System</h1>
-      <div class="subtitle">Dyeing Order Details</div>
-      <div class="header-row">
-        <span class="order-no">Order No: ${order.orderNo}</span>
-        <span>Status: <strong>${order.status}</strong> &nbsp;|&nbsp; Type: <strong>${order.orderType}</strong></span>
+      <h1>${title}</h1>
+
+      <div class="top-info">
+        <p>Order No:&nbsp; ${order.orderNo}</p>
+        <p>Date &nbsp;&nbsp;&nbsp;:&nbsp; ${order.receiveDate || ""}</p>
       </div>
-      <div class="meta">
-        <div class="meta-item"><span class="meta-label">Buyer Name:</span><span>${order.buyerName || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Factory:</span><span>${order.factoryName || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Customer/Garments:</span><span>${order.customerGarmentsName || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Yarn Type:</span><span>${order.yarnType || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Job No:</span><span>${order.jobNo || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Unit:</span><span>${order.unit || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Receive Date:</span><span>${order.receiveDate || "—"}</span></div>
-        <div class="meta-item"><span class="meta-label">Delivery Date:</span><span>${order.deliveryDate || "—"}</span></div>
-        ${order.remarks ? `<div class="meta-item" style="grid-column:1/-1"><span class="meta-label">Remarks:</span><span>${order.remarks}</span></div>` : ""}
+
+      <div class="to-section">
+        <p>To</p>
+        ${order.buyerName ? `<p>${order.buyerName}</p>` : ""}
+        ${order.customerGarmentsName ? `<p>${order.customerGarmentsName}</p>` : ""}
+        ${order.buyerAddress ? `<p>${order.buyerAddress}</p>` : ""}
+        ${order.attn ? `<p>Attn: ${order.attn}</p>` : ""}
+        ${order.fromPerson ? `<p>From: ${order.fromPerson}</p>` : ""}
       </div>
+
       <table>
         <thead>
           <tr>
-            <th>#</th><th>Yarn Count</th><th>Color Name</th><th>Color Ref / Swatch</th><th class="text-right">Qty (Kg)</th><th>Remarks</th>
+            <th style="width:36px">Sl. No</th>
+            <th>Color Name</th>
+            <th>Color Approval Swatch</th>
+            <th style="width:80px">Qty. in Kg.</th>
+            <th>Remarks</th>
           </tr>
         </thead>
         <tbody>
           ${colorRows.map((cr, i) => `
             <tr>
-              <td>${i + 1}</td>
-              <td>${cr.yarnCount || "—"}</td>
-              <td>${cr.colorName || "—"}</td>
-              <td>${cr.colorRef || "—"}</td>
-              <td class="text-right">${Number(cr.qtyKg).toFixed(2)}</td>
-              <td>${cr.remarks || "—"}</td>
+              <td class="center">${i + 1}</td>
+              <td>${cr.colorName || ""}${cr.yarnCount ? `<br><span style="font-size:9px;color:#333">${cr.yarnCount}</span>` : ""}</td>
+              <td class="center">${cr.colorRef || "S/OK"}</td>
+              <td class="center">${Number(cr.qtyKg).toFixed(1)} Kg</td>
+              <td style="font-size:9.5px">${remarkStr}${cr.remarks ? `<br>${cr.remarks}` : ""}</td>
             </tr>
           `).join("")}
         </tbody>
         <tfoot>
-          <tr><td colspan="4" style="text-align:right">Total</td><td class="text-right">${totalQty.toFixed(2)}</td><td></td></tr>
+          <tr>
+            <td colspan="3" style="text-align:right;font-weight:bold">Total Qty</td>
+            <td class="center">${totalQty.toFixed(1)} Kgs</td>
+            <td></td>
+          </tr>
         </tfoot>
       </table>
-      <p style="margin-top:16px;color:#888;font-size:9px">Printed: ${new Date().toLocaleString()}</p>
+
+      <div class="note-section">
+        <div class="note-header">
+          <span class="note-title">Note:&nbsp; <u>All Test Requirement.</u></span>
+          <span class="light-box">Light Source = D65</span>
+        </div>
+        <ul class="note-list">
+          <li>Dyes &amp; Chemicals Should Be Oekotex Standard.</li>
+          <li>Color Should be as Per Attached Sample</li>
+          <li>Color fastness to:
+            <ul style="list-style:none;padding-left:16px;margin-top:2px">
+              <li>* Dry Rubbing</li>
+              <li>* Wet Rubbing</li>
+              <li>* Water</li>
+              <li>* Perspiration</li>
+              <li>* Light</li>
+            </ul>
+          </li>
+          <li>EU Wash Test</li>
+          <li>Banned Azo Dyes (NPEO &amp; OPEO)</li>
+          <li>Formaldehyde JIS L 1041-1983</li>
+          <li>pH (4.5-7.5)</li>
+          <li>Phenolic Yellowing</li>
+        </ul>
+        <div class="buyer-box">BUYER = ${order.buyerName || ""}</div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-item"><div class="line"></div>Received By</div>
+        <div class="footer-item"><div class="line"></div>Accountant</div>
+        <div class="footer-item"><div class="line"></div>Store Incharge</div>
+        <div class="footer-item"><div class="line"></div>Authorised Signature</div>
+      </div>
     </body>
     </html>
   `;
