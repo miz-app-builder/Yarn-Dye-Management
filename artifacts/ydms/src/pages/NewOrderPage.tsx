@@ -24,11 +24,11 @@ const formSchema = z.object({
   orderNo: z.string().optional(),
   orderType: z.enum(["Sample", "Bulk"]),
   date: z.string().min(1, "Required"),
+  factoryId: z.coerce.number({ required_error: "Required" }).min(1, "Required"),
   buyerName: z.string().min(1, "Required"),
   buyerAddress: z.string().optional(),
   attn: z.string().optional(),
   from: z.string().optional(),
-  factoryId: z.coerce.number().optional(),
   yarnType: z.string().optional(),
   deliveryDate: z.string().optional(),
   colorRows: z.array(colorRowSchema).min(1),
@@ -62,6 +62,16 @@ export default function NewOrderPage() {
   const watchedRows = form.watch("colorRows");
   const totalQty = watchedRows.reduce((sum, r) => sum + (Number(r.qtyKg) || 0), 0);
 
+  function handleFactoryChange(factoryId: string) {
+    const selected = factories?.find((f: any) => f.id.toString() === factoryId);
+    if (selected) {
+      form.setValue("factoryId", Number(factoryId));
+      form.setValue("buyerName", selected.name ?? "");
+      form.setValue("buyerAddress", selected.address ?? "");
+      form.setValue("attn", selected.contactPerson ?? "");
+    }
+  }
+
   function onSubmit(values: FormValues) {
     const firstRow = values.colorRows[0];
     const remarksParts = [];
@@ -85,7 +95,7 @@ export default function NewOrderPage() {
           orderNo: values.orderNo || undefined,
           orderType: values.orderType,
           buyerName: values.buyerName,
-          factoryId: values.factoryId || undefined,
+          factoryId: values.factoryId,
           yarnType: values.yarnType || firstRow.colorName,
           color: firstRow.colorName,
           quantityKg: totalQty,
@@ -135,10 +145,10 @@ export default function NewOrderPage() {
               </h2>
             </div>
 
-            {/* Order No & Date */}
+            {/* Order No, Date, Order Type */}
             <div className="mb-4 space-y-1 text-sm">
               <div className="flex items-center gap-2">
-                <span className="font-bold w-24">Order No:</span>
+                <span className="font-bold w-28">Order No:</span>
                 <FormField
                   control={form.control}
                   name="orderNo"
@@ -151,14 +161,12 @@ export default function NewOrderPage() {
                           className="border-0 border-b border-gray-400 rounded-none px-1 h-7 text-sm focus-visible:ring-0 font-serif"
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold w-24">Date</span>
-                <span className="mr-2">:</span>
+                <span className="font-bold w-28">Date :</span>
                 <FormField
                   control={form.control}
                   name="date"
@@ -180,8 +188,7 @@ export default function NewOrderPage() {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold w-24">Order Type</span>
-                <span className="mr-2">:</span>
+                <span className="font-bold w-28">Order Type :</span>
                 <FormField
                   control={form.control}
                   name="orderType"
@@ -205,8 +212,38 @@ export default function NewOrderPage() {
               </div>
             </div>
 
-            {/* To Section */}
+            {/* To Section — auto-filled from factory */}
             <div className="mb-5 text-sm space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-bold w-28">Factory :</span>
+                <FormField
+                  control={form.control}
+                  name="factoryId"
+                  render={({ field }) => (
+                    <FormItem className="flex-1 m-0">
+                      <Select
+                        onValueChange={handleFactoryChange}
+                        value={field.value?.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-0 border-b border-gray-400 rounded-none h-7 text-sm focus:ring-0 font-serif">
+                            <SelectValue placeholder="Select factory to auto-fill buyer info →" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {factories?.map((f: any) => (
+                            <SelectItem key={f.id} value={f.id.toString()}>
+                              {f.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <p className="font-bold">To</p>
               <FormField
                 control={form.control}
@@ -249,7 +286,7 @@ export default function NewOrderPage() {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="Attention person"
+                          placeholder="Contact person"
                           className="border-0 border-b border-gray-400 rounded-none px-1 h-7 text-sm focus-visible:ring-0 font-serif"
                         />
                       </FormControl>
@@ -457,31 +494,6 @@ export default function NewOrderPage() {
                           className="border-0 border-b border-gray-400 rounded-none px-1 h-7 text-sm focus-visible:ring-0 font-serif"
                         />
                       </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold shrink-0">Factory:</span>
-                <FormField
-                  control={form.control}
-                  name="factoryId"
-                  render={({ field }) => (
-                    <FormItem className="flex-1 m-0">
-                      <Select onValueChange={field.onChange} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger className="border-0 border-b border-gray-400 rounded-none h-7 text-sm focus:ring-0 font-serif">
-                            <SelectValue placeholder="Select factory" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {factories?.map((f: any) => (
-                            <SelectItem key={f.id} value={f.id.toString()}>
-                              {f.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                     </FormItem>
                   )}
                 />
