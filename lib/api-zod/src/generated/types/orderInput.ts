@@ -11,6 +11,12 @@ import type { OrderInputOrderType } from './orderInputOrderType';
 export interface OrderInput {
   orderNo?: string;
   buyerName: string;
+  buyerAddress?: string;
+  attn?: string;
+  fromPerson?: string;
+  customerGarmentsName?: string;
+  jobNo?: string;
+  unit?: string;
   /** @nullable */
   factoryId?: number | null;
   orderType: OrderInputOrderType;

@@ -13,6 +13,18 @@ export interface Order {
   orderNo: string;
   buyerName: string;
   /** @nullable */
+  buyerAddress?: string | null;
+  /** @nullable */
+  attn?: string | null;
+  /** @nullable */
+  fromPerson?: string | null;
+  /** @nullable */
+  customerGarmentsName?: string | null;
+  /** @nullable */
+  jobNo?: string | null;
+  /** @nullable */
+  unit?: string | null;
+  /** @nullable */
   factoryId?: number | null;
   /** @nullable */
   factoryName?: string | null;

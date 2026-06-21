@@ -105,6 +105,12 @@ router.post("/orders", async (req, res): Promise<void> => {
     const [order] = await db.insert(ordersTable).values({
       orderNo,
       buyerName: body.data.buyerName,
+      buyerAddress: (body.data as any).buyerAddress ?? null,
+      attn: (body.data as any).attn ?? null,
+      fromPerson: (body.data as any).fromPerson ?? null,
+      customerGarmentsName: (body.data as any).customerGarmentsName ?? null,
+      jobNo: (body.data as any).jobNo ?? null,
+      unit: (body.data as any).unit ?? null,
       factoryId: body.data.factoryId ?? null,
       orderType: body.data.orderType,
       yarnType: body.data.yarnType,
@@ -162,6 +168,12 @@ router.get("/orders/:id", async (req, res): Promise<void> => {
         id: ordersTable.id,
         orderNo: ordersTable.orderNo,
         buyerName: ordersTable.buyerName,
+        buyerAddress: ordersTable.buyerAddress,
+        attn: ordersTable.attn,
+        fromPerson: ordersTable.fromPerson,
+        customerGarmentsName: ordersTable.customerGarmentsName,
+        jobNo: ordersTable.jobNo,
+        unit: ordersTable.unit,
         factoryId: ordersTable.factoryId,
         factoryName: factoriesTable.name,
         orderType: ordersTable.orderType,
@@ -217,6 +229,12 @@ router.patch("/orders/:id", async (req, res): Promise<void> => {
 
     const updateData: Record<string, unknown> = {};
     if (body.data.buyerName !== undefined) updateData.buyerName = body.data.buyerName;
+    if ((body.data as any).buyerAddress !== undefined) updateData.buyerAddress = (body.data as any).buyerAddress;
+    if ((body.data as any).attn !== undefined) updateData.attn = (body.data as any).attn;
+    if ((body.data as any).fromPerson !== undefined) updateData.fromPerson = (body.data as any).fromPerson;
+    if ((body.data as any).customerGarmentsName !== undefined) updateData.customerGarmentsName = (body.data as any).customerGarmentsName;
+    if ((body.data as any).jobNo !== undefined) updateData.jobNo = (body.data as any).jobNo;
+    if ((body.data as any).unit !== undefined) updateData.unit = (body.data as any).unit;
     if (body.data.factoryId !== undefined) updateData.factoryId = body.data.factoryId;
     if (body.data.orderType !== undefined) updateData.orderType = body.data.orderType;
     if (body.data.yarnType !== undefined) updateData.yarnType = body.data.yarnType;

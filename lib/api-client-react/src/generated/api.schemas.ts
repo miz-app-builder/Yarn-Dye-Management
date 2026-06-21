@@ -122,6 +122,18 @@ export interface Order {
   orderNo: string;
   buyerName: string;
   /** @nullable */
+  buyerAddress?: string | null;
+  /** @nullable */
+  attn?: string | null;
+  /** @nullable */
+  fromPerson?: string | null;
+  /** @nullable */
+  customerGarmentsName?: string | null;
+  /** @nullable */
+  jobNo?: string | null;
+  /** @nullable */
+  unit?: string | null;
+  /** @nullable */
   factoryId?: number | null;
   /** @nullable */
   factoryName?: string | null;
@@ -209,6 +221,12 @@ export const OrderInputOrderType = {
 export interface OrderInput {
   orderNo?: string;
   buyerName: string;
+  buyerAddress?: string;
+  attn?: string;
+  fromPerson?: string;
+  customerGarmentsName?: string;
+  jobNo?: string;
+  unit?: string;
   /** @nullable */
   factoryId?: number | null;
   orderType: OrderInputOrderType;
@@ -243,6 +261,12 @@ export const OrderUpdateStatus = {
 
 export interface OrderUpdate {
   buyerName?: string;
+  buyerAddress?: string;
+  attn?: string;
+  fromPerson?: string;
+  customerGarmentsName?: string;
+  jobNo?: string;
+  unit?: string;
   /** @nullable */
   factoryId?: number | null;
   orderType?: OrderUpdateOrderType;

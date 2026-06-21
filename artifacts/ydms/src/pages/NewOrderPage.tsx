@@ -119,11 +119,6 @@ export default function NewOrderPage() {
 
   function onSubmit(values: FormValues) {
     const firstRow = values.colorRows[0];
-    const autoRemarks = [
-      values.customerGarmentsName ? `Customer: ${values.customerGarmentsName}` : "",
-      values.jobNo ? `Job No: ${values.jobNo}` : "",
-      values.unit ? `Unit: ${values.unit}` : "",
-    ].filter(Boolean).join(" | ");
 
     createOrder.mutate(
       {
@@ -131,20 +126,18 @@ export default function NewOrderPage() {
           orderNo: values.orderNo || undefined,
           orderType: values.orderType,
           buyerName: values.buyerName || values.customerGarmentsName || "",
+          buyerAddress: values.buyerAddress || undefined,
+          attn: values.attn || undefined,
+          fromPerson: values.from || undefined,
+          customerGarmentsName: values.customerGarmentsName || undefined,
+          jobNo: values.jobNo || undefined,
+          unit: values.unit || undefined,
           factoryId: values.factoryId,
           yarnType: values.yarnType || firstRow.colorName,
           color: firstRow.colorName,
           quantityKg: totalQty,
           receiveDate: values.date,
           deliveryDate: values.deliveryDate || undefined,
-          remarks: [
-            values.attn ? `Contact: ${values.attn}` : "",
-            values.from ? `Sender: ${values.from}` : "",
-            values.buyerAddress ? `Address: ${values.buyerAddress}` : "",
-            autoRemarks,
-          ]
-            .filter(Boolean)
-            .join("\n"),
           colorRows: values.colorRows.map((r) => ({
             yarnCount: r.yarnCount || undefined,
             colorName: r.colorName,

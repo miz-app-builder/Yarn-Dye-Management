@@ -972,6 +972,18 @@ components:
           type: string
         buyerName:
           type: string
+        buyerAddress:
+          type: [string, 'null']
+        attn:
+          type: [string, 'null']
+        fromPerson:
+          type: [string, 'null']
+        customerGarmentsName:
+          type: [string, 'null']
+        jobNo:
+          type: [string, 'null']
+        unit:
+          type: [string, 'null']
         factoryId:
           type: [integer, 'null']
         factoryName:
@@ -1071,6 +1083,18 @@ components:
           type: string
         buyerName:
           type: string
+        buyerAddress:
+          type: string
+        attn:
+          type: string
+        fromPerson:
+          type: string
+        customerGarmentsName:
+          type: string
+        jobNo:
+          type: string
+        unit:
+          type: string
         factoryId:
           type: [integer, 'null']
         orderType:
@@ -1099,6 +1123,18 @@ components:
       type: object
       properties:
         buyerName:
+          type: string
+        buyerAddress:
+          type: string
+        attn:
+          type: string
+        fromPerson:
+          type: string
+        customerGarmentsName:
+          type: string
+        jobNo:
+          type: string
+        unit:
           type: string
         factoryId:
           type: [integer, 'null']

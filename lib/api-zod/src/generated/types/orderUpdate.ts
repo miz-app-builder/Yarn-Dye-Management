@@ -10,6 +10,12 @@ import type { OrderUpdateStatus } from './orderUpdateStatus';
 
 export interface OrderUpdate {
   buyerName?: string;
+  buyerAddress?: string;
+  attn?: string;
+  fromPerson?: string;
+  customerGarmentsName?: string;
+  jobNo?: string;
+  unit?: string;
   /** @nullable */
   factoryId?: number | null;
   orderType?: OrderUpdateOrderType;
