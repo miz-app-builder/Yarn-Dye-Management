@@ -886,6 +886,8 @@ components:
           type: string
         name:
           type: string
+        location:
+          type: [string, 'null']
         address:
           type: [string, 'null']
         contactPerson:
@@ -893,6 +895,10 @@ components:
         phone:
           type: [string, 'null']
         email:
+          type: [string, 'null']
+        oiYarnTypeId:
+          type: [integer, 'null']
+        dyeingPrice:
           type: [string, 'null']
         status:
           type: boolean
@@ -902,11 +908,11 @@ components:
 
     FactoryInput:
       type: object
-      required: [factoryCode, name]
+      required: [name]
       properties:
-        factoryCode:
-          type: string
         name:
+          type: string
+        location:
           type: string
         address:
           type: string
@@ -915,14 +921,18 @@ components:
         phone:
           type: string
         email:
+          type: string
+        oiYarnTypeId:
+          type: integer
+        dyeingPrice:
           type: string
 
     FactoryUpdate:
       type: object
       properties:
-        factoryCode:
-          type: string
         name:
+          type: string
+        location:
           type: string
         address:
           type: string
@@ -931,6 +941,10 @@ components:
         phone:
           type: string
         email:
+          type: string
+        oiYarnTypeId:
+          type: integer
+        dyeingPrice:
           type: string
         status:
           type: boolean

@@ -49,6 +49,8 @@ export interface Factory {
   factoryCode: string;
   name: string;
   /** @nullable */
+  location?: string | null;
+  /** @nullable */
   address?: string | null;
   /** @nullable */
   contactPerson?: string | null;
@@ -56,26 +58,34 @@ export interface Factory {
   phone?: string | null;
   /** @nullable */
   email?: string | null;
+  /** @nullable */
+  oiYarnTypeId?: number | null;
+  /** @nullable */
+  dyeingPrice?: string | null;
   status: boolean;
   createdAt: string;
 }
 
 export interface FactoryInput {
-  factoryCode: string;
   name: string;
+  location?: string;
   address?: string;
   contactPerson?: string;
   phone?: string;
   email?: string;
+  oiYarnTypeId?: number;
+  dyeingPrice?: string;
 }
 
 export interface FactoryUpdate {
-  factoryCode?: string;
   name?: string;
+  location?: string;
   address?: string;
   contactPerson?: string;
   phone?: string;
   email?: string;
+  oiYarnTypeId?: number;
+  dyeingPrice?: string;
   status?: boolean;
 }
 

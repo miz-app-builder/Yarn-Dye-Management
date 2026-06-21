@@ -94,10 +94,13 @@ export const ListFactoriesResponseItem = zod.object({
   "id": zod.number(),
   "factoryCode": zod.string(),
   "name": zod.string(),
+  "location": zod.string().nullish(),
   "address": zod.string().nullish(),
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
+  "oiYarnTypeId": zod.number().nullish(),
+  "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
@@ -108,12 +111,14 @@ export const ListFactoriesResponse = zod.array(ListFactoriesResponseItem)
  * @summary Create a new factory
  */
 export const CreateFactoryBody = zod.object({
-  "factoryCode": zod.string(),
   "name": zod.string(),
+  "location": zod.string().optional(),
   "address": zod.string().optional(),
   "contactPerson": zod.string().optional(),
   "phone": zod.string().optional(),
-  "email": zod.string().optional()
+  "email": zod.string().optional(),
+  "oiYarnTypeId": zod.number().optional(),
+  "dyeingPrice": zod.string().optional()
 })
 
 
@@ -128,10 +133,13 @@ export const GetFactoryResponse = zod.object({
   "id": zod.number(),
   "factoryCode": zod.string(),
   "name": zod.string(),
+  "location": zod.string().nullish(),
   "address": zod.string().nullish(),
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
+  "oiYarnTypeId": zod.number().nullish(),
+  "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
@@ -145,12 +153,14 @@ export const UpdateFactoryParams = zod.object({
 })
 
 export const UpdateFactoryBody = zod.object({
-  "factoryCode": zod.string().optional(),
   "name": zod.string().optional(),
+  "location": zod.string().optional(),
   "address": zod.string().optional(),
   "contactPerson": zod.string().optional(),
   "phone": zod.string().optional(),
   "email": zod.string().optional(),
+  "oiYarnTypeId": zod.number().optional(),
+  "dyeingPrice": zod.string().optional(),
   "status": zod.boolean().optional()
 })
 
@@ -158,10 +168,13 @@ export const UpdateFactoryResponse = zod.object({
   "id": zod.number(),
   "factoryCode": zod.string(),
   "name": zod.string(),
+  "location": zod.string().nullish(),
   "address": zod.string().nullish(),
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
+  "oiYarnTypeId": zod.number().nullish(),
+  "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
@@ -178,10 +191,13 @@ export const ArchiveFactoryResponse = zod.object({
   "id": zod.number(),
   "factoryCode": zod.string(),
   "name": zod.string(),
+  "location": zod.string().nullish(),
   "address": zod.string().nullish(),
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
+  "oiYarnTypeId": zod.number().nullish(),
+  "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
 })

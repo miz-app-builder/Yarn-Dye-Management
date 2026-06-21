@@ -7,10 +7,12 @@
  */
 
 export interface FactoryInput {
-  factoryCode: string;
   name: string;
+  location?: string;
   address?: string;
   contactPerson?: string;
   phone?: string;
   email?: string;
+  oiYarnTypeId?: number;
+  dyeingPrice?: string;
 }

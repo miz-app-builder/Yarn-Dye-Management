@@ -12,6 +12,11 @@ import {
 
 const router = Router();
 
+function generateFactoryCode(): string {
+  const rand = Math.floor(Math.random() * 90000 + 10000);
+  return `FC-${rand}`;
+}
+
 router.get("/factories", async (req, res): Promise<void> => {
   try {
     const query = ListFactoriesQueryParams.safeParse(req.query);
@@ -26,10 +31,13 @@ router.get("/factories", async (req, res): Promise<void> => {
       id: f.id,
       factoryCode: f.factoryCode,
       name: f.name,
+      location: f.location,
       address: f.address,
       contactPerson: f.contactPerson,
       phone: f.phone,
       email: f.email,
+      oiYarnTypeId: f.oiYarnTypeId,
+      dyeingPrice: f.dyeingPrice,
       status: f.status,
       createdAt: f.createdAt,
     })));
@@ -47,13 +55,16 @@ router.post("/factories", async (req, res): Promise<void> => {
       return;
     }
     const [factory] = await db.insert(factoriesTable).values({
-      factoryCode: body.data.factoryCode,
+      factoryCode: generateFactoryCode(),
       name: body.data.name,
+      location: body.data.location ?? null,
       address: body.data.address ?? null,
       contactPerson: body.data.contactPerson ?? null,
       phone: body.data.phone ?? null,
       email: body.data.email ?? null,
-    }).returning();
+      oiYarnTypeId: body.data.oiYarnTypeId ?? null,
+      dyeingPrice: body.data.dyeingPrice ?? null,
+    } as any).returning();
     res.status(201).json(factory);
   } catch (err) {
     req.log.error({ err }, "Failed to create factory");
@@ -96,7 +107,7 @@ router.patch("/factories/:id", async (req, res): Promise<void> => {
 
     const [factory] = await db
       .update(factoriesTable)
-      .set({ ...body.data })
+      .set({ ...body.data } as any)
       .where(eq(factoriesTable.id, params.data.id))
       .returning();
     if (!factory) {

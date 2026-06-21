@@ -11,6 +11,8 @@ export interface Factory {
   factoryCode: string;
   name: string;
   /** @nullable */
+  location?: string | null;
+  /** @nullable */
   address?: string | null;
   /** @nullable */
   contactPerson?: string | null;
@@ -18,6 +20,10 @@ export interface Factory {
   phone?: string | null;
   /** @nullable */
   email?: string | null;
+  /** @nullable */
+  oiYarnTypeId?: number | null;
+  /** @nullable */
+  dyeingPrice?: string | null;
   status: boolean;
   createdAt: Date;
 }
