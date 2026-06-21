@@ -21,7 +21,7 @@ export interface Factory {
   /** @nullable */
   email?: string | null;
   /** @nullable */
-  oiYarnTypeId?: number | null;
+  yarnTypeId?: number | null;
   /** @nullable */
   dyeingPrice?: string | null;
   status: boolean;

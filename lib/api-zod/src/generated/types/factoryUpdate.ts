@@ -13,7 +13,7 @@ export interface FactoryUpdate {
   contactPerson?: string;
   phone?: string;
   email?: string;
-  oiYarnTypeId?: number;
+  yarnTypeId?: number;
   dyeingPrice?: string;
   status?: boolean;
 }

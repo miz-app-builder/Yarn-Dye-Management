@@ -21,7 +21,7 @@ const formSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   address: z.string().optional(),
-  oiYarnTypeId: z.coerce.number().optional(),
+  yarnTypeId: z.coerce.number().optional(),
   dyeingPrice: z.string().optional(),
 });
 
@@ -58,7 +58,7 @@ export default function FactoriesPage() {
       phone: f.phone || "",
       email: f.email || "",
       address: f.address || "",
-      oiYarnTypeId: f.oiYarnTypeId ?? undefined,
+      yarnTypeId: f.yarnTypeId ?? undefined,
       dyeingPrice: f.dyeingPrice || "",
     });
     setDialogOpen(true);
@@ -72,7 +72,7 @@ export default function FactoriesPage() {
       phone: values.phone || undefined,
       email: values.email || undefined,
       address: values.address || undefined,
-      oiYarnTypeId: values.oiYarnTypeId || undefined,
+      yarnTypeId: values.yarnTypeId || undefined,
       dyeingPrice: values.dyeingPrice || undefined,
     };
 
@@ -142,7 +142,7 @@ export default function FactoriesPage() {
                 <TableCell className="font-mono text-sm text-gray-500">{f.factoryCode}</TableCell>
                 <TableCell className="font-medium text-gray-900">{f.name}</TableCell>
                 <TableCell>{f.location || "—"}</TableCell>
-                <TableCell>{getYarnTypeName(f.oiYarnTypeId)}</TableCell>
+                <TableCell>{getYarnTypeName(f.yarnTypeId)}</TableCell>
                 <TableCell>{f.dyeingPrice ? `৳${f.dyeingPrice}/kg` : "—"}</TableCell>
                 <TableCell>
                   <div className="text-sm">
@@ -204,7 +204,7 @@ export default function FactoriesPage() {
                 )} />
 
                 {/* OI Dyeing Type */}
-                <FormField control={form.control} name="oiYarnTypeId" render={({ field }) => (
+                <FormField control={form.control} name="yarnTypeId" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Yarn Dyeing Type</FormLabel>
                     <Select

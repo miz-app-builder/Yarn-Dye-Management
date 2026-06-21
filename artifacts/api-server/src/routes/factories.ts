@@ -36,7 +36,7 @@ router.get("/factories", async (req, res): Promise<void> => {
       contactPerson: f.contactPerson,
       phone: f.phone,
       email: f.email,
-      oiYarnTypeId: f.oiYarnTypeId,
+      yarnTypeId: f.yarnTypeId,
       dyeingPrice: f.dyeingPrice,
       status: f.status,
       createdAt: f.createdAt,
@@ -62,7 +62,7 @@ router.post("/factories", async (req, res): Promise<void> => {
       contactPerson: body.data.contactPerson ?? null,
       phone: body.data.phone ?? null,
       email: body.data.email ?? null,
-      oiYarnTypeId: body.data.oiYarnTypeId ?? null,
+      yarnTypeId: body.data.yarnTypeId ?? null,
       dyeingPrice: body.data.dyeingPrice ?? null,
     } as any).returning();
     res.status(201).json(factory);

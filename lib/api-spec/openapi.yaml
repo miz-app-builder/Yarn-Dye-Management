@@ -896,7 +896,7 @@ components:
           type: [string, 'null']
         email:
           type: [string, 'null']
-        oiYarnTypeId:
+        yarnTypeId:
           type: [integer, 'null']
         dyeingPrice:
           type: [string, 'null']
@@ -922,7 +922,7 @@ components:
           type: string
         email:
           type: string
-        oiYarnTypeId:
+        yarnTypeId:
           type: integer
         dyeingPrice:
           type: string
@@ -942,7 +942,7 @@ components:
           type: string
         email:
           type: string
-        oiYarnTypeId:
+        yarnTypeId:
           type: integer
         dyeingPrice:
           type: string

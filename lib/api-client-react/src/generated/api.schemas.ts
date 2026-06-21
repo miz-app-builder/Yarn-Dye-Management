@@ -59,7 +59,7 @@ export interface Factory {
   /** @nullable */
   email?: string | null;
   /** @nullable */
-  oiYarnTypeId?: number | null;
+  yarnTypeId?: number | null;
   /** @nullable */
   dyeingPrice?: string | null;
   status: boolean;
@@ -73,7 +73,7 @@ export interface FactoryInput {
   contactPerson?: string;
   phone?: string;
   email?: string;
-  oiYarnTypeId?: number;
+  yarnTypeId?: number;
   dyeingPrice?: string;
 }
 
@@ -84,7 +84,7 @@ export interface FactoryUpdate {
   contactPerson?: string;
   phone?: string;
   email?: string;
-  oiYarnTypeId?: number;
+  yarnTypeId?: number;
   dyeingPrice?: string;
   status?: boolean;
 }

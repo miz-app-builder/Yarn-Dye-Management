@@ -99,7 +99,7 @@ export const ListFactoriesResponseItem = zod.object({
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
-  "oiYarnTypeId": zod.number().nullish(),
+  "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -117,7 +117,7 @@ export const CreateFactoryBody = zod.object({
   "contactPerson": zod.string().optional(),
   "phone": zod.string().optional(),
   "email": zod.string().optional(),
-  "oiYarnTypeId": zod.number().optional(),
+  "yarnTypeId": zod.number().optional(),
   "dyeingPrice": zod.string().optional()
 })
 
@@ -138,7 +138,7 @@ export const GetFactoryResponse = zod.object({
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
-  "oiYarnTypeId": zod.number().nullish(),
+  "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -159,7 +159,7 @@ export const UpdateFactoryBody = zod.object({
   "contactPerson": zod.string().optional(),
   "phone": zod.string().optional(),
   "email": zod.string().optional(),
-  "oiYarnTypeId": zod.number().optional(),
+  "yarnTypeId": zod.number().optional(),
   "dyeingPrice": zod.string().optional(),
   "status": zod.boolean().optional()
 })
@@ -173,7 +173,7 @@ export const UpdateFactoryResponse = zod.object({
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
-  "oiYarnTypeId": zod.number().nullish(),
+  "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -196,7 +196,7 @@ export const ArchiveFactoryResponse = zod.object({
   "contactPerson": zod.string().nullish(),
   "phone": zod.string().nullish(),
   "email": zod.string().nullish(),
-  "oiYarnTypeId": zod.number().nullish(),
+  "yarnTypeId": zod.number().nullish(),
   "dyeingPrice": zod.string().nullish(),
   "status": zod.boolean(),
   "createdAt": zod.coerce.date()

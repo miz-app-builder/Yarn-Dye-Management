@@ -13,6 +13,6 @@ export interface FactoryInput {
   contactPerson?: string;
   phone?: string;
   email?: string;
-  oiYarnTypeId?: number;
+  yarnTypeId?: number;
   dyeingPrice?: string;
 }

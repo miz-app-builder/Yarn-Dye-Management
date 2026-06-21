@@ -11,7 +11,7 @@ export const factoriesTable = pgTable("factories", {
   contactPerson: text("contact_person"),
   phone: text("phone"),
   email: text("email"),
-  oiYarnTypeId: integer("oi_yarn_type_id"),
+  yarnTypeId: integer("yarn_type_id"),
   dyeingPrice: numeric("dyeing_price", { precision: 10, scale: 2 }),
   status: boolean("status").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
