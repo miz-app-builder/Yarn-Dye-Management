@@ -225,7 +225,7 @@ export default function NewOrderPage() {
                 )} />
                 <FormField control={form.control} name="attn" render={({ field }) => (
                   <FormItem className="space-y-1">
-                    <FormLabel className="text-xs">Attn</FormLabel>
+                    <FormLabel className="text-xs">Contact Person</FormLabel>
                     <FormControl><Input {...field} placeholder="Contact person" className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
