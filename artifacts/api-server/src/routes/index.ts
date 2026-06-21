@@ -7,6 +7,11 @@ import ordersRouter from "./orders";
 import dashboardRouter from "./dashboard";
 import reportsRouter from "./reports";
 import usersRouter from "./users";
+import buyersRouter from "./buyers";
+import yarnTypesRouter from "./yarnTypes";
+import colorsRouter from "./colors";
+import labDipsRouter from "./labDips";
+import deliveriesRouter from "./deliveries";
 
 const router: IRouter = Router();
 
@@ -18,5 +23,10 @@ router.use(ordersRouter);
 router.use(dashboardRouter);
 router.use(reportsRouter);
 router.use(usersRouter);
+router.use(buyersRouter);
+router.use(yarnTypesRouter);
+router.use(colorsRouter);
+router.use(labDipsRouter);
+router.use(deliveriesRouter);
 
 export default router;
