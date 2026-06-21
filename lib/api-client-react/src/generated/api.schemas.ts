@@ -19,13 +19,9 @@ export interface SuccessEnvelope {
 
 export interface AuthUser {
   id: string;
-  /** @nullable */
   email: string | null;
-  /** @nullable */
   firstName: string | null;
-  /** @nullable */
   lastName: string | null;
-  /** @nullable */
   profileImageUrl: string | null;
 }
 
@@ -48,23 +44,14 @@ export interface Factory {
   id: number;
   factoryCode: string;
   name: string;
-  /** @nullable */
   location?: string | null;
-  /** @nullable */
   address?: string | null;
-  /** @nullable */
   contactPerson?: string | null;
-  /** @nullable */
   phone?: string | null;
-  /** @nullable */
   email?: string | null;
-  /** @nullable */
   yarnTypeId?: number | null;
-  /** @nullable */
   dyeingPrice?: string | null;
-  /** @nullable */
   processLossBulk?: string | null;
-  /** @nullable */
   processLossSample?: string | null;
   status: boolean;
   createdAt: string;
@@ -100,13 +87,10 @@ export interface FactoryUpdate {
 export interface YarnDyeingOrderColorRow {
   id: number;
   orderId: number;
-  /** @nullable */
   yarnCount?: string | null;
   colorName: string;
-  /** @nullable */
   colorRef?: string | null;
   qtyKg: number;
-  /** @nullable */
   remarks?: string | null;
 }
 
@@ -131,35 +115,20 @@ export interface YarnDyeingOrder {
   orderNo: string;
   orderType: YarnDyeingOrderOrderType;
   receiveDate: string;
-  /** @nullable */
   deliveryDate?: string | null;
-  /** @nullable */
   customerGarmentsName?: string | null;
-  /** @nullable */
   jobNo?: string | null;
-  /** @nullable */
   unit?: string | null;
-  /** @nullable */
   factoryId?: number | null;
-  /** @nullable */
   factoryName?: string | null;
-  /** @nullable */
   buyerName?: string | null;
-  /** @nullable */
   buyerAddress?: string | null;
-  /** @nullable */
-  attn?: string | null;
-  /** @nullable */
-  fromPerson?: string | null;
-  /** @nullable */
   yarnType?: string | null;
-  /** @nullable */
+  attn?: string | null;
+  fromPerson?: string | null;
   remarks?: string | null;
-  /** @nullable */
   processLossPct?: number | null;
-  /** @nullable */
   processLossKg?: number | null;
-  /** @nullable */
   grandTotalKg?: number | null;
   status: string;
   createdAt: string;
@@ -255,7 +224,6 @@ export interface ActivityItem {
   id: number;
   orderNo: string;
   buyerName: string;
-  /** @nullable */
   factoryName?: string | null;
   status: string;
   createdAt: string;
@@ -307,12 +275,9 @@ export const AppUserRole = {
 
 export interface AppUser {
   id: string;
-  /** @nullable */
   name: string | null;
-  /** @nullable */
   email: string | null;
   role: AppUserRole;
-  /** @nullable */
   profileImageUrl?: string | null;
   createdAt: string;
 }
@@ -375,8 +340,30 @@ export interface YarnTypeInput {
   description?: string;
 }
 
+export interface CustomerGarmentsItem {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface CustomerGarmentsInput {
+  /** @minLength 1 */
+  name: string;
+}
+
+export interface UnitTypeItem {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface UnitTypeInput {
+  /** @minLength 1 */
+  name: string;
+}
+
 /**
- * Opaque session token — `Bearer <sid>`.
+ * Opaque session token - `Bearer <sid>`.
  */
 export type AuthorizationSessionHeaderParameter = string;
 

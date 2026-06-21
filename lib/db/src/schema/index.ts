@@ -8,3 +8,5 @@ export * from "./deliveries";
 export * from "./rawMaterials";
 export * from "./yarnDyeingOrder";
 export * from "./yarnDyeingOrderColorRow";
+export * from "./customerGarments";
+export * from "./unitTypes";

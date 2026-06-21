@@ -9,12 +9,9 @@ import type { AppUserRole } from './appUserRole';
 
 export interface AppUser {
   id: string;
-  /** @nullable */
   name: string | null;
-  /** @nullable */
   email: string | null;
   role: AppUserRole;
-  /** @nullable */
   profileImageUrl?: string | null;
   createdAt: Date;
 }

@@ -6,11 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface ActivityItem {
+export interface UnitTypeItem {
   id: number;
-  orderNo: string;
-  buyerName: string;
-  factoryName?: string | null;
-  status: string;
+  name: string;
   createdAt: Date;
 }

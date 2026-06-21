@@ -20,7 +20,7 @@ export const HealthCheckResponse = zod.object({
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({
-  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+  "Authorization": zod.string().optional().describe('Opaque session token - `Bearer <sid>`.')
 })
 
 export const GetCurrentAuthUserResponse = zod.object({
@@ -56,7 +56,7 @@ export const HandleBrowserLoginCallbackQueryParams = zod.object({
  * @summary Clear the session and begin OIDC logout
  */
 export const LogoutBrowserSessionHeader = zod.object({
-  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+  "Authorization": zod.string().optional().describe('Opaque session token - `Bearer <sid>`.')
 })
 
 
@@ -246,9 +246,9 @@ export const ListYarnDyeingOrdersResponse = zod.object({
   "factoryName": zod.string().nullish(),
   "buyerName": zod.string().nullish(),
   "buyerAddress": zod.string().nullish(),
+  "yarnType": zod.string().nullish(),
   "attn": zod.string().nullish(),
   "fromPerson": zod.string().nullish(),
-  "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
   "processLossPct": zod.number().nullish(),
   "processLossKg": zod.number().nullish(),
@@ -322,9 +322,9 @@ export const GetYarnDyeingOrderResponse = zod.object({
   "factoryName": zod.string().nullish(),
   "buyerName": zod.string().nullish(),
   "buyerAddress": zod.string().nullish(),
+  "yarnType": zod.string().nullish(),
   "attn": zod.string().nullish(),
   "fromPerson": zod.string().nullish(),
-  "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
   "processLossPct": zod.number().nullish(),
   "processLossKg": zod.number().nullish(),
@@ -383,9 +383,9 @@ export const UpdateYarnDyeingOrderResponse = zod.object({
   "factoryName": zod.string().nullish(),
   "buyerName": zod.string().nullish(),
   "buyerAddress": zod.string().nullish(),
+  "yarnType": zod.string().nullish(),
   "attn": zod.string().nullish(),
   "fromPerson": zod.string().nullish(),
-  "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
   "processLossPct": zod.number().nullish(),
   "processLossKg": zod.number().nullish(),
@@ -481,9 +481,9 @@ export const GetDailyReportResponse = zod.object({
   "factoryName": zod.string().nullish(),
   "buyerName": zod.string().nullish(),
   "buyerAddress": zod.string().nullish(),
+  "yarnType": zod.string().nullish(),
   "attn": zod.string().nullish(),
   "fromPerson": zod.string().nullish(),
-  "yarnType": zod.string().nullish(),
   "remarks": zod.string().nullish(),
   "processLossPct": zod.number().nullish(),
   "processLossKg": zod.number().nullish(),
@@ -674,6 +674,66 @@ export const UpdateUserRoleResponse = zod.object({
   "role": zod.enum(['admin', 'manager', 'operator']),
   "profileImageUrl": zod.string().nullish(),
   "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List all customer garments names
+ */
+export const ListCustomerGarmentsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListCustomerGarmentsResponse = zod.array(ListCustomerGarmentsResponseItem)
+
+
+/**
+ * @summary Create a new customer garments name
+ */
+
+
+
+export const CreateCustomerGarmentsBody = zod.object({
+  "name": zod.string().min(1)
+})
+
+
+/**
+ * @summary Delete a customer garments name
+ */
+export const DeleteCustomerGarmentsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary List all unit types
+ */
+export const ListUnitTypesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListUnitTypesResponse = zod.array(ListUnitTypesResponseItem)
+
+
+/**
+ * @summary Create a new unit type
+ */
+
+
+
+export const CreateUnitTypeBody = zod.object({
+  "name": zod.string().min(1)
+})
+
+
+/**
+ * @summary Delete a unit type
+ */
+export const DeleteUnitTypeParams = zod.object({
+  "id": zod.coerce.number()
 })
 
 

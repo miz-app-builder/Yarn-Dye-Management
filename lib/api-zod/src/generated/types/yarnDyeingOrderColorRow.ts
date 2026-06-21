@@ -9,12 +9,9 @@
 export interface YarnDyeingOrderColorRow {
   id: number;
   orderId: number;
-  /** @nullable */
   yarnCount?: string | null;
   colorName: string;
-  /** @nullable */
   colorRef?: string | null;
   qtyKg: number;
-  /** @nullable */
   remarks?: string | null;
 }

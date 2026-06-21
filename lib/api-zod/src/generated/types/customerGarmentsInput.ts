@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-/**
- * Opaque session token - `Bearer <sid>`.
- */
-export type AuthorizationSessionHeaderParameter = string;
+export interface CustomerGarmentsInput {
+  /** @minLength 1 */
+  name: string;
+}

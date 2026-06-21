@@ -12,35 +12,20 @@ export interface YarnDyeingOrder {
   orderNo: string;
   orderType: YarnDyeingOrderOrderType;
   receiveDate: Date;
-  /** @nullable */
   deliveryDate?: Date | null;
-  /** @nullable */
   customerGarmentsName?: string | null;
-  /** @nullable */
   jobNo?: string | null;
-  /** @nullable */
   unit?: string | null;
-  /** @nullable */
   factoryId?: number | null;
-  /** @nullable */
   factoryName?: string | null;
-  /** @nullable */
   buyerName?: string | null;
-  /** @nullable */
   buyerAddress?: string | null;
-  /** @nullable */
-  attn?: string | null;
-  /** @nullable */
-  fromPerson?: string | null;
-  /** @nullable */
   yarnType?: string | null;
-  /** @nullable */
+  attn?: string | null;
+  fromPerson?: string | null;
   remarks?: string | null;
-  /** @nullable */
   processLossPct?: number | null;
-  /** @nullable */
   processLossKg?: number | null;
-  /** @nullable */
   grandTotalKg?: number | null;
   status: string;
   createdAt: Date;
