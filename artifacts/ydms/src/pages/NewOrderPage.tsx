@@ -127,35 +127,32 @@ export default function NewOrderPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-10">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => setLocation("/orders")}>
+    <div className="max-w-4xl mx-auto space-y-3 pb-8">
+      <div className="flex items-center gap-3">
+        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLocation("/orders")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">New Work Order</h1>
-          <p className="text-gray-500 mt-1">Create a new yarn dyeing work order.</p>
-        </div>
+        <h1 className="text-xl font-bold text-gray-900">New Work Order</h1>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Order Info + Buyer */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          {/* Order Info + Buyer — single compact card */}
           <Card>
-            <CardContent className="pt-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="pt-4 pb-4 space-y-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <FormField control={form.control} name="orderNo" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order No</FormLabel>
-                    <FormControl><Input {...field} placeholder="Auto-generated if blank" /></FormControl>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Order No</FormLabel>
+                    <FormControl><Input {...field} placeholder="Auto-generated" className="h-8 text-sm" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="orderType" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order Type *</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Order Type *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="Sample">Sample</SelectItem>
                         <SelectItem value="Bulk">Bulk</SelectItem>
@@ -165,37 +162,28 @@ export default function NewOrderPage() {
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="date" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date *</FormLabel>
-                    <FormControl><Input type="date" {...field} /></FormControl>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Date *</FormLabel>
+                    <FormControl><Input type="date" {...field} className="h-8 text-sm" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="deliveryDate" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivery Date</FormLabel>
-                    <FormControl><Input type="date" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="yarnType" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Yarn Type</FormLabel>
-                    <FormControl><Input {...field} placeholder="e.g. 100% Cotton 30/1" /></FormControl>
-                    <FormMessage />
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Delivery Date</FormLabel>
+                    <FormControl><Input type="date" {...field} className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
               </div>
 
-              <div className="border-t pt-6 space-y-4">
-                <h2 className="font-semibold text-gray-700">Buyer / Factory</h2>
+              <div className="border-t pt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
                 <FormField control={form.control} name="factoryId" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Factory *</FormLabel>
+                  <FormItem className="space-y-1 col-span-2 md:col-span-1">
+                    <FormLabel className="text-xs">Factory *</FormLabel>
                     <Select onValueChange={handleFactoryChange} value={field.value?.toString()}>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select factory (auto-fills buyer info)" />
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Select…" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -207,108 +195,112 @@ export default function NewOrderPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField control={form.control} name="buyerName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Buyer Name *</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="buyerAddress" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="attn" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Attn</FormLabel>
-                      <FormControl><Input {...field} placeholder="Contact person" /></FormControl>
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="from" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From</FormLabel>
-                      <FormControl><Input {...field} placeholder="Sender name" /></FormControl>
-                    </FormItem>
-                  )} />
-                </div>
+                <FormField control={form.control} name="buyerName" render={({ field }) => (
+                  <FormItem className="space-y-1 col-span-2 md:col-span-1">
+                    <FormLabel className="text-xs">Buyer Name *</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="attn" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Attn</FormLabel>
+                    <FormControl><Input {...field} placeholder="Contact person" className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="from" render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">From</FormLabel>
+                    <FormControl><Input {...field} placeholder="Sender name" className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="buyerAddress" render={({ field }) => (
+                  <FormItem className="space-y-1 col-span-2 md:col-span-2">
+                    <FormLabel className="text-xs">Address</FormLabel>
+                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="yarnType" render={({ field }) => (
+                  <FormItem className="space-y-1 col-span-2 md:col-span-2">
+                    <FormLabel className="text-xs">Yarn Type</FormLabel>
+                    <FormControl><Input {...field} placeholder="e.g. 100% Cotton 30/1" className="h-8 text-sm" /></FormControl>
+                  </FormItem>
+                )} />
               </div>
             </CardContent>
           </Card>
 
           {/* Color Rows */}
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h2 className="font-semibold text-gray-700">Color Details</h2>
+            <CardContent className="pt-4 pb-4 space-y-2">
+              <p className="text-sm font-semibold text-gray-700">Color Details</p>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
+                <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 px-2 font-medium text-gray-600 w-8">#</th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-600">Color Name</th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-600 w-32">Approval Swatch</th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-600 w-24">Qty (Kg)</th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-600 w-24">Factory</th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-600 w-28">Job No</th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-600 w-28">Unit</th>
-                      <th className="w-8" />
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500 w-7">#</th>
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500">Color Name</th>
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500 w-28">Approval Swatch</th>
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500 w-20">Qty (Kg)</th>
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500 w-20">Factory</th>
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500 w-24">Job No</th>
+                      <th className="text-left py-1.5 px-2 font-medium text-gray-500 w-24">Unit</th>
+                      <th className="w-6" />
                     </tr>
                   </thead>
                   <tbody>
                     {fields.map((field, index) => (
                       <tr key={field.id} className="border-b last:border-0">
-                        <td className="py-2 px-2 text-gray-400 font-medium">{index + 1}</td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-2 text-gray-400 font-medium">{index + 1}</td>
+                        <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.colorName`} render={({ field }) => (
                             <FormItem className="m-0">
-                              <FormControl><Input {...field} placeholder="Color name" className="h-8" /></FormControl>
+                              <FormControl><Input {...field} placeholder="Color name" className="h-7 text-xs" /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )} />
                         </td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.colorApproval`} render={({ field }) => (
                             <FormItem className="m-0">
-                              <FormControl><Input {...field} placeholder="S/OK" className="h-8" /></FormControl>
+                              <FormControl><Input {...field} placeholder="S/OK" className="h-7 text-xs" /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )} />
                         </td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.qtyKg`} render={({ field }) => (
                             <FormItem className="m-0">
-                              <FormControl><Input {...field} type="number" step="0.01" placeholder="0.00" className="h-8" /></FormControl>
+                              <FormControl><Input {...field} type="number" step="0.01" placeholder="0.00" className="h-7 text-xs" /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )} />
                         </td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.factory`} render={({ field }) => (
                             <FormItem className="m-0">
-                              <FormControl><Input {...field} placeholder="e.g. E" className="h-8" /></FormControl>
+                              <FormControl><Input {...field} placeholder="E" className="h-7 text-xs" /></FormControl>
                             </FormItem>
                           )} />
                         </td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.jobNo`} render={({ field }) => (
                             <FormItem className="m-0">
-                              <FormControl><Input {...field} placeholder="e.g. Jist-5132" className="h-8" /></FormControl>
+                              <FormControl><Input {...field} placeholder="Jist-5132" className="h-7 text-xs" /></FormControl>
                             </FormItem>
                           )} />
                         </td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-1">
                           <FormField control={form.control} name={`colorRows.${index}.unit`} render={({ field }) => (
                             <FormItem className="m-0">
-                              <FormControl><Input {...field} placeholder="e.g. Drawstring" className="h-8" /></FormControl>
+                              <FormControl><Input {...field} placeholder="Drawstring" className="h-7 text-xs" /></FormControl>
                             </FormItem>
                           )} />
                         </td>
-                        <td className="py-2 px-2">
+                        <td className="py-1 px-1">
                           {fields.length > 1 && (
                             <button type="button" onClick={() => remove(index)} className="text-red-400 hover:text-red-600">
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </td>
@@ -317,29 +309,27 @@ export default function NewOrderPage() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t bg-gray-50">
-                      <td colSpan={3} className="py-2 px-2 font-semibold text-right text-sm">Total Qty</td>
-                      <td className="py-2 px-2 font-semibold text-sm">{totalQty > 0 ? `${totalQty.toFixed(2)} Kg` : "—"}</td>
+                      <td colSpan={3} className="py-1.5 px-2 font-semibold text-right text-xs">Total Qty</td>
+                      <td className="py-1.5 px-2 font-semibold text-xs">{totalQty > 0 ? `${totalQty.toFixed(2)} Kg` : "—"}</td>
                       <td colSpan={4} />
                     </tr>
                   </tfoot>
                 </table>
               </div>
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 onClick={() => append({ colorName: "", colorApproval: "S/OK", qtyKg: 0, factory: "", jobNo: "", unit: "" })}
-                className="gap-1"
+                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
               >
-                <Plus className="h-4 w-4" /> Add Color Row
-              </Button>
+                <Plus className="h-3.5 w-3.5" /> Add Color Row
+              </button>
             </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => setLocation("/orders")}>Cancel</Button>
-            <Button type="submit" disabled={createOrder.isPending} className="bg-indigo-600 hover:bg-indigo-700">
-              {createOrder.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="outline" size="sm" onClick={() => setLocation("/orders")}>Cancel</Button>
+            <Button type="submit" size="sm" disabled={createOrder.isPending} className="bg-indigo-600 hover:bg-indigo-700">
+              {createOrder.isPending && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
               Create Order
             </Button>
           </div>
