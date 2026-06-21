@@ -222,8 +222,8 @@ export default function EditOrderPage() {
                     <FormControl><Input {...field} type="date" className="h-8 text-xs" /></FormControl>
                   </FormItem>
                 )} />
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-xs">Dyeing Factory</FormLabel>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Dyeing Factory</label>
                   <Select
                     onValueChange={handleFactoryChange}
                     value={form.watch("factoryId")?.toString() ?? ""}
@@ -235,7 +235,7 @@ export default function EditOrderPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </FormItem>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
