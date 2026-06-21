@@ -227,20 +227,20 @@ export default function NewOrderPage() {
                   <FormField control={form.control} name="attn" render={({ field }) => (
                     <FormItem className="space-y-1">
                       <FormLabel className="text-xs font-medium text-gray-600">Contact Person</FormLabel>
-                      <FormControl><Input {...field} placeholder="e.g. Mr. Arif Sab" className="h-9 text-sm" /></FormControl>
+                      <FormControl><Input {...field} readOnly placeholder="e.g. Mr. Arif Sab" className="h-9 text-sm bg-gray-50 cursor-not-allowed" /></FormControl>
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="from" render={({ field }) => (
                     <FormItem className="space-y-1">
                       <FormLabel className="text-xs font-medium text-gray-600">Sender Person</FormLabel>
-                      <FormControl><Input {...field} placeholder="e.g. Md Masud Ibna Zahid" className="h-9 text-sm" /></FormControl>
+                      <FormControl><Input {...field} readOnly placeholder="e.g. Md Masud Ibna Zahid" className="h-9 text-sm bg-gray-50 cursor-not-allowed" /></FormControl>
                     </FormItem>
                   )} />
                 </div>
                 <FormField control={form.control} name="buyerAddress" render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-xs font-medium text-gray-600">Address</FormLabel>
-                    <FormControl><Input {...field} placeholder="Full address…" className="h-9 text-sm" /></FormControl>
+                    <FormControl><Input {...field} readOnly placeholder="Full address…" className="h-9 text-sm bg-gray-50 cursor-not-allowed" /></FormControl>
                   </FormItem>
                 )} />
               </div>
