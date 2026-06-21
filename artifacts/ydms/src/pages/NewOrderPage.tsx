@@ -223,13 +223,6 @@ export default function NewOrderPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="buyerName" render={({ field }) => (
-                  <FormItem className="space-y-1 col-span-2 md:col-span-1">
-                    <FormLabel className="text-xs">Buyer Name *</FormLabel>
-                    <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
                 <FormField control={form.control} name="attn" render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel className="text-xs">Attn</FormLabel>
