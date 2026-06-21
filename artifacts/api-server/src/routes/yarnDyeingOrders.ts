@@ -195,6 +195,8 @@ router.get("/yarn-dyeing-orders/:id", async (req, res): Promise<void> => {
         buyerAddress: yarnDyeingOrderTable.buyerAddress,
         attn: yarnDyeingOrderTable.attn,
         fromPerson: yarnDyeingOrderTable.fromPerson,
+        yarnType: yarnDyeingOrderTable.yarnType,
+        remarks: yarnDyeingOrderTable.remarks,
         processLossPct: yarnDyeingOrderTable.processLossPct,
         processLossKg: yarnDyeingOrderTable.processLossKg,
         grandTotalKg: yarnDyeingOrderTable.grandTotalKg,
