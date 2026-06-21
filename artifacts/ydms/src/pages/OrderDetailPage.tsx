@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Trash2, Pencil, Loader2, FileDown, FileSpreadsheet, Printer } from "lucide-react";
+import { ArrowLeft, Trash2, Pencil, Loader2, FileDown, FileSpreadsheet, Printer, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -326,21 +326,32 @@ export default function OrderDetailPage() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant="outline" size="sm" onClick={() => setLocation(`/orders/${orderId}/edit`)}>
-            <Pencil className="w-3.5 h-3.5 mr-1.5" /> Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-red-600 border-red-200 hover:bg-red-50"
-            onClick={handleDelete}
-            disabled={deleteOrder.isPending}
-          >
-            {deleteOrder.isPending
-              ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-              : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
-            Delete
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="h-9 w-9">
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-36">
+              <DropdownMenuItem
+                className="gap-2 cursor-pointer"
+                onClick={() => setLocation(`/orders/${orderId}/edit`)}
+              >
+                <Pencil className="w-4 h-4 text-gray-500" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="gap-2 cursor-pointer text-red-600 focus:text-red-600"
+                onClick={handleDelete}
+                disabled={deleteOrder.isPending}
+              >
+                {deleteOrder.isPending
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : <Trash2 className="w-4 h-4" />}
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
