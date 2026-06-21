@@ -770,20 +770,20 @@ export default function OrderDetailPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>অর্ডার মুছে ফেলবেন?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Order?</AlertDialogTitle>
             <AlertDialogDescription>
-              এই অর্ডারটি ({order.orderNo}) স্থায়ীভাবে মুছে যাবে। এটি আর ফিরিয়ে আনা যাবে না।
+              Order <strong>{order.orderNo}</strong> will be permanently deleted. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>বাতিল</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={handleDelete}
               disabled={deleteOrder.isPending}
             >
               {deleteOrder.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              হ্যাঁ, মুছে ফেলুন
+              Yes, Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
