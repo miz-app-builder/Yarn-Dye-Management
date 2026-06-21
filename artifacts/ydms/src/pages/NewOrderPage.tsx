@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateOrder, useListFactories, useListYarnTypes, useListRawMaterials, getListOrdersQueryKey } from "@workspace/api-client-react";
+import { useCreateYarnDyeingOrder, useListFactories, useListYarnTypes, useListRawMaterials, getListYarnDyeingOrdersQueryKey } from "@workspace/api-client-react";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,7 @@ export default function NewOrderPage() {
   const { data: factories } = useListFactories();
   const { data: yarnTypes = [] } = useListYarnTypes();
   const { data: rawMaterialsData, isLoading: rawMaterialsLoading } = useListRawMaterials();
-  const createOrder = useCreateOrder();
+  const createOrder = useCreateYarnDyeingOrder();
   const [selectedYarnTypeName, setSelectedYarnTypeName] = useState<string | null>(null);
   const [selectedProcessLossBulk, setSelectedProcessLossBulk] = useState<number | null>(null);
   const [selectedProcessLossSample, setSelectedProcessLossSample] = useState<number | null>(null);
@@ -118,39 +118,37 @@ export default function NewOrderPage() {
   }
 
   function onSubmit(values: FormValues) {
-    const firstRow = values.colorRows[0];
+    const remarks = [values.customerGarmentsName, values.jobNo, values.unit].filter(Boolean).join(" | ");
 
     createOrder.mutate(
       {
         data: {
           orderNo: values.orderNo || undefined,
           orderType: values.orderType,
-          buyerName: values.buyerName || values.customerGarmentsName || "",
-          buyerAddress: values.buyerAddress || undefined,
-          attn: values.attn || undefined,
-          fromPerson: values.from || undefined,
+          receiveDate: values.date,
+          deliveryDate: values.deliveryDate || undefined,
           customerGarmentsName: values.customerGarmentsName || undefined,
           jobNo: values.jobNo || undefined,
           unit: values.unit || undefined,
           factoryId: values.factoryId,
-          yarnType: values.yarnType || firstRow.colorName,
-          color: firstRow.colorName,
-          quantityKg: totalQty,
-          receiveDate: values.date,
-          deliveryDate: values.deliveryDate || undefined,
+          buyerName: values.buyerName || undefined,
+          buyerAddress: values.buyerAddress || undefined,
+          attn: values.attn || undefined,
+          fromPerson: values.from || undefined,
           colorRows: values.colorRows.map((r) => ({
             yarnCount: r.yarnCount || undefined,
             colorName: r.colorName,
             colorRef: r.colorRef || undefined,
             qtyKg: r.qtyKg,
+            remarks: remarks || undefined,
           })),
-        } as any,
+        },
       },
       {
         onSuccess: (data) => {
           toast({ title: "Order created successfully" });
-          queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
-          setLocation(`/orders/${data.id}`);
+          queryClient.invalidateQueries({ queryKey: getListYarnDyeingOrdersQueryKey() });
+          setLocation(`/orders`);
         },
         onError: (err: any) => {
           toast({ variant: "destructive", title: "Error", description: err.message || "Failed to create order" });
