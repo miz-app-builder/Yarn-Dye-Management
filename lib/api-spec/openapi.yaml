@@ -1,22 +1,39 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Yarn Dyeing Management System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: Auth
+    description: Browser and mobile authentication endpoints.
+  - name: Storage
+    description: Object storage upload and serving endpoints.
+  - name: factories
+    description: Factory management
+  - name: orders
+    description: Yarn order management
+  - name: photos
+    description: Order photo management
+  - name: statusHistory
+    description: Order status history
+  - name: users
+    description: User management
+  - name: dashboard
+    description: Dashboard aggregates
+  - name: reports
+    description: Reporting
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +41,664 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserEnvelope'
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the OIDC authorization endpoint.
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: iss
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uri
+      responses:
+        '302':
+          description: Redirect to the returnTo path on success.
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '302':
+          description: Redirect to the OIDC provider logout URL.
+
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve an object entity from PRIVATE_OBJECT_DIR
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content streamed.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ── FACTORIES ──────────────────────────────────────────────────────────────
+  /factories:
+    get:
+      tags: [factories]
+      operationId: listFactories
+      summary: List all factories
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of factories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Factory'
+    post:
+      tags: [factories]
+      operationId: createFactory
+      summary: Create a new factory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FactoryInput'
+      responses:
+        '201':
+          description: Factory created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factory'
+
+  /factories/{id}:
+    get:
+      tags: [factories]
+      operationId: getFactory
+      summary: Get a factory by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Factory found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factory'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [factories]
+      operationId: updateFactory
+      summary: Update a factory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FactoryUpdate'
+      responses:
+        '200':
+          description: Factory updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factory'
+    delete:
+      tags: [factories]
+      operationId: archiveFactory
+      summary: Archive a factory (soft delete)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Factory archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factory'
+
+  # ── ORDERS ─────────────────────────────────────────────────────────────────
+  /orders:
+    get:
+      tags: [orders]
+      operationId: listOrders
+      summary: List yarn orders with optional filters
+      parameters:
+        - name: factoryId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: buyerName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: color
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orderType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [Sample, Bulk]
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [Received, Lab Dip, Dyeing Running, Finishing, Ready, Delivered]
+        - name: dateFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated order list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+    post:
+      tags: [orders]
+      operationId: createOrder
+      summary: Create a new yarn order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders/{id}:
+    get:
+      tags: [orders]
+      operationId: getOrder
+      summary: Get a yarn order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [orders]
+      operationId: updateOrder
+      summary: Update a yarn order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderUpdate'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+    delete:
+      tags: [orders]
+      operationId: deleteOrder
+      summary: Delete a yarn order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+
+  /orders/{id}/status:
+    post:
+      tags: [statusHistory]
+      operationId: updateOrderStatus
+      summary: Update order production status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdate'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  # ── PHOTOS ─────────────────────────────────────────────────────────────────
+  /orders/{id}/photos:
+    get:
+      tags: [photos]
+      operationId: listOrderPhotos
+      summary: List photos for an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Photos list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderPhoto'
+    post:
+      tags: [photos]
+      operationId: addOrderPhoto
+      summary: Add a photo record to an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhotoInput'
+      responses:
+        '201':
+          description: Photo added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPhoto'
+
+  /orders/{id}/photos/{photoId}:
+    delete:
+      tags: [photos]
+      operationId: deleteOrderPhoto
+      summary: Delete a photo from an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+
+  # ── DASHBOARD ──────────────────────────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardSummary
+      summary: Get dashboard summary counts and KG totals
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+  /dashboard/factory-performance:
+    get:
+      tags: [dashboard]
+      operationId: getFactoryPerformance
+      summary: Get per-factory order performance stats
+      responses:
+        '200':
+          description: Factory performance list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FactoryPerformance'
+
+  /dashboard/recent-activity:
+    get:
+      tags: [dashboard]
+      operationId: getRecentActivity
+      summary: Get recent order status changes
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Recent activity list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityItem'
+
+  # ── REPORTS ────────────────────────────────────────────────────────────────
+  /reports/daily:
+    get:
+      tags: [reports]
+      operationId: getDailyReport
+      summary: Get daily order report
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Daily report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyReport'
+
+  /reports/monthly:
+    get:
+      tags: [reports]
+      operationId: getMonthlyReport
+      summary: Get monthly order report
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Monthly report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthlyReport'
+
+  /reports/factory:
+    get:
+      tags: [reports]
+      operationId: getFactoryReport
+      summary: Get factory-wise report
+      parameters:
+        - name: factoryId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Factory report
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FactoryReport'
+
+  /reports/buyer:
+    get:
+      tags: [reports]
+      operationId: getBuyerReport
+      summary: Get buyer-wise report
+      responses:
+        '200':
+          description: Buyer report
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BuyerReport'
+
+  # ── USERS ──────────────────────────────────────────────────────────────────
+  /users:
+    get:
+      tags: [users]
+      operationId: listUsers
+      summary: List all users (admin only)
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppUser'
+
+  /users/{id}/role:
+    patch:
+      tags: [users]
+      operationId: updateUserRole
+      summary: Update a user's role (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleUpdate'
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUser'
+
 components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: Opaque session token — `Bearer <sid>`.
+      schema:
+        type: string
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema:
+        type: string
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +708,455 @@ components:
       required:
         - status
 
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    SuccessEnvelope:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+
+    # Auth schemas
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, 'null']
+        firstName:
+          type: [string, 'null']
+        lastName:
+          type: [string, 'null']
+        profileImageUrl:
+          type: [string, 'null']
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: '#/components/schemas/AuthUser'
+            - type: 'null'
+
+    # Storage schemas
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+        size:
+          type: integer
+        contentType:
+          type: string
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+
+    # Factory schemas
+    Factory:
+      type: object
+      required: [id, factoryCode, name, status, createdAt]
+      properties:
+        id:
+          type: integer
+        factoryCode:
+          type: string
+        name:
+          type: string
+        address:
+          type: [string, 'null']
+        contactPerson:
+          type: [string, 'null']
+        phone:
+          type: [string, 'null']
+        email:
+          type: [string, 'null']
+        status:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    FactoryInput:
+      type: object
+      required: [factoryCode, name]
+      properties:
+        factoryCode:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        contactPerson:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+
+    FactoryUpdate:
+      type: object
+      properties:
+        factoryCode:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        contactPerson:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        status:
+          type: boolean
+
+    # Order schemas
+    Order:
+      type: object
+      required: [id, orderNo, buyerName, orderType, yarnType, color, quantityKg, status, receiveDate, createdAt]
+      properties:
+        id:
+          type: integer
+        orderNo:
+          type: string
+        buyerName:
+          type: string
+        factoryId:
+          type: [integer, 'null']
+        factoryName:
+          type: [string, 'null']
+        orderType:
+          type: string
+          enum: [Sample, Bulk]
+        yarnType:
+          type: string
+        color:
+          type: string
+        quantityKg:
+          type: number
+        receiveDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: [string, 'null']
+          format: date
+        status:
+          type: string
+          enum: [Received, Lab Dip, Dyeing Running, Finishing, Ready, Delivered]
+        remarks:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+
+    OrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          properties:
+            photos:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderPhoto'
+            statusHistory:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusHistoryItem'
+
+    OrderListResponse:
+      type: object
+      required: [orders, total, page, pageSize]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+
+    OrderInput:
+      type: object
+      required: [buyerName, orderType, yarnType, color, quantityKg, receiveDate]
+      properties:
+        orderNo:
+          type: string
+        buyerName:
+          type: string
+        factoryId:
+          type: [integer, 'null']
+        orderType:
+          type: string
+          enum: [Sample, Bulk]
+        yarnType:
+          type: string
+        color:
+          type: string
+        quantityKg:
+          type: number
+        receiveDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: string
+          format: date
+        remarks:
+          type: string
+
+    OrderUpdate:
+      type: object
+      properties:
+        buyerName:
+          type: string
+        factoryId:
+          type: [integer, 'null']
+        orderType:
+          type: string
+          enum: [Sample, Bulk]
+        yarnType:
+          type: string
+        color:
+          type: string
+        quantityKg:
+          type: number
+        receiveDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [Received, Lab Dip, Dyeing Running, Finishing, Ready, Delivered]
+        remarks:
+          type: string
+
+    StatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [Received, Lab Dip, Dyeing Running, Finishing, Ready, Delivered]
+        remarks:
+          type: string
+
+    StatusHistoryItem:
+      type: object
+      required: [id, orderId, status, createdAt]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        status:
+          type: string
+        remarks:
+          type: [string, 'null']
+        updatedBy:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+
+    # Photo schemas
+    OrderPhoto:
+      type: object
+      required: [id, orderId, photoUrl, photoType, createdAt]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        photoUrl:
+          type: string
+        photoType:
+          type: string
+          enum: [Challan, Yarn Photo, Shade Card, Delivery Evidence]
+        createdAt:
+          type: string
+          format: date-time
+
+    PhotoInput:
+      type: object
+      required: [photoUrl, photoType]
+      properties:
+        photoUrl:
+          type: string
+        photoType:
+          type: string
+          enum: [Challan, Yarn Photo, Shade Card, Delivery Evidence]
+
+    # Dashboard schemas
+    DashboardSummary:
+      type: object
+      required: [todayReceived, runningOrders, pendingOrders, deliveredOrders, totalKg, totalOrders]
+      properties:
+        todayReceived:
+          type: integer
+        runningOrders:
+          type: integer
+        pendingOrders:
+          type: integer
+        deliveredOrders:
+          type: integer
+        totalKg:
+          type: number
+        totalOrders:
+          type: integer
+        sampleOrders:
+          type: integer
+        bulkOrders:
+          type: integer
+
+    FactoryPerformance:
+      type: object
+      required: [factoryId, factoryName, totalOrders, completedOrders, pendingOrders, totalKg]
+      properties:
+        factoryId:
+          type: integer
+        factoryName:
+          type: string
+        totalOrders:
+          type: integer
+        completedOrders:
+          type: integer
+        pendingOrders:
+          type: integer
+        totalKg:
+          type: number
+
+    ActivityItem:
+      type: object
+      required: [id, orderNo, buyerName, status, createdAt]
+      properties:
+        id:
+          type: integer
+        orderNo:
+          type: string
+        buyerName:
+          type: string
+        factoryName:
+          type: [string, 'null']
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # Report schemas
+    DailyReport:
+      type: object
+      required: [date, ordersReceived, totalKg, deliveredOrders]
+      properties:
+        date:
+          type: string
+          format: date
+        ordersReceived:
+          type: integer
+        totalKg:
+          type: number
+        deliveredOrders:
+          type: integer
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+
+    MonthlyReport:
+      type: object
+      required: [year, month, sampleOrders, bulkOrders, totalKg, totalOrders]
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+        sampleOrders:
+          type: integer
+        bulkOrders:
+          type: integer
+        totalKg:
+          type: number
+        totalOrders:
+          type: integer
+        deliveredOrders:
+          type: integer
+
+    FactoryReport:
+      type: object
+      required: [factoryId, factoryName, totalOrders, completedOrders, pendingOrders, totalKg]
+      properties:
+        factoryId:
+          type: integer
+        factoryName:
+          type: string
+        totalOrders:
+          type: integer
+        completedOrders:
+          type: integer
+        pendingOrders:
+          type: integer
+        totalKg:
+          type: number
+
+    BuyerReport:
+      type: object
+      required: [buyerName, totalOrders, totalKg, sampleOrders, bulkOrders]
+      properties:
+        buyerName:
+          type: string
+        totalOrders:
+          type: integer
+        totalKg:
+          type: number
+        sampleOrders:
+          type: integer
+        bulkOrders:
+          type: integer
+
+    # User schemas
+    AppUser:
+      type: object
+      required: [id, name, email, role, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: [string, 'null']
+        email:
+          type: [string, 'null']
+        role:
+          type: string
+          enum: [admin, manager, operator]
+        profileImageUrl:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+
+    UserRoleUpdate:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [admin, manager, operator]
