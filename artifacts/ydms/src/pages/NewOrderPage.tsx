@@ -221,12 +221,6 @@ export default function NewOrderPage() {
                     <FormControl><Input {...field} className="h-8 text-sm" /></FormControl>
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="yarnType" render={({ field }) => (
-                  <FormItem className="space-y-1 col-span-2 md:col-span-2">
-                    <FormLabel className="text-xs">Yarn Type</FormLabel>
-                    <FormControl><Input {...field} placeholder="e.g. 100% Cotton 30/1" className="h-8 text-sm" /></FormControl>
-                  </FormItem>
-                )} />
               </div>
             </CardContent>
           </Card>
